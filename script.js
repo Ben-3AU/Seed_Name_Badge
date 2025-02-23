@@ -74,28 +74,34 @@ const ui = {
         const emailQuoteForm = document.getElementById('emailQuoteForm');
         const orderForm = document.getElementById('orderForm');
 
+        console.log('Total quantity:', totalQuantity); // Debug log
+
         if (totalQuantity < 75) {
             warningDiv.style.display = 'block';
             totalPriceDiv.style.display = 'none';
             actionButtons.style.display = 'none';
             emailQuoteForm.style.display = 'none';
             orderForm.style.display = 'none';
-        } else {
-            warningDiv.style.display = 'none';
-            const totalPrice = calculations.getTotalPrice(values);
-            const gst = calculations.getGST(totalPrice);
-            const co2Savings = calculations.getCO2Savings(totalQuantity);
-
-            totalPriceDiv.innerHTML = `
-                <div style="background-color: #f7fafc; border-radius: 6px; color: #1b4c57; text-align: center;">
-                    <div style="font-size: 2em; font-weight: 600;">Total Cost: $${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                    <div style="font-size: 0.9em; margin-top: 0.5rem;">GST Included: $${gst.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                    <div style="font-size: 0.9em;">CO2 emissions saved: ${co2Savings.toFixed(2)} kg</div>
-                </div>
-            `;
-            totalPriceDiv.style.display = 'block';
-            actionButtons.style.display = 'block';
+            return; // Exit early
         }
+
+        // If we get here, quantity is 75 or greater
+        warningDiv.style.display = 'none';
+        const totalPrice = calculations.getTotalPrice(values);
+        const gst = calculations.getGST(totalPrice);
+        const co2Savings = calculations.getCO2Savings(totalQuantity);
+
+        totalPriceDiv.innerHTML = `
+            <div style="background-color: #f7fafc; border-radius: 6px; color: #1b4c57; text-align: center;">
+                <div style="font-size: 2em; font-weight: 600;">Total Cost: $${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <div style="font-size: 0.9em; margin-top: 0.5rem;">GST Included: $${gst.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <div style="font-size: 0.9em;">CO2 emissions saved: ${co2Savings.toFixed(2)} kg</div>
+            </div>
+        `;
+        
+        // Explicitly show the elements
+        totalPriceDiv.style.display = 'block';
+        actionButtons.style.display = 'block';
     },
 
     isValidEmail(email) {
@@ -133,14 +139,17 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.option-button').forEach(button => {
         button.addEventListener('click', e => {
             e.preventDefault();
-            const buttonGroup = e.target.closest('.button-group');
+            console.log('Button clicked:', e.currentTarget.getAttribute('data-name'), e.currentTarget.getAttribute('data-value'));
+            const button = e.currentTarget;
+            const buttonGroup = button.closest('.button-group');
             buttonGroup.querySelectorAll('.option-button').forEach(btn => {
                 btn.classList.remove('selected');
             });
-            e.target.classList.add('selected');
+            button.classList.add('selected');
+            console.log('Button selected, updating display');
             ui.updateDisplay();
             // If this is a paper type button, validate the order form
-            if (e.target.getAttribute('data-name') === 'paperType') {
+            if (button.getAttribute('data-name') === 'paperType') {
                 ui.validateOrderForm();
             }
         });
