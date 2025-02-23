@@ -1,5 +1,0 @@
-[33mcommit 9a1de95cb5c1766dbc088ef44ad6752e9dd7e846[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
-Author: Ben Sweet <hello@terratag.com.au>
-Date:   Sat Feb 15 11:54:44 2025 +1000
-
-    Fix order summary alignment: maintain font properties while ensuring proper spacing

@@ -46,9 +46,7 @@ app.use(express.json({
 }));
 app.use(cors({
     origin: [
-        'https://seed-name-badge-calculator-bens-projects-4af3578a.vercel.app',
-        'https://seed-name-badge-calculator-git-master-bens-projects-4af3578a.vercel.app',
-        'https://seed-name-badge-calculator.vercel.app',
+        'https://seed-name-badge.vercel.app',
         'https://www.terratag.com.au',
         'https://terratag.com.au',
         process.env.CLIENT_URL
@@ -99,6 +97,16 @@ app.get('/test-stripe', async (req, res) => {
         console.error('Stripe connection test failed:', error);
         res.status(500).json({ error: error.message });
     }
+});
+
+// Stripe configuration endpoint
+app.get('/api/config', (req, res) => {
+    // Only return public keys and configuration
+    res.json({
+        stripePublicKey: process.env.STRIPE_PUBLISHABLE_KEY,
+        supabaseUrl: process.env.SUPABASE_URL,
+        supabaseKey: process.env.SUPABASE_KEY
+    });
 });
 
 // Handle quote email submission

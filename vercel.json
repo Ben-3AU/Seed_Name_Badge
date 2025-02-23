@@ -1,12 +1,17 @@
 {
   "version": 2,
+  "git": {
+    "deploymentEnabled": {
+      "master": true
+    }
+  },
   "builds": [
     {
       "src": "server.js",
       "use": "@vercel/node"
     },
     {
-      "src": "*.html",
+      "src": "*.js",
       "use": "@vercel/static"
     },
     {
@@ -14,83 +19,40 @@
       "use": "@vercel/static"
     },
     {
-      "src": "*.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "widget*.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "assets/**",
+      "src": "*.html",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/webhook",
-      "methods": ["POST"],
-      "dest": "server.js"
+      "src": "/widget.js",
+      "dest": "/widget.js",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Headers": "*",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Content-Type": "application/javascript"
+      }
+    },
+    {
+      "src": "/main.css",
+      "dest": "/main.css",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Headers": "*",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Content-Type": "text/css"
+      }
     },
     {
       "src": "/api/(.*)",
       "dest": "server.js"
     },
     {
-      "src": "/config",
-      "dest": "server.js"
-    },
-    {
-      "src": "/payment",
-      "dest": "/payment.html"
-    },
-    {
-      "src": "/success",
-      "dest": "/success.html"
-    },
-    {
-      "src": "/script.js",
-      "dest": "/script.js",
-      "headers": {
-        "Cache-Control": "no-cache, no-store, must-revalidate",
-        "Content-Type": "application/javascript"
-      }
-    },
-    {
-      "src": "/widget.js",
-      "dest": "/widget.js",
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET",
-        "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
-        "Pragma": "no-cache",
-        "Expires": "0",
-        "Content-Type": "application/javascript"
-      }
-    },
-    {
-      "src": "/widget-calculator.js",
-      "dest": "/widget-calculator.js",
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET",
-        "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
-        "Pragma": "no-cache",
-        "Expires": "0",
-        "Content-Type": "application/javascript"
-      }
-    },
-    {
-      "src": "/styles.css",
-      "dest": "/styles.css",
-      "headers": {
-        "Cache-Control": "no-cache, no-store, must-revalidate",
-        "Content-Type": "text/css"
-      }
-    },
-    {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "server.js"
     }
   ]
 } 
