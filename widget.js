@@ -145,9 +145,6 @@
                             <input type="number" id="quantityWithoutGuests" name="quantityWithoutGuests" min="0" placeholder="0">
                         </div>
 
-                        <!-- Warning message -->
-                        <div id="minimumQuantityWarning" class="warning-message">Enter a minimum of 75 above</div>
-
                         <!-- Options -->
                         <div class="form-group">
                             <label>Size</label>
@@ -330,20 +327,17 @@
         const values = getFormValues();
         const totalQuantity = Calculator.getTotalQuantity(values.withGuests, values.withoutGuests);
         
-        const warningDiv = widget.querySelector('#minimumQuantityWarning');
         const totalPriceDiv = widget.querySelector('#totalPrice');
         const actionButtons = widget.querySelector('#actionButtons');
         const emailQuoteForm = widget.querySelector('#emailQuoteForm');
         const orderForm = widget.querySelector('#orderForm');
 
         if (totalQuantity < 75) {
-            warningDiv.style.display = 'block';
             totalPriceDiv.style.display = 'none';
             actionButtons.style.display = 'none';
             emailQuoteForm.style.display = 'none';
             orderForm.style.display = 'none';
         } else {
-            warningDiv.style.display = 'none';
             const totalPrice = Calculator.getTotalPrice(values);
             const gst = Calculator.getGST(totalPrice);
             const co2Savings = Calculator.getCO2Savings(totalQuantity);
