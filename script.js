@@ -340,8 +340,9 @@ async function handleQuoteSubmission(event) {
         const successMessage = document.getElementById('quoteSuccessMessage');
         successMessage.classList.add('visible');
         setTimeout(() => {
+            successMessage.style.transition = 'opacity 0.5s ease';
             successMessage.classList.remove('visible');
-        }, 3000);
+        }, 5000);
         
     } catch (error) {
         console.error('Detailed error processing quote:', error);
