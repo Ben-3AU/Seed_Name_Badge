@@ -74,20 +74,24 @@ label {
     margin-left: 2px;
 }
 
-input[type="number"],
-input[type="text"],
-input[type="email"] {
-    padding: 0 1rem;
+/* Input field base styles */
+#terra-tag-calculator input[type="number"],
+#terra-tag-calculator input[type="text"],
+#terra-tag-calculator input[type="email"],
+.terra-tag-widget input[type="number"],
+.terra-tag-widget input[type="text"],
+.terra-tag-widget input[type="email"] {
+    text-indent: 1rem !important;
+    height: 48px !important;
+    font-size: 16px !important;
+    font-family: Verdana, sans-serif !important;
+    line-height: normal !important;
+    padding: 0 !important;
     border: 1px solid #e2e8f0;
     border-radius: 6px;
-    font-size: 16px !important;
-    font-family: Verdana, sans-serif;
     width: 100%;
     transition: border-color 0.2s ease;
     color: #1b4c57;
-    height: 48px;
-    line-height: normal;
-    text-indent: 1rem;
 }
 
 input[type="number"]:focus,
@@ -148,11 +152,18 @@ input[type="email"]:focus {
 /* Special handling for paper type buttons */
 [data-name="paperType"].option-button {
     flex: 1;
-    border-radius: 6px;
-    margin-right: 0.75rem;
+    border-radius: 0;
+    margin-right: 0;
+}
+
+[data-name="paperType"].option-button:first-child {
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
 }
 
 [data-name="paperType"].option-button:last-child {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
     margin-right: 0;
 }
 
@@ -180,9 +191,16 @@ input[type="email"]:focus {
 .price-details {
     display: flex;
     flex-direction: column;
-    gap: 0.125rem;
-    font-size: 0.9em;
-    margin-bottom: 1rem;
+    width: 100%;
+    text-align: center;
+}
+
+.price-details div:first-child {
+    margin-bottom: 0.125rem !important;
+}
+
+.price-details div:last-child {
+    margin-bottom: 1rem !important;
 }
 
 /* Custom number input styling */
@@ -277,12 +295,12 @@ input[type="email"]::-ms-input-placeholder {
 }
 
 .additional-form .form-group {
-    margin-bottom: 1rem;
-    gap: 0.25rem;
+    margin-bottom: 1.5rem !important;
+    gap: 0.1rem !important;
 }
 
-.additional-form .form-group:first-child {
-    margin-bottom: 1rem;
+.additional-form .form-group:last-child {
+    margin-bottom: 0;
 }
 
 #submitQuoteBtn,
