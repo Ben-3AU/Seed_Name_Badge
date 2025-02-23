@@ -75,10 +75,10 @@ label {
 input[type="number"],
 input[type="text"],
 input[type="email"] {
-    padding: 0.75rem;
+    padding: 0.75rem 1.25rem;
     border: 1px solid #e2e8f0;
     border-radius: 6px;
-    font-size: 0.9375rem;
+    font-size: 16px !important;
     font-family: Verdana, sans-serif;
     width: 100%;
     transition: border-color 0.2s ease;
@@ -113,10 +113,17 @@ input[type="email"]:focus {
     cursor: pointer;
     transition: all 0.2s ease;
     height: 48px;
+    -webkit-user-select: none;
+    user-select: none;
+    outline: none;
 }
 
 .option-button:hover {
     background-color: #e2e8f0;
+}
+
+.option-button:active {
+    background-color: #cbd5e0;
 }
 
 .option-button.selected {
@@ -209,6 +216,7 @@ input[type="text"]::placeholder,
 input[type="email"]::placeholder {
     color: #a0aec0;
     opacity: 1;
+    padding-left: 0.25rem;
 }
 
 input[type="number"]:-ms-input-placeholder,
@@ -401,14 +409,16 @@ input[type="email"]::-ms-input-placeholder {
 .terra-tag-widget input[type="text"],
 .terra-tag-widget input[type="email"],
 .terra-tag-widget input[type="number"] {
-    padding: 0.75rem;
+    padding: 0.75rem 1.25rem;
     border: 1px solid #e2e8f0;
     border-radius: 6px;
-    font-size: 16px;
+    font-size: 16px !important;
     width: 100%;
     transition: border-color 0.2s ease;
     color: #1b4c57;
     background-color: #ffffff;
+    height: 48px;
+    line-height: normal;
 }
 
 /* Button styles */
