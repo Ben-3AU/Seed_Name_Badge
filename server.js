@@ -213,6 +213,10 @@ app.post('/api/create-payment-intent', async (req, res) => {
             throw new Error('Invalid order data: missing total_cost');
         }
 
+        // Ensure CLIENT_URL is set
+        const clientUrl = process.env.CLIENT_URL || 'https://seednamebadge.vercel.app';
+        console.log('Using client URL:', clientUrl);
+
         // First create the order in Supabase
         const { data: order, error: orderError } = await supabase
             .from('seed_name_badge_orders')
@@ -222,7 +226,7 @@ app.post('/api/create-payment-intent', async (req, res) => {
                 size: orderData.size,
                 printed_sides: orderData.printed_sides,
                 ink_coverage: orderData.ink_coverage,
-                lanyards: orderData.lanyards,
+                lanyards: orderData.lanyards === 'yes',
                 shipping: orderData.shipping,
                 paper_type: orderData.paper_type,
                 first_name: orderData.first_name,
@@ -230,8 +234,8 @@ app.post('/api/create-payment-intent', async (req, res) => {
                 company: orderData.company,
                 email: orderData.email,
                 total_quantity: orderData.total_quantity,
-                total_cost: orderData.total_cost,
-                gst_amount: orderData.gst_amount,
+                total_cost: Number(orderData.total_cost.toFixed(2)),
+                gst_amount: Number(orderData.gst_amount.toFixed(2)),
                 co2_savings: Number(orderData.co2_savings.toFixed(2)),
                 payment_status: 'pending',
                 email_sent: false,
@@ -260,8 +264,8 @@ app.post('/api/create-payment-intent', async (req, res) => {
                 quantity: 1,
             }],
             mode: 'payment',
-            success_url: `${process.env.CLIENT_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}&order_id=${order.id}`,
-            cancel_url: `${process.env.CLIENT_URL}/payment-cancelled`,
+            success_url: `${clientUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}&order_id=${order.id}`,
+            cancel_url: `${clientUrl}/payment-cancelled`,
             customer_email: orderData.email,
             metadata: {
                 order_id: order.id
@@ -274,7 +278,10 @@ app.post('/api/create-payment-intent', async (req, res) => {
             .update({ stripe_payment_id: session.id })
             .eq('id', order.id);
 
-        res.json({ clientSecret: session.id });
+        res.json({ 
+            clientSecret: session.id,
+            clientUrl: clientUrl // Send the clientUrl back to the frontend
+        });
     } catch (error) {
         console.error('Error creating checkout session:', error);
         res.status(500).json({ error: error.message });

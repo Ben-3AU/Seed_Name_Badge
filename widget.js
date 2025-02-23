@@ -390,13 +390,17 @@
     }
 
     function validateOrderForm() {
-        const widget = document.querySelector('.terra-tag-widget');
-        const firstName = widget.querySelector('#orderFirstName').value.trim();
-        const lastName = widget.querySelector('#orderLastName').value.trim();
-        const company = widget.querySelector('#orderCompany').value.trim();
-        const email = widget.querySelector('#orderEmail').value.trim();
+        const firstName = document.getElementById('orderFirstName').value.trim();
+        const lastName = document.getElementById('orderLastName').value.trim();
+        const email = document.getElementById('orderEmail').value.trim();
         const paperType = getSelectedValue('paperType');
-        widget.querySelector('#payNowBtn').disabled = !(firstName && lastName && company && isValidEmail(email) && paperType);
+        
+        const isValidEmail = (email) => {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        };
+        
+        document.getElementById('payNowBtn').disabled = !(firstName && lastName && isValidEmail(email) && paperType);
     }
 
     // Handle quote submission

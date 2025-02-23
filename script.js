@@ -399,9 +399,7 @@ async function handleOrderSubmission(event) {
         total_quantity: totalQuantity,
         total_cost: Number(totalPrice.toFixed(2)),
         gst_amount: Number(gstAmount.toFixed(2)),
-        co2_savings: calculations.getCO2Savings(totalQuantity),
-        payment_status: 'pending',
-        email_sent: false
+        co2_savings: calculations.getCO2Savings(totalQuantity)
     };
 
     try {
@@ -417,7 +415,7 @@ async function handleOrderSubmission(event) {
             throw new Error(errorData.error || 'Failed to create payment intent');
         }
 
-        const { clientSecret } = await response.json();
+        const { clientSecret, clientUrl } = await response.json();
         
         // Initialize Stripe
         const stripe = Stripe(window.stripePublicKey);
