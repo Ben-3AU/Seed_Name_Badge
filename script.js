@@ -417,23 +417,18 @@ async function handleOrderSubmission(event) {
             throw new Error(errorData.error || 'Failed to create payment intent');
         }
 
-        const { clientSecret, orderId } = await response.json();
+        const { clientSecret } = await response.json();
         
-        // Initialize Stripe elements
+        // Initialize Stripe
         const stripe = Stripe(window.stripePublicKey);
-        const elements = stripe.elements();
         
         // Redirect to Stripe Checkout
-        const { error } = await stripe.confirmPayment({
-            elements,
-            clientSecret,
-            confirmParams: {
-                return_url: `${window.location.origin}/payment-success?order_id=${orderId}`,
-            },
+        const result = await stripe.redirectToCheckout({
+            sessionId: clientSecret
         });
 
-        if (error) {
-            throw error;
+        if (result.error) {
+            throw result.error;
         }
     } catch (error) {
         console.error('Error processing order:', error);

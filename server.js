@@ -213,10 +213,6 @@ app.post('/api/create-payment-intent', async (req, res) => {
             throw new Error('Invalid order data: missing total_cost');
         }
 
-        // Log the Stripe key being used (first 8 characters only for security)
-        const keyPrefix = process.env.STRIPE_SECRET_KEY.substring(0, 8);
-        console.log('Using Stripe key with prefix:', keyPrefix);
-
         // First create the order in Supabase
         const { data: order, error: orderError } = await supabase
             .from('seed_name_badge_orders')
@@ -249,46 +245,38 @@ app.post('/api/create-payment-intent', async (req, res) => {
             throw orderError;
         }
 
-        console.log('Created order:', order);
-        console.log('Creating payment intent with amount:', Math.round(orderData.total_cost * 100));
-        
-        // Create the payment intent
-        const paymentIntent = await stripe.paymentIntents.create({
-            amount: Math.round(orderData.total_cost * 100),
-            currency: 'aud',
+        // Create Stripe Checkout Session
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [{
+                price_data: {
+                    currency: 'aud',
+                    product_data: {
+                        name: 'Terra Tag Name Badges',
+                        description: `${orderData.total_quantity} badges (${orderData.size})`,
+                    },
+                    unit_amount: Math.round(orderData.total_cost * 100),
+                },
+                quantity: 1,
+            }],
+            mode: 'payment',
+            success_url: `${process.env.CLIENT_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}&order_id=${order.id}`,
+            cancel_url: `${process.env.CLIENT_URL}/payment-cancelled`,
+            customer_email: orderData.email,
             metadata: {
-                order_id: order.id,
-                email: orderData.email,
-            },
-            automatic_payment_methods: {
-                enabled: true,
-            },
+                order_id: order.id
+            }
         });
 
-        console.log('Payment intent created:', {
-            id: paymentIntent.id,
-            client_secret: 'present',
-            livemode: paymentIntent.livemode,
-            account: paymentIntent.account
-        });
-
-        // Update order with payment intent ID
-        const { error: updateError } = await supabase
+        // Update order with session ID
+        await supabase
             .from('seed_name_badge_orders')
-            .update({ stripe_payment_id: paymentIntent.id })
+            .update({ stripe_payment_id: session.id })
             .eq('id', order.id);
 
-        if (updateError) {
-            console.error('Error updating order with payment intent:', updateError);
-        }
-
-        // Return the client secret directly
-        res.json({ 
-            clientSecret: paymentIntent.client_secret,
-            orderId: order.id
-        });
+        res.json({ clientSecret: session.id });
     } catch (error) {
-        console.error('Error creating payment intent:', error);
+        console.error('Error creating checkout session:', error);
         res.status(500).json({ error: error.message });
     }
 });
