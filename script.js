@@ -123,14 +123,19 @@ const ui = {
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         // Fetch configuration
-        const response = await fetch('/api/config');
+        const response = await fetch('https://seednamebadge.vercel.app/api/config');
         if (!response.ok) {
             throw new Error('Failed to load configuration');
         }
         const config = await response.json();
+        if (!config.stripePublicKey) {
+            throw new Error('Stripe public key not found in configuration');
+        }
         window.stripePublicKey = config.stripePublicKey;
+        console.log('Debug: Stripe public key loaded:', config.stripePublicKey ? 'Present' : 'Missing');
     } catch (error) {
         console.error('Error loading configuration:', error);
+        alert('Failed to initialize payment system. Please try again later.');
     }
 
     // Prevent form submission
@@ -378,31 +383,35 @@ async function handleOrderSubmission(event) {
     payNowBtn.innerHTML = '<div class="button-content"><div class="spinner"></div><span>Processing...</span></div>';
     payNowBtn.classList.add('loading');
     
-    const values = ui.getFormValues();
-    const totalPrice = calculations.getTotalPrice(values);
-    const gstAmount = calculations.getGST(totalPrice);
-    const totalQuantity = calculations.getTotalQuantity(values.withGuests, values.withoutGuests);
-    
-    const orderData = {
-        quantity_with_guests: values.withGuests,
-        quantity_without_guests: values.withoutGuests,
-        size: values.size,
-        printed_sides: values.printedSides,
-        ink_coverage: values.inkCoverage,
-        lanyards: values.lanyards === 'yes',
-        shipping: values.shipping,
-        paper_type: ui.getSelectedValue('paperType'),
-        first_name: document.getElementById('orderFirstName').value.trim(),
-        last_name: document.getElementById('orderLastName').value.trim(),
-        company: document.getElementById('orderCompany').value.trim(),
-        email: document.getElementById('orderEmail').value.trim(),
-        total_quantity: totalQuantity,
-        total_cost: Number(totalPrice.toFixed(2)),
-        gst_amount: Number(gstAmount.toFixed(2)),
-        co2_savings: calculations.getCO2Savings(totalQuantity)
-    };
-
     try {
+        if (!window.stripePublicKey) {
+            throw new Error('Payment system not properly initialized. Please refresh the page and try again.');
+        }
+
+        const values = ui.getFormValues();
+        const totalPrice = calculations.getTotalPrice(values);
+        const gstAmount = calculations.getGST(totalPrice);
+        const totalQuantity = calculations.getTotalQuantity(values.withGuests, values.withoutGuests);
+        
+        const orderData = {
+            quantity_with_guests: values.withGuests,
+            quantity_without_guests: values.withoutGuests,
+            size: values.size,
+            printed_sides: values.printedSides,
+            ink_coverage: values.inkCoverage,
+            lanyards: values.lanyards === 'yes',
+            shipping: values.shipping,
+            paper_type: ui.getSelectedValue('paperType'),
+            first_name: document.getElementById('orderFirstName').value.trim(),
+            last_name: document.getElementById('orderLastName').value.trim(),
+            company: document.getElementById('orderCompany').value.trim(),
+            email: document.getElementById('orderEmail').value.trim(),
+            total_quantity: totalQuantity,
+            total_cost: Number(totalPrice.toFixed(2)),
+            gst_amount: Number(gstAmount.toFixed(2)),
+            co2_savings: calculations.getCO2Savings(totalQuantity)
+        };
+
         // Create a payment intent
         const response = await fetch('https://seednamebadge.vercel.app/api/create-payment-intent', {
             method: 'POST',
