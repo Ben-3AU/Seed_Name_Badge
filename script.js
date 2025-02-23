@@ -122,17 +122,36 @@ const ui = {
 // Initialize everything when the DOM is loaded
 document.addEventListener('DOMContentLoaded', async () => {
     try {
+        console.log('Debug: Fetching configuration...');
         // Fetch configuration
         const response = await fetch('https://seednamebadge.vercel.app/api/config');
+        console.log('Debug: Config response status:', response.status);
+        
         if (!response.ok) {
-            throw new Error('Failed to load configuration');
+            throw new Error(`Failed to load configuration: ${response.status}`);
         }
+        
         const config = await response.json();
+        console.log('Debug: Config received:', {
+            hasStripeKey: !!config.stripePublicKey,
+            configKeys: Object.keys(config)
+        });
+        
         if (!config.stripePublicKey) {
             throw new Error('Stripe public key not found in configuration');
         }
+        
         window.stripePublicKey = config.stripePublicKey;
-        console.log('Debug: Stripe public key loaded:', config.stripePublicKey ? 'Present' : 'Missing');
+        console.log('Debug: Stripe public key loaded:', window.stripePublicKey.substring(0, 8) + '...');
+        
+        // Initialize Stripe immediately to verify the key works
+        try {
+            window.stripe = Stripe(window.stripePublicKey);
+            console.log('Debug: Stripe initialized successfully');
+        } catch (stripeError) {
+            console.error('Debug: Failed to initialize Stripe:', stripeError);
+            throw stripeError;
+        }
     } catch (error) {
         console.error('Error loading configuration:', error);
         alert('Failed to initialize payment system. Please try again later.');
@@ -384,7 +403,9 @@ async function handleOrderSubmission(event) {
     payNowBtn.classList.add('loading');
     
     try {
-        if (!window.stripePublicKey) {
+        console.log('Debug: Starting order submission...');
+        if (!window.stripe) {
+            console.error('Debug: Stripe not initialized');
             throw new Error('Payment system not properly initialized. Please refresh the page and try again.');
         }
 
@@ -412,7 +433,7 @@ async function handleOrderSubmission(event) {
             co2_savings: calculations.getCO2Savings(totalQuantity)
         };
 
-        // Create a payment intent
+        console.log('Debug: Creating payment intent...');
         const response = await fetch('https://seednamebadge.vercel.app/api/create-payment-intent', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -425,12 +446,10 @@ async function handleOrderSubmission(event) {
         }
 
         const { clientSecret, clientUrl } = await response.json();
+        console.log('Debug: Payment intent created, redirecting to checkout...');
         
-        // Initialize Stripe
-        const stripe = Stripe(window.stripePublicKey);
-        
-        // Redirect to Stripe Checkout
-        const result = await stripe.redirectToCheckout({
+        // Use the pre-initialized Stripe instance
+        const result = await window.stripe.redirectToCheckout({
             sessionId: clientSecret
         });
 
