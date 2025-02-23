@@ -1,36 +1,32 @@
-/* Base font size */
-html, body {
+/* Base styles for widget */
+#terra-tag-calculator {
     font-size: 16px;
+    font-family: Verdana, sans-serif;
+    line-height: 1.6;
+    color: #1b4c57;
 }
 
-/* iOS-specific overrides to prevent zoom */
-@supports (-webkit-touch-callout: none) {
-    input[type="text"],
-    input[type="email"],
-    input[type="number"],
-    input[type="tel"],
-    input[type="url"],
-    input[type="password"],
-    textarea,
-    select {
-        font-size: 16px !important;
-    }
-}
-
-* {
+#terra-tag-calculator * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-body {
-    font-family: Verdana, sans-serif;
-    line-height: 1.6;
-    color: #1b4c57;
-    background-color: #fff;
+/* iOS-specific overrides to prevent zoom */
+@supports (-webkit-touch-callout: none) {
+    #terra-tag-calculator input[type="text"],
+    #terra-tag-calculator input[type="email"],
+    #terra-tag-calculator input[type="number"],
+    #terra-tag-calculator input[type="tel"],
+    #terra-tag-calculator input[type="url"],
+    #terra-tag-calculator input[type="password"],
+    #terra-tag-calculator textarea,
+    #terra-tag-calculator select {
+        font-size: 16px !important;
+    }
 }
 
-.calculator-heading {
+#terra-tag-calculator .calculator-heading {
     font-family: Verdana, sans-serif;
     font-size: 1.5rem;
     font-weight: normal;
@@ -39,7 +35,7 @@ body {
     margin-bottom: 2rem;
 }
 
-.container {
+#terra-tag-calculator .container {
     max-width: 600px;
     margin: 2rem auto;
     padding: 2rem;
@@ -346,22 +342,22 @@ input[type="email"]::-ms-input-placeholder {
 
 /* Responsive design */
 @media (max-width: 640px) {
-    .container {
+    #terra-tag-calculator .container {
         margin: 1rem;
         padding: 1.5rem;
     }
 
-    .button-group {
+    #terra-tag-calculator .button-group {
         flex-direction: column;
     }
 
-    .option-button {
+    #terra-tag-calculator .option-button {
         width: 100%;
     }
 }
 
 /* Update button styles to maintain consistent height during loading */
-button {
+#terra-tag-calculator button {
     min-height: 40px;
 }
 
