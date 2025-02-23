@@ -128,9 +128,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             throw new Error('Payment system failed to load. Please refresh the page.');
         }
 
+        // Fetch the Stripe public key from the server
         console.log('Debug: Fetching Stripe configuration...');
-        // Initialize Stripe with the public key directly
-        window.stripe = Stripe('pk_test_51QrDDBDCFS4sGBlEhdnhx2eN3J3SO2VWoyhZd5IkFphglGQG97FxaBMxdXNqH4eiDKzCUoQNqgUyZnQN7PWphZNm00I3pBTYW4');
+        const response = await fetch('https://seednamebadge.vercel.app/config');
+        if (!response.ok) {
+            throw new Error('Failed to load payment configuration');
+        }
+        const { publishableKey } = await response.json();
+        
+        if (!publishableKey) {
+            throw new Error('No Stripe public key available');
+        }
+
+        // Initialize Stripe with the fetched public key
+        window.stripe = Stripe(publishableKey);
         console.log('Debug: Stripe initialized successfully');
 
     } catch (error) {
@@ -426,7 +437,7 @@ async function handleOrderSubmission(event) {
             throw new Error(errorData.error || 'Failed to create payment intent');
         }
 
-        const { clientSecret, orderId } = await response.json();
+        const { clientSecret } = await response.json();
         
         // Hide calculator form and show payment form
         const calculatorForm = document.getElementById('calculatorForm');
@@ -480,6 +491,12 @@ async function handleOrderSubmission(event) {
                 theme: 'stripe',
                 variables: {
                     colorPrimary: '#1b4c57',
+                    colorBackground: '#ffffff',
+                    colorText: '#1b4c57',
+                    colorDanger: '#df1b41',
+                    fontFamily: 'Verdana, system-ui, sans-serif',
+                    spacingUnit: '4px',
+                    borderRadius: '6px'
                 }
             }
         });
