@@ -5,9 +5,6 @@
       "master": true
     }
   },
-  "protection": {
-    "autoEnable": false
-  },
   "builds": [
     {
       "src": "server.js",
