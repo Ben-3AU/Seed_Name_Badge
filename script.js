@@ -120,7 +120,19 @@ const ui = {
 };
 
 // Initialize everything when the DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Fetch configuration
+        const response = await fetch('/api/config');
+        if (!response.ok) {
+            throw new Error('Failed to load configuration');
+        }
+        const config = await response.json();
+        window.stripePublicKey = config.stripePublicKey;
+    } catch (error) {
+        console.error('Error loading configuration:', error);
+    }
+
     // Prevent form submission
     const form = document.getElementById('calculatorForm');
     form.addEventListener('submit', e => e.preventDefault());
@@ -361,32 +373,33 @@ async function handleQuoteSubmission(event) {
 async function handleOrderSubmission(event) {
     event.preventDefault();
     
-    // Show spinner
     const payNowBtn = document.getElementById('payNowBtn');
     const originalButtonText = payNowBtn.innerHTML;
     payNowBtn.innerHTML = '<div class="button-content"><div class="spinner"></div><span>Processing...</span></div>';
     payNowBtn.classList.add('loading');
     
-    const totalCost = calculations.getTotalPrice(ui.getFormValues());
-    const gstAmount = calculations.getGST(totalCost);
+    const values = ui.getFormValues();
+    const totalPrice = calculations.getTotalPrice(values);
+    const gstAmount = calculations.getGST(totalPrice);
+    const totalQuantity = calculations.getTotalQuantity(values.withGuests, values.withoutGuests);
     
     const orderData = {
-        quantity_with_guests: parseInt(document.getElementById('quantityWithGuests').value) || 0,
-        quantity_without_guests: parseInt(document.getElementById('quantityWithoutGuests').value) || 0,
-        size: ui.getSelectedValue('size'),
-        printed_sides: ui.getSelectedValue('printedSides'),
-        ink_coverage: ui.getSelectedValue('inkCoverage'),
-        lanyards: ui.getSelectedValue('lanyards') === 'yes',
-        shipping: ui.getSelectedValue('shipping'),
+        quantity_with_guests: values.withGuests,
+        quantity_without_guests: values.withoutGuests,
+        size: values.size,
+        printed_sides: values.printedSides,
+        ink_coverage: values.inkCoverage,
+        lanyards: values.lanyards === 'yes',
+        shipping: values.shipping,
         paper_type: ui.getSelectedValue('paperType'),
         first_name: document.getElementById('orderFirstName').value.trim(),
         last_name: document.getElementById('orderLastName').value.trim(),
         company: document.getElementById('orderCompany').value.trim(),
         email: document.getElementById('orderEmail').value.trim(),
-        total_quantity: calculations.getTotalQuantity(parseInt(document.getElementById('quantityWithGuests').value) || 0, parseInt(document.getElementById('quantityWithoutGuests').value) || 0),
-        total_cost: Number(totalCost.toFixed(2)),
+        total_quantity: totalQuantity,
+        total_cost: Number(totalPrice.toFixed(2)),
         gst_amount: Number(gstAmount.toFixed(2)),
-        co2_savings: calculations.getCO2Savings(calculations.getTotalQuantity(parseInt(document.getElementById('quantityWithGuests').value) || 0, parseInt(document.getElementById('quantityWithoutGuests').value) || 0)),
+        co2_savings: calculations.getCO2Savings(totalQuantity),
         payment_status: 'pending',
         email_sent: false
     };
@@ -395,9 +408,7 @@ async function handleOrderSubmission(event) {
         // Create a payment intent
         const response = await fetch('/api/create-payment-intent', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ orderData })
         });
 
@@ -406,21 +417,29 @@ async function handleOrderSubmission(event) {
             throw new Error(errorData.error || 'Failed to create payment intent');
         }
 
-        const result = await response.json();
-        console.log('Payment intent created:', result);
+        const { clientSecret, orderId } = await response.json();
+        
+        // Initialize Stripe elements
+        const stripe = Stripe(window.stripePublicKey);
+        const elements = stripe.elements();
+        
+        // Redirect to Stripe Checkout
+        const { error } = await stripe.confirmPayment({
+            elements,
+            clientSecret,
+            confirmParams: {
+                return_url: `${window.location.origin}/payment-success?order_id=${orderId}`,
+            },
+        });
 
-        // Redirect to payment page
-        window.location.href = result.url;
+        if (error) {
+            throw error;
+        }
     } catch (error) {
         console.error('Error processing order:', error);
         alert('Error processing order: ' + (error.message || 'Unknown error'));
-    } finally {
-        // Hide spinner and restore button text if there's an error
-        // (If successful, the page will redirect)
-        if (error) {
-            payNowBtn.innerHTML = originalButtonText;
-            payNowBtn.classList.remove('loading');
-        }
+        payNowBtn.innerHTML = originalButtonText;
+        payNowBtn.classList.remove('loading');
     }
 }
 

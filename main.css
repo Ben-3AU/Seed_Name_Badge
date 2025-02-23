@@ -94,12 +94,25 @@ label {
     color: #1b4c57;
 }
 
-input[type="number"]:focus,
-input[type="text"]:focus,
-input[type="email"]:focus {
-    outline: none;
-    border-color: #1b4c57;
-    box-shadow: 0 0 0 3px rgba(27, 76, 87, 0.1);
+/* Placeholder styling */
+#terra-tag-calculator input::placeholder,
+.terra-tag-widget input::placeholder {
+    color: #a0aec0;
+    opacity: 1;
+    text-indent: 1rem !important;
+    padding: 0 !important;
+}
+
+/* Remove any redundant input styling */
+input[type="number"] {
+    -webkit-appearance: textfield;
+    appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .button-group {
@@ -201,46 +214,6 @@ input[type="email"]:focus {
 
 .price-details div:last-child {
     margin-bottom: 1rem !important;
-}
-
-/* Custom number input styling */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-input[type="number"] {
-    appearance: textfield;
-    -webkit-appearance: textfield;
-    padding: 0.75rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    font-size: 16px;
-    width: 100%;
-    transition: border-color 0.2s ease;
-    color: #1b4c57;
-}
-
-/* Placeholder styling with increased padding */
-input[type="number"]::placeholder,
-input[type="text"]::placeholder,
-input[type="email"]::placeholder {
-    color: #a0aec0;
-    opacity: 1;
-    padding-left: 1rem;
-}
-
-input[type="number"]:-ms-input-placeholder,
-input[type="text"]:-ms-input-placeholder,
-input[type="email"]:-ms-input-placeholder {
-    color: #a0aec0;
-}
-
-input[type="number"]::-ms-input-placeholder,
-input[type="text"]::-ms-input-placeholder,
-input[type="email"]::-ms-input-placeholder {
-    color: #a0aec0;
 }
 
 /* Action buttons */
@@ -354,13 +327,14 @@ input[type="email"]::-ms-input-placeholder {
     border-radius: 50%;
     border-top-color: transparent;
     animation: spin 1s linear infinite;
-    margin-right: 8px;
+    margin-right: 1rem !important;
 }
 
 .button-content {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 0.5rem;
 }
 
 .loading .spinner {
