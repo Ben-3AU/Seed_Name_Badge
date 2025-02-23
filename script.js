@@ -68,16 +68,12 @@ const ui = {
     updateDisplay() {
         const values = this.getFormValues();
         const totalQuantity = calculations.getTotalQuantity(values.withGuests, values.withoutGuests);
-        const warningDiv = document.getElementById('minimumQuantityWarning');
         const totalPriceDiv = document.getElementById('totalPrice');
         const actionButtons = document.getElementById('actionButtons');
         const emailQuoteForm = document.getElementById('emailQuoteForm');
         const orderForm = document.getElementById('orderForm');
 
-        console.log('Total quantity:', totalQuantity); // Debug log
-
         if (totalQuantity < 75) {
-            warningDiv.style.display = 'block';
             totalPriceDiv.style.display = 'none';
             actionButtons.style.display = 'none';
             emailQuoteForm.style.display = 'none';
@@ -86,7 +82,6 @@ const ui = {
         }
 
         // If we get here, quantity is 75 or greater
-        warningDiv.style.display = 'none';
         const totalPrice = calculations.getTotalPrice(values);
         const gst = calculations.getGST(totalPrice);
         const co2Savings = calculations.getCO2Savings(totalQuantity);
@@ -118,10 +113,9 @@ const ui = {
     validateOrderForm() {
         const firstName = document.getElementById('orderFirstName').value.trim();
         const lastName = document.getElementById('orderLastName').value.trim();
-        const company = document.getElementById('orderCompany').value.trim();
         const email = document.getElementById('orderEmail').value.trim();
         const paperType = this.getSelectedValue('paperType');
-        document.getElementById('payNowBtn').disabled = !(firstName && lastName && company && this.isValidEmail(email) && paperType);
+        document.getElementById('payNowBtn').disabled = !(firstName && lastName && this.isValidEmail(email) && paperType);
     }
 };
 
