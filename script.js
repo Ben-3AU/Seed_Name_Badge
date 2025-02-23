@@ -122,38 +122,19 @@ const ui = {
 // Initialize everything when the DOM is loaded
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        console.log('Debug: Fetching configuration...');
-        // Fetch configuration
-        const response = await fetch('https://seednamebadge.vercel.app/api/config');
-        console.log('Debug: Config response status:', response.status);
-        
-        if (!response.ok) {
-            throw new Error(`Failed to load configuration: ${response.status}`);
+        // First check if Stripe is already loaded
+        if (!window.Stripe) {
+            console.error('Debug: Stripe.js not loaded');
+            throw new Error('Payment system failed to load. Please refresh the page.');
         }
-        
-        const config = await response.json();
-        console.log('Debug: Config received:', {
-            hasStripeKey: !!config.stripePublicKey,
-            configKeys: Object.keys(config)
-        });
-        
-        if (!config.stripePublicKey) {
-            throw new Error('Stripe public key not found in configuration');
-        }
-        
-        window.stripePublicKey = config.stripePublicKey;
-        console.log('Debug: Stripe public key loaded:', window.stripePublicKey.substring(0, 8) + '...');
-        
-        // Initialize Stripe immediately to verify the key works
-        try {
-            window.stripe = Stripe(window.stripePublicKey);
-            console.log('Debug: Stripe initialized successfully');
-        } catch (stripeError) {
-            console.error('Debug: Failed to initialize Stripe:', stripeError);
-            throw stripeError;
-        }
+
+        console.log('Debug: Fetching Stripe configuration...');
+        // Initialize Stripe with the public key directly
+        window.stripe = Stripe('pk_test_51QrDDBDCFS4sGBlEhdnhx2eN3J3SO2VWoyhZd5IkFphglGQG97FxaBMxdXNqH4eiDKzCUoQNqgUyZnQN7PWphZNm00I3pBTYW4');
+        console.log('Debug: Stripe initialized successfully');
+
     } catch (error) {
-        console.error('Error loading configuration:', error);
+        console.error('Error initializing payment system:', error);
         alert('Failed to initialize payment system. Please try again later.');
     }
 
@@ -445,17 +426,105 @@ async function handleOrderSubmission(event) {
             throw new Error(errorData.error || 'Failed to create payment intent');
         }
 
-        const { clientSecret, clientUrl } = await response.json();
-        console.log('Debug: Payment intent created, redirecting to checkout...');
+        const { clientSecret, orderId } = await response.json();
         
-        // Use the pre-initialized Stripe instance
-        const result = await window.stripe.redirectToCheckout({
-            sessionId: clientSecret
+        // Hide calculator form and show payment form
+        const calculatorForm = document.getElementById('calculatorForm');
+        calculatorForm.style.display = 'none';
+        
+        // Create and show payment form
+        const paymentContainer = document.createElement('div');
+        paymentContainer.id = 'payment-container';
+        paymentContainer.innerHTML = `
+            <div class="payment-form">
+                <button class="back-button" onclick="window.location.reload()">← Back to Calculator</button>
+                <h2>Complete Your Order</h2>
+                
+                <div class="order-summary">
+                    <h3>Order Summary</h3>
+                    <div class="summary-row">
+                        <span>Name:</span>
+                        <span>${orderData.first_name} ${orderData.last_name}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Email:</span>
+                        <span>${orderData.email}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Total Quantity:</span>
+                        <span>${orderData.total_quantity} badges</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Total Amount:</span>
+                        <span>$${orderData.total_cost.toFixed(2)}</span>
+                    </div>
+                </div>
+
+                <form id="payment-form">
+                    <div id="payment-element"></div>
+                    <button id="submit-payment" class="submit-button">
+                        <div class="spinner" id="payment-spinner"></div>
+                        <span id="button-text">Pay Now</span>
+                    </button>
+                    <div id="payment-message"></div>
+                </form>
+            </div>
+        `;
+        
+        document.querySelector('.container').appendChild(paymentContainer);
+
+        // Create payment element
+        const elements = stripe.elements({
+            clientSecret,
+            appearance: {
+                theme: 'stripe',
+                variables: {
+                    colorPrimary: '#1b4c57',
+                }
+            }
         });
 
-        if (result.error) {
-            throw result.error;
-        }
+        const paymentElement = elements.create('payment');
+        paymentElement.mount('#payment-element');
+
+        // Handle payment submission
+        const form = document.getElementById('payment-form');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitButton = document.getElementById('submit-payment');
+            const spinner = document.getElementById('payment-spinner');
+            const buttonText = document.getElementById('button-text');
+            
+            submitButton.disabled = true;
+            spinner.style.display = 'inline-block';
+            buttonText.textContent = 'Processing...';
+
+            try {
+                const { error } = await stripe.confirmPayment({
+                    elements,
+                    confirmParams: {
+                        return_url: `${window.location.origin}/payment/success`,
+                    },
+                });
+
+                if (error) {
+                    const messageElement = document.getElementById('payment-message');
+                    messageElement.textContent = error.message;
+                    submitButton.disabled = false;
+                    spinner.style.display = 'none';
+                    buttonText.textContent = 'Pay Now';
+                }
+            } catch (error) {
+                console.error('Payment error:', error);
+                const messageElement = document.getElementById('payment-message');
+                messageElement.textContent = 'An unexpected error occurred. Please try again.';
+                submitButton.disabled = false;
+                spinner.style.display = 'none';
+                buttonText.textContent = 'Pay Now';
+            }
+        });
+
     } catch (error) {
         console.error('Error processing order:', error);
         alert('Error processing order: ' + (error.message || 'Unknown error'));

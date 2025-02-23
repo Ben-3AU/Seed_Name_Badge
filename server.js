@@ -213,30 +213,11 @@ app.post('/api/create-payment-intent', async (req, res) => {
             throw new Error('Invalid order data: missing total_cost');
         }
 
-        // Ensure CLIENT_URL is set
-        const clientUrl = process.env.CLIENT_URL || 'https://seednamebadge.vercel.app';
-        console.log('Using client URL:', clientUrl);
-
         // First create the order in Supabase
         const { data: order, error: orderError } = await supabase
             .from('seed_name_badge_orders')
             .insert([{
-                quantity_with_guests: orderData.quantity_with_guests,
-                quantity_without_guests: orderData.quantity_without_guests,
-                size: orderData.size,
-                printed_sides: orderData.printed_sides,
-                ink_coverage: orderData.ink_coverage,
-                lanyards: orderData.lanyards === 'yes',
-                shipping: orderData.shipping,
-                paper_type: orderData.paper_type,
-                first_name: orderData.first_name,
-                last_name: orderData.last_name,
-                company: orderData.company,
-                email: orderData.email,
-                total_quantity: orderData.total_quantity,
-                total_cost: Number(orderData.total_cost.toFixed(2)),
-                gst_amount: Number(orderData.gst_amount.toFixed(2)),
-                co2_savings: Number(orderData.co2_savings.toFixed(2)),
+                ...orderData,
                 payment_status: 'pending',
                 email_sent: false,
                 stripe_payment_id: null,
@@ -249,41 +230,38 @@ app.post('/api/create-payment-intent', async (req, res) => {
             throw orderError;
         }
 
-        // Create Stripe Checkout Session
-        const session = await stripe.checkout.sessions.create({
-            payment_method_types: ['card'],
-            line_items: [{
-                price_data: {
-                    currency: 'aud',
-                    product_data: {
-                        name: 'Terra Tag Name Badges',
-                        description: `${orderData.total_quantity} badges (${orderData.size})`,
-                    },
-                    unit_amount: Math.round(orderData.total_cost * 100),
-                },
-                quantity: 1,
-            }],
-            mode: 'payment',
-            success_url: `${clientUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}&order_id=${order.id}`,
-            cancel_url: `${clientUrl}/payment-cancelled`,
-            customer_email: orderData.email,
+        console.log('Created order:', order);
+
+        // Create PaymentIntent
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount: Math.round(orderData.total_cost * 100),
+            currency: 'aud',
+            automatic_payment_methods: {
+                enabled: true,
+            },
             metadata: {
-                order_id: order.id
+                order_id: order.id,
+                email: orderData.email,
             }
         });
 
-        // Update order with session ID
-        await supabase
+        // Update order with payment intent ID
+        const { error: updateError } = await supabase
             .from('seed_name_badge_orders')
-            .update({ stripe_payment_id: session.id })
+            .update({ stripe_payment_id: paymentIntent.id })
             .eq('id', order.id);
 
+        if (updateError) {
+            console.error('Error updating order with payment intent ID:', updateError);
+        }
+
+        // Return the client secret
         res.json({ 
-            clientSecret: session.id,
-            clientUrl: clientUrl // Send the clientUrl back to the frontend
+            clientSecret: paymentIntent.client_secret,
+            orderId: order.id
         });
     } catch (error) {
-        console.error('Error creating checkout session:', error);
+        console.error('Error creating payment intent:', error);
         res.status(500).json({ error: error.message });
     }
 });

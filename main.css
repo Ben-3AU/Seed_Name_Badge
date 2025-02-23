@@ -451,3 +451,120 @@ input[type="number"]::-webkit-outer-spin-button {
 .terra-tag-widget .loading .spinner {
     display: inline-block;
 }
+
+#payment-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.payment-form {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 2rem;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    color: #1b4c57;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.payment-form h2 {
+    color: #1b4c57;
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.order-summary {
+    background: #f7fafc;
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.order-summary h3 {
+    color: #1b4c57;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    color: #1b4c57;
+    font-size: 0.9rem;
+}
+
+.summary-row:last-child {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
+    font-weight: bold;
+}
+
+#payment-form {
+    margin-top: 2rem;
+}
+
+#payment-element {
+    margin-bottom: 1.5rem;
+}
+
+#submit-payment {
+    width: 100%;
+    background: #1b4c57;
+    color: white;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s ease;
+}
+
+#submit-payment:hover {
+    background: #163f48;
+}
+
+#submit-payment:disabled {
+    background: #cbd5e0;
+    cursor: not-allowed;
+}
+
+#payment-spinner {
+    display: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s linear infinite;
+}
+
+#payment-message {
+    color: #e53e3e;
+    text-align: center;
+    margin-top: 1rem;
+    min-height: 1.5rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
