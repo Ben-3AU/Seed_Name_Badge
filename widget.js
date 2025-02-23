@@ -484,9 +484,7 @@
             total_quantity: totalQuantity,
             total_cost: Number(totalPrice.toFixed(2)),
             gst_amount: Number(gstAmount.toFixed(2)),
-            co2_savings: Calculator.getCO2Savings(totalQuantity),
-            payment_status: 'pending',
-            email_sent: false
+            co2_savings: Calculator.getCO2Savings(totalQuantity)
         };
 
         try {
@@ -501,9 +499,19 @@
                 throw new Error(errorData.error || 'Failed to create payment intent');
             }
 
-            const result = await response.json();
-            window.location.href = result.url;
+            const { clientSecret } = await response.json();
             
+            // Initialize Stripe
+            const stripe = Stripe(window.stripePublicKey);
+            
+            // Redirect to Stripe Checkout
+            const result = await stripe.redirectToCheckout({
+                sessionId: clientSecret
+            });
+
+            if (result.error) {
+                throw result.error;
+            }
         } catch (error) {
             console.error('Error processing order:', error);
             alert('Error processing order: ' + (error.message || 'Unknown error'));
