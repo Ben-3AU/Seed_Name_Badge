@@ -75,14 +75,13 @@ const ui = {
         const orderForm = document.getElementById('orderForm');
 
         if (totalQuantity < 75) {
-            warningDiv.style.display = 'none';
+            warningDiv.style.display = 'block';
             totalPriceDiv.style.display = 'none';
             actionButtons.style.display = 'none';
             emailQuoteForm.style.display = 'none';
             orderForm.style.display = 'none';
         } else {
             warningDiv.style.display = 'none';
-            totalPriceDiv.style.display = 'block';
             const totalPrice = calculations.getTotalPrice(values);
             const gst = calculations.getGST(totalPrice);
             const co2Savings = calculations.getCO2Savings(totalQuantity);
@@ -94,6 +93,7 @@ const ui = {
                     <div style="font-size: 0.9em;">CO2 emissions saved: ${co2Savings.toFixed(2)} kg</div>
                 </div>
             `;
+            totalPriceDiv.style.display = 'block';
             actionButtons.style.display = 'block';
         }
     },

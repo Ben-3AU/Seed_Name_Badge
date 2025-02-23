@@ -78,10 +78,13 @@ input[type="email"] {
     padding: 0.75rem;
     border: 1px solid #e2e8f0;
     border-radius: 6px;
-    font-size: 16px;
+    font-size: 0.9375rem;
+    font-family: Verdana, sans-serif;
     width: 100%;
     transition: border-color 0.2s ease;
     color: #1b4c57;
+    height: 48px;
+    line-height: normal;
 }
 
 input[type="number"]:focus,
@@ -109,6 +112,7 @@ input[type="email"]:focus {
     border-radius: 0;
     cursor: pointer;
     transition: all 0.2s ease;
+    height: 48px;
 }
 
 .option-button:hover {
