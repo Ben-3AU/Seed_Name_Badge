@@ -179,7 +179,7 @@
     async function initializeServices() {
         try {
             // Fetch configuration from server
-            const response = await fetch(`${config.BASE_URL}/api/config`);
+            const response = await fetch(`${config.BASE_URL}/config`);
             if (!response.ok) {
                 throw new Error('Failed to fetch configuration');
             }
@@ -187,8 +187,7 @@
 
             // Initialize Stripe globally
             if (!window.stripe) {
-                window.stripePublicKey = serviceConfig.stripePublicKey;
-                window.stripe = Stripe(serviceConfig.stripePublicKey);
+                state.stripe = Stripe(serviceConfig.publishableKey);
                 console.log('Debug: Stripe initialized with public key');
             }
 
@@ -550,7 +549,7 @@
         payNowBtn.classList.add('loading');
         
         try {
-            if (!window.stripe) {
+            if (!state.stripe) {
                 console.error('Debug: Stripe not initialized');
                 throw new Error('Payment system not properly initialized. Please refresh the page.');
             }
@@ -685,8 +684,8 @@
                 </form>
             `;
 
-            // Create payment element with less restrictive configuration
-            const elements = window.stripe.elements({
+            // Create payment element with simpler configuration
+            const elements = state.stripe.elements({
                 clientSecret,
                 appearance: {
                     theme: 'stripe',
@@ -696,7 +695,6 @@
                         colorText: '#1b4c57',
                         colorDanger: '#df1b41',
                         fontFamily: 'Verdana, system-ui, sans-serif',
-                        spacingUnit: '4px',
                         borderRadius: '6px'
                     }
                 }
@@ -705,17 +703,12 @@
             const paymentElement = elements.create('payment', {
                 layout: {
                     type: 'tabs',
-                    defaultCollapsed: false,
-                    radios: true,
-                    spacedAccordionItems: true
+                    defaultCollapsed: false
                 },
                 fields: {
-                    billingDetails: 'auto'
-                },
-                paymentMethodOrder: ['card'],
-                wallets: {
-                    applePay: 'auto',
-                    googlePay: 'auto'
+                    billingDetails: {
+                        name: 'never'
+                    }
                 }
             });
 
@@ -761,7 +754,7 @@
 
                 try {
                     console.log('Debug: Confirming payment...');
-                    const { error } = await window.stripe.confirmPayment({
+                    const { error } = await state.stripe.confirmPayment({
                         elements,
                         confirmParams: {
                             payment_method_data: {
@@ -769,8 +762,8 @@
                                     name: cardName
                                 }
                             },
-                            return_url: `${config.BASE_URL}/payment/success?order_id=${orderId}`,
-                        },
+                            return_url: `${config.BASE_URL}/payment/success?order_id=${orderId}`
+                        }
                     });
 
                     if (error) {

@@ -6,12 +6,6 @@
     <title>Complete Your Payment</title>
     <link rel="stylesheet" href="main.css">
     <script src="https://js.stripe.com/v3/"></script>
-    <script>
-        // Initialize Stripe with the public key
-        const STRIPE_PUBLIC_KEY = 'pk_test_51QrDDBDCFS4sGBlEhdnhx2eN3J3SO2VWoyhZd5IkFphglGQG97FxaBMxdXNqH4eiDKzCUoQNqgUyZnQN7PWphZNm00I3pBTYW4';
-        const BASE_URL = 'https://seednamebadge.vercel.app';
-        window.stripe = Stripe(STRIPE_PUBLIC_KEY);
-    </script>
 </head>
 <body>
     <div class="container">
@@ -39,8 +33,22 @@
     </div>
 
     <script>
+        const BASE_URL = 'https://seednamebadge.vercel.app';
+        let stripe;
+
         document.addEventListener('DOMContentLoaded', async () => {
             try {
+                // Fetch Stripe configuration
+                const configResponse = await fetch(`${BASE_URL}/config`);
+                if (!configResponse.ok) {
+                    throw new Error('Failed to load Stripe configuration');
+                }
+                
+                const { publishableKey } = await configResponse.json();
+                console.log('Using Stripe publishable key with prefix:', publishableKey.substring(0, 8));
+                
+                stripe = Stripe(publishableKey);
+
                 // Get the payment intent client secret from the URL
                 const urlParams = new URLSearchParams(window.location.search);
                 const clientSecret = urlParams.get('payment_intent_client_secret');
@@ -127,8 +135,8 @@
                     </div>
                 `;
 
-                // Create payment element
-                const elements = window.stripe.elements({
+                // Create payment element with simpler configuration
+                const elements = stripe.elements({
                     clientSecret,
                     appearance: {
                         theme: 'stripe',
@@ -138,7 +146,6 @@
                             colorText: '#1b4c57',
                             colorDanger: '#df1b41',
                             fontFamily: 'Verdana, system-ui, sans-serif',
-                            spacingUnit: '4px',
                             borderRadius: '6px'
                         }
                     }
@@ -147,19 +154,15 @@
                 const paymentElement = elements.create('payment', {
                     layout: {
                         type: 'tabs',
-                        defaultCollapsed: false,
-                        radios: true,
-                        spacedAccordionItems: true
+                        defaultCollapsed: false
                     },
                     fields: {
-                        billingDetails: 'auto'
-                    },
-                    paymentMethodOrder: ['card'],
-                    wallets: {
-                        applePay: 'auto',
-                        googlePay: 'auto'
+                        billingDetails: {
+                            name: 'never'
+                        }
                     }
                 });
+
                 await paymentElement.mount('#payment-element');
                 console.log('Debug: Payment element mounted');
 
@@ -194,7 +197,7 @@
 
                     try {
                         console.log('Debug: Confirming payment...');
-                        const { error } = await window.stripe.confirmPayment({
+                        const { error } = await stripe.confirmPayment({
                             elements,
                             confirmParams: {
                                 payment_method_data: {
@@ -202,8 +205,8 @@
                                         name: cardName
                                     }
                                 },
-                                return_url: `${BASE_URL}/payment/success?order_id=${orderId}`,
-                            },
+                                return_url: `${BASE_URL}/payment/success?order_id=${orderId}`
+                            }
                         });
 
                         if (error) {
