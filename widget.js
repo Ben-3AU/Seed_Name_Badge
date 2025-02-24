@@ -567,8 +567,8 @@
                         <span>${orderData.paper_type === 'mixedHerb' ? 'Mixed herb' : orderData.paper_type === 'mixedFlower' ? 'Mixed flower' : 'Random mix'}</span>
                     </div>
                     <div class="summary-row total">
-                        <span>Total:</span>
-                        <span>$${orderData.total_cost.toFixed(2)}</span>
+                        <span>Total: </span>
+                        <span>$ ${orderData.total_cost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                 </div>
                 <form id="payment-form">
@@ -605,7 +605,9 @@
             const paymentElement = elements.create('payment', {
                 layout: {
                     type: 'tabs',
-                    defaultCollapsed: false
+                    defaultCollapsed: false,
+                    radios: true,
+                    spacedAccordionItems: true
                 },
                 fields: {
                     billingDetails: {
@@ -615,7 +617,8 @@
                 wallets: {
                     applePay: 'never',
                     googlePay: 'never'
-                }
+                },
+                paymentMethodOrder: ['card', 'bancontact', 'ideal', 'sepa_debit']
             });
 
             await paymentElement.mount('#payment-element');

@@ -507,13 +507,22 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .summary-row {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
     margin-bottom: 1.25rem;
     color: #1b4c57;
     font-size: 0.9rem;
     line-height: 1.5;
     font-family: Verdana, sans-serif;
+}
+
+.summary-row span:first-child {
+    text-align: left;
+}
+
+.summary-row span:last-child {
+    text-align: left;
 }
 
 .summary-row:not(.total) {
@@ -525,7 +534,6 @@ input[type="number"]::-webkit-outer-spin-button {
     margin-top: 1.5rem;
     padding-top: 1.5rem;
     border-top: 1px solid #e2e8f0;
-    justify-content: flex-start;
     font-size: 1.5rem;
     font-weight: bold;
     color: #1b4c57;

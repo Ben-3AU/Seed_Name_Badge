@@ -432,6 +432,7 @@ async function handleOrderSubmission(event) {
         }
 
         const { clientSecret, orderId } = await response.json();
+        console.log('Debug: Received client secret and order ID');
         
         // Hide calculator form and show payment form
         const calculatorForm = document.getElementById('calculatorForm');
@@ -468,10 +469,10 @@ async function handleOrderSubmission(event) {
                 <form id="payment-form">
                     <div id="payment-element"></div>
                     <button id="submit-payment" class="submit-button">
-                        <div class="spinner" id="payment-spinner"></div>
                         <span id="button-text">Pay Now</span>
+                        <div class="spinner" id="payment-spinner" style="display: none;"></div>
                     </button>
-                    <div id="payment-message"></div>
+                    <div id="payment-message" class="payment-message"></div>
                 </form>
             </div>
         `;
@@ -496,48 +497,65 @@ async function handleOrderSubmission(event) {
         });
 
         const paymentElement = elements.create('payment');
-        paymentElement.mount('#payment-element');
+        await paymentElement.mount('#payment-element');
+        console.log('Debug: Payment element mounted');
 
         // Handle payment submission
         const form = document.getElementById('payment-form');
+        let submitted = false;
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            if (submitted) {
+                console.log('Debug: Payment already submitted');
+                return;
+            }
             
             const submitButton = document.getElementById('submit-payment');
             const spinner = document.getElementById('payment-spinner');
             const buttonText = document.getElementById('button-text');
+            const messageDiv = document.getElementById('payment-message');
             
+            submitted = true;
             submitButton.disabled = true;
             spinner.style.display = 'inline-block';
             buttonText.textContent = 'Processing...';
+            messageDiv.textContent = '';
 
             try {
+                console.log('Debug: Confirming payment...');
                 const { error } = await window.stripe.confirmPayment({
                     elements,
                     confirmParams: {
-                        return_url: `${window.location.origin}/payment/success`,
+                        return_url: `${window.location.origin}/payment/success?order_id=${orderId}`,
                     },
                 });
 
                 if (error) {
-                    const messageElement = document.getElementById('payment-message');
-                    messageElement.textContent = error.message;
+                    console.error('Debug: Payment error:', error);
+                    messageDiv.textContent = error.message;
+                    submitted = false;
                     submitButton.disabled = false;
                     spinner.style.display = 'none';
                     buttonText.textContent = 'Pay Now';
                 }
             } catch (error) {
-                console.error('Payment error:', error);
-                const messageElement = document.getElementById('payment-message');
-                messageElement.textContent = 'An unexpected error occurred. Please try again.';
+                console.error('Debug: Unexpected payment error:', error);
+                messageDiv.textContent = 'An unexpected error occurred. Please try again.';
+                submitted = false;
                 submitButton.disabled = false;
                 spinner.style.display = 'none';
                 buttonText.textContent = 'Pay Now';
             }
         });
 
+        // Remove loading state from original button
+        payNowBtn.innerHTML = originalButtonText;
+        payNowBtn.classList.remove('loading');
+
     } catch (error) {
-        console.error('Error processing order:', error);
+        console.error('Debug: Error processing order:', error);
         alert('Error processing order: ' + (error.message || 'Unknown error'));
         payNowBtn.innerHTML = originalButtonText;
         payNowBtn.classList.remove('loading');
