@@ -8,6 +8,12 @@
     <link rel="stylesheet" href="main.css">
     <!-- Load Stripe.js -->
     <script src="https://js.stripe.com/v3/"></script>
+    <!-- Initialize Stripe -->
+    <script>
+        window.stripePublicKey = 'pk_test_51QrDDBDCFS4sGBlEhdnhx2eN3J3SO2VWoyhZd5IkFphglGQG97FxaBMxdXNqH4eiDKzCUoQNqgUyZnQN7PWphZNm00I3pBTYW4';
+        window.stripe = Stripe(window.stripePublicKey);
+        console.log('Debug: Stripe initialized with public key');
+    </script>
 </head>
 <body>
     <div class="container">
@@ -135,12 +141,6 @@
     </div>
     <!-- Load Supabase first -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
-    
-    <!-- Set Stripe public key -->
-    <script>
-        window.stripePublicKey = 'pk_test_51QrDDBDCFS4sGBlEhdnhx2eN3J3SO2VWoyhZd5IkFphglGQG97FxaBMxdXNqH4eiDKzCUoQNqgUyZnQN7PWphZNm00I3pBTYW4';
-        console.log('Debug: Stripe public key set:', window.stripePublicKey);
-    </script>
     
     <!-- Add a debug script -->
     <script>

@@ -103,8 +103,12 @@
             }
             const serviceConfig = await response.json();
 
-            // Initialize Stripe
-            state.stripe = Stripe(serviceConfig.stripePublicKey);
+            // Initialize Stripe globally
+            if (!window.stripe) {
+                window.stripePublicKey = serviceConfig.stripePublicKey;
+                window.stripe = Stripe(serviceConfig.stripePublicKey);
+                console.log('Debug: Stripe initialized with public key');
+            }
 
             // Initialize Supabase
             window.widgetSupabase = supabase.createClient(

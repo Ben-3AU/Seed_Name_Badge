@@ -4,7 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment - Terra Tag</title>
+    <!-- Load Stripe.js -->
     <script src="https://js.stripe.com/v3/"></script>
+    <!-- Initialize Stripe -->
+    <script>
+        window.stripePublicKey = 'pk_test_51QrDDBDCFS4sGBlEhdnhx2eN3J3SO2VWoyhZd5IkFphglGQG97FxaBMxdXNqH4eiDKzCUoQNqgUyZnQN7PWphZNm00I3pBTYW4';
+        window.stripe = Stripe(window.stripePublicKey);
+        console.log('Debug: Stripe initialized with public key');
+    </script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -177,22 +184,11 @@
     </div>
     
     <script>
-        let stripe;
-        let elements;
-        let paymentElement;
-        
-        async function initializeStripe() {
+        async function initializePayment() {
             try {
-                // Fetch Stripe configuration
-                const response = await fetch('/config');
-                if (!response.ok) {
-                    throw new Error('Failed to load Stripe configuration');
+                if (!window.stripe) {
+                    throw new Error('Stripe not initialized');
                 }
-                
-                const { publishableKey } = await response.json();
-                console.log('Using Stripe publishable key with prefix:', publishableKey.substring(0, 8));
-                
-                stripe = Stripe(publishableKey);
                 
                 // Get URL parameters
                 const urlParams = new URLSearchParams(window.location.search);
@@ -225,7 +221,7 @@
                 document.querySelector('#order-amount').textContent = orderData.amount;
                 
                 // Initialize Stripe Elements
-                elements = stripe.elements({
+                const elements = window.stripe.elements({
                     clientSecret,
                     appearance: {
                         theme: 'stripe',
@@ -247,86 +243,54 @@
                     }
                 });
                 
-                // Create the payment element
-                paymentElement = elements.create('payment');
+                // Create and mount the payment element
+                const paymentElement = elements.create('payment');
                 paymentElement.mount('#payment-element');
                 
-                // Create order summary table
-                const orderSummary = document.querySelector('#order-summary');
-                orderSummary.style.width = '100%';
-                orderSummary.style.borderCollapse = 'collapse';
-                orderSummary.innerHTML = `
-                    <table style="width: 100%;">
-                        <tr><td style="padding: 4px 0;">Name:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.first_name} ${orderData.order_details.last_name}</td></tr>
-                        <tr><td style="padding: 4px 0;">Company:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.company}</td></tr>
-                        <tr><td style="padding: 4px 0;">Email:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.email}</td></tr>
-                        <tr><td style="padding: 4px 0;">Quantity with guest details printed:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.quantity_with_guests}</td></tr>
-                        <tr><td style="padding: 4px 0;">Quantity without guest details printed:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.quantity_without_guests}</td></tr>
-                        <tr><td style="padding: 4px 0;">Total quantity:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.quantity_with_guests + orderData.order_details.quantity_without_guests}</td></tr>
-                        <tr><td style="padding: 4px 0;">Size:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.size}</td></tr>
-                        <tr><td style="padding: 4px 0;">Printed sides:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.printed_sides}</td></tr>
-                        <tr><td style="padding: 4px 0;">Ink coverage:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.ink_coverage}</td></tr>
-                        <tr><td style="padding: 4px 0;">Lanyards:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.lanyards ? 'Yes' : 'No'}</td></tr>
-                        <tr><td style="padding: 4px 0;">Shipping:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.shipping}</td></tr>
-                        <tr><td style="padding: 4px 0;">Paper type:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.paper_type}</td></tr>
-                    </table>
-                `;
+                // Show the payment form
+                document.querySelector('#loading').style.display = 'none';
+                document.querySelector('#payment-form').style.display = 'block';
                 
-                // Handle loading errors
-                paymentElement.on('loaderror', function(event) {
-                    console.error('Payment Element loading error:', event);
-                    document.querySelector('#error-message').textContent = 'There was a problem loading the payment form. Please refresh the page or try again later.';
+                // Handle form submission
+                const form = document.querySelector('#payment-form');
+                form.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    
+                    const submitButton = document.querySelector('#submit');
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'Processing...';
+                    
+                    try {
+                        const { error } = await window.stripe.confirmPayment({
+                            elements,
+                            confirmParams: {
+                                return_url: `${window.location.origin}/payment/success`,
+                            }
+                        });
+                        
+                        if (error) {
+                            const messageDiv = document.querySelector('#error-message');
+                            messageDiv.textContent = error.message;
+                            submitButton.disabled = false;
+                            submitButton.textContent = 'Pay now';
+                        }
+                    } catch (error) {
+                        console.error('Payment error:', error);
+                        const messageDiv = document.querySelector('#error-message');
+                        messageDiv.textContent = 'An unexpected error occurred. Please try again.';
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Pay now';
+                    }
                 });
                 
-                // Show the payment form once everything is loaded
-                document.querySelector('#payment-form').style.display = 'block';
-                document.querySelector('#loading').style.display = 'none';
-                
             } catch (error) {
-                console.error('Stripe initialization error:', error);
-                document.querySelector('#error-message').textContent = 'Failed to initialize payment form. Please try again later.';
-                document.querySelector('#loading').style.display = 'none';
+                console.error('Initialization error:', error);
+                document.querySelector('#loading').textContent = 'Failed to load payment form. Please try again.';
             }
         }
         
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', initializeStripe);
-        
-        // Handle form submission
-        const form = document.querySelector('#payment-form');
-        form.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            
-            const submitButton = document.querySelector('#submit');
-            submitButton.disabled = true;
-            submitButton.textContent = 'Processing...';
-            
-            try {
-                const { error } = await stripe.confirmPayment({
-                    elements,
-                    confirmParams: {
-                        return_url: window.location.origin + '/success.html',
-                        payment_method_data: {
-                            billing_details: {
-                                name: document.getElementById('card-name').value
-                            }
-                        }
-                    },
-                });
-                
-                if (error) {
-                    console.error('Payment confirmation error:', error);
-                    document.querySelector('#error-message').textContent = error.message;
-                    submitButton.disabled = false;
-                    submitButton.textContent = 'Pay now';
-                }
-            } catch (e) {
-                console.error('Payment submission error:', e);
-                document.querySelector('#error-message').textContent = 'An unexpected error occurred. Please try again.';
-                submitButton.disabled = false;
-                submitButton.textContent = 'Pay now';
-            }
-        });
+        // Initialize when the page loads
+        window.addEventListener('DOMContentLoaded', initializePayment);
     </script>
 </body>
 </html> 
