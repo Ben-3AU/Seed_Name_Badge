@@ -499,29 +499,40 @@ input[type="number"]::-webkit-outer-spin-button {
     font-family: Verdana, sans-serif;
 }
 
+.order-summary h2 {
+    color: #1b4c57;
+    font-size: 1.5rem;
+    font-family: Verdana, sans-serif;
+    margin-bottom: 1.5rem;
+}
+
 .summary-row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0.75rem;
+    margin-bottom: 1.25rem;
     color: #1b4c57;
     font-size: 0.9rem;
     line-height: 1.5;
     font-family: Verdana, sans-serif;
 }
 
-.summary-row:last-child {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid #e2e8f0;
-    font-weight: bold;
-    font-size: 1.2rem;
+.summary-row:not(.total) {
+    padding-bottom: 0;
+    border-bottom: none;
 }
 
 .summary-row.total {
-    justify-content: flex-end;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+    justify-content: flex-start;
     font-size: 1.5rem;
     font-weight: bold;
     color: #1b4c57;
+}
+
+.summary-row.total span:first-child {
+    margin-right: 0.5rem;
 }
 
 #payment-form {

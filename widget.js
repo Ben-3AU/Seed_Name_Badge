@@ -516,8 +516,8 @@
             const calculatorForm = document.querySelector('.calculator-view');
             calculatorForm.innerHTML = `
                 <button class="back-button" onclick="location.reload()">← Back</button>
-                <h2>Order Summary</h2>
                 <div class="order-summary">
+                    <h2>Order Summary</h2>
                     <div class="summary-row">
                         <span>Name:</span>
                         <span>${orderData.first_name} ${orderData.last_name}</span>
@@ -567,6 +567,7 @@
                         <span>${orderData.paper_type === 'mixedHerb' ? 'Mixed herb' : orderData.paper_type === 'mixedFlower' ? 'Mixed flower' : 'Random mix'}</span>
                     </div>
                     <div class="summary-row total">
+                        <span>Total:</span>
                         <span>$${orderData.total_cost.toFixed(2)}</span>
                     </div>
                 </div>
@@ -602,12 +603,21 @@
             });
 
             const paymentElement = elements.create('payment', {
+                layout: {
+                    type: 'tabs',
+                    defaultCollapsed: false
+                },
                 fields: {
                     billingDetails: {
                         name: 'never'
                     }
+                },
+                wallets: {
+                    applePay: 'never',
+                    googlePay: 'never'
                 }
             });
+
             await paymentElement.mount('#payment-element');
             console.log('Debug: Payment element mounted');
 
