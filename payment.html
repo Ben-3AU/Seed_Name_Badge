@@ -9,13 +9,14 @@
     <script>
         // Initialize Stripe with the public key
         const STRIPE_PUBLIC_KEY = 'pk_test_51QrDDBDCFS4sGBlEhdnhx2eN3J3SO2VWoyhZd5IkFphglGQG97FxaBMxdXNqH4eiDKzCUoQNqgUyZnQN7PWphZNm00I3pBTYW4';
+        const BASE_URL = 'https://seednamebadge.vercel.app';
         window.stripe = Stripe(STRIPE_PUBLIC_KEY);
     </script>
 </head>
 <body>
     <div class="container">
         <div class="payment-form">
-            <button class="back-button" onclick="window.history.back()">← Back</button>
+            <button class="back-button" onclick="window.location.href = '/'">← Back to Calculator</button>
             <h2>Complete Your Order</h2>
             
             <div id="order-summary" class="order-summary">
@@ -47,7 +48,7 @@
                 }
 
                 // Fetch order details
-                const response = await fetch(`/api/get-order?order_id=${orderId}`);
+                const response = await fetch(`${BASE_URL}/api/get-order/${orderId}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch order details');
                 }
@@ -122,7 +123,7 @@
                         const { error } = await window.stripe.confirmPayment({
                             elements,
                             confirmParams: {
-                                return_url: `${window.location.origin}/payment/success?order_id=${orderId}`,
+                                return_url: `${BASE_URL}/payment/success?order_id=${orderId}`,
                             },
                         });
 

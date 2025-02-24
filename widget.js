@@ -513,7 +513,7 @@
             console.log('Debug: Received client secret and order ID');
 
             // Redirect to the payment page with the client secret and order ID
-            window.location.href = `/payment.html?payment_intent_client_secret=${clientSecret}&order_id=${orderId}`;
+            window.location.href = `${config.BASE_URL}/payment.html?payment_intent_client_secret=${clientSecret}&order_id=${orderId}`;
 
         } catch (error) {
             console.error('Debug: Error processing order:', error);
