@@ -600,12 +600,6 @@
             };
             sessionStorage.setItem('calculatorFormState', JSON.stringify(formState));
 
-            // Scroll to just above the widget
-            const widgetElement = document.getElementById('terra-tag-calculator');
-            const yOffset = -20; // 20px above the widget
-            const y = widgetElement.getBoundingClientRect().top + window.pageYOffset + yOffset;
-            window.scrollTo({ top: y, behavior: 'smooth' });
-
             console.log('Debug: Creating payment intent...');
             const response = await fetch(`${config.BASE_URL}/api/create-payment-intent`, {
                 method: 'POST',
@@ -727,6 +721,14 @@
 
             await paymentElement.mount('#payment-element');
             console.log('Debug: Payment element mounted');
+
+            // Scroll to just above the widget after payment form is displayed
+            setTimeout(() => {
+                const widgetElement = document.getElementById('terra-tag-calculator');
+                const yOffset = -20; // 20px above the widget
+                const y = widgetElement.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                window.scrollTo({ top: y, behavior: 'smooth' });
+            }, 100);
 
             // Handle payment form submission
             const paymentForm = document.querySelector('#payment-form');
