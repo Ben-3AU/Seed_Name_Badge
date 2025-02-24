@@ -39,17 +39,13 @@
         document.addEventListener('DOMContentLoaded', async () => {
             try {
                 // Fetch Stripe configuration
-                const configResponse = await fetch(`${BASE_URL}/config`);
+                const configResponse = await fetch('/api/config');
                 if (!configResponse.ok) {
                     throw new Error('Failed to load Stripe configuration');
                 }
                 
                 const { publishableKey } = await configResponse.json();
-                console.log('Debug: Using Stripe publishable key');
-                
-                if (!publishableKey) {
-                    throw new Error('No Stripe publishable key found in configuration');
-                }
+                console.log('Using Stripe publishable key with prefix:', publishableKey.substring(0, 8));
                 
                 stripe = Stripe(publishableKey);
 
@@ -63,7 +59,7 @@
                 }
 
                 // Fetch order details
-                const response = await fetch(`${BASE_URL}/api/get-order/${orderId}`);
+                const response = await fetch(`/api/get-order/${orderId}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch order details');
                 }
@@ -160,6 +156,9 @@
                         type: 'tabs',
                         defaultCollapsed: false
                     },
+                    wallets: {
+                        googlePay: 'auto'
+                    },
                     fields: {
                         billingDetails: {
                             name: 'never'
@@ -209,7 +208,7 @@
                                         name: cardName
                                     }
                                 },
-                                return_url: `${BASE_URL}/payment/success?order_id=${orderId}`
+                                return_url: `/payment/success?order_id=${orderId}`
                             }
                         });
 

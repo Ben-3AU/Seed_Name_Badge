@@ -12,14 +12,12 @@
     <script>
         document.addEventListener('DOMContentLoaded', async function() {
             try {
-                const response = await fetch('https://seednamebadge.vercel.app/config');
+                const response = await fetch('/api/config');
                 if (!response.ok) {
                     throw new Error('Failed to load Stripe configuration');
                 }
                 const { publishableKey } = await response.json();
-                if (!publishableKey) {
-                    throw new Error('No Stripe publishable key found in configuration');
-                }
+                console.log('Using Stripe publishable key with prefix:', publishableKey.substring(0, 8));
                 window.stripePublicKey = publishableKey; // For backward compatibility
                 window.stripe = Stripe(publishableKey);
                 console.log('Debug: Stripe initialized successfully');

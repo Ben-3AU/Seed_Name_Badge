@@ -179,7 +179,7 @@
     async function initializeServices() {
         try {
             // Fetch configuration from server
-            const response = await fetch(`${config.BASE_URL}/config`);
+            const response = await fetch('/api/config');
             if (!response.ok) {
                 throw new Error('Failed to fetch configuration');
             }
@@ -518,7 +518,7 @@
         };
 
         try {
-            const response = await fetch(`${config.BASE_URL}/api/submit-quote`, {
+            const response = await fetch('/api/submit-quote', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(quoteData)
@@ -600,7 +600,7 @@
             sessionStorage.setItem('calculatorFormState', JSON.stringify(formState));
 
             console.log('Debug: Creating payment intent...');
-            const response = await fetch(`${config.BASE_URL}/api/create-payment-intent`, {
+            const response = await fetch('/api/create-payment-intent', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ orderData })
