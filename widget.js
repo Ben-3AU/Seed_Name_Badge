@@ -532,7 +532,7 @@
             // Hide calculator form and show payment form
             const calculatorForm = document.querySelector('.calculator-view');
             calculatorForm.innerHTML = `
-                <button class="back-button" onclick="handleBackToCalculator()">← Back</button>
+                <button class="back-button" onclick="window.location.href = '/calculator'">← Back to Calculator</button>
                 <div class="order-summary">
                     <h2>Order Summary</h2>
                     <div class="summary-row">
@@ -600,67 +600,6 @@
                     <div id="payment-message" class="payment-message"></div>
                 </form>
             `;
-
-            // Add back button handler to window object
-            window.handleBackToCalculator = () => {
-                // Store form state before navigating back
-                const formState = {
-                    withGuests: values.withGuests,
-                    withoutGuests: values.withoutGuests,
-                    size: values.size,
-                    printedSides: values.printedSides,
-                    inkCoverage: values.inkCoverage,
-                    lanyards: values.lanyards,
-                    shipping: values.shipping,
-                    firstName: document.querySelector('#orderFirstName').value.trim(),
-                    lastName: document.querySelector('#orderLastName').value.trim(),
-                    company: document.querySelector('#orderCompany').value.trim(),
-                    email: document.querySelector('#orderEmail').value.trim(),
-                    paperType: getSelectedValue('paperType')
-                };
-                sessionStorage.setItem('calculatorFormState', JSON.stringify(formState));
-                
-                // Reload page and restore state
-                location.reload();
-            };
-
-            // Add event listener to restore form state after page load
-            window.addEventListener('load', () => {
-                const savedState = JSON.parse(sessionStorage.getItem('calculatorFormState'));
-                if (savedState) {
-                    restoreFormState(savedState);
-                }
-            });
-
-            // Function to restore form state
-            function restoreFormState(state) {
-                if (!state) return;
-                
-                // Restore quantity inputs
-                document.querySelector('#quantityWithGuests').value = state.withGuests;
-                document.querySelector('#quantityWithoutGuests').value = state.withoutGuests;
-                
-                // Restore button selections
-                ['size', 'printedSides', 'inkCoverage', 'lanyards', 'shipping', 'paperType'].forEach(field => {
-                    const button = document.querySelector(`.option-button[data-name="${field}"][data-value="${state[field]}"]`);
-                    if (button) {
-                        document.querySelectorAll(`.option-button[data-name="${field}"]`).forEach(btn => btn.classList.remove('selected'));
-                        button.classList.add('selected');
-                    }
-                });
-                
-                // Restore form inputs
-                document.querySelector('#orderFirstName').value = state.firstName;
-                document.querySelector('#orderLastName').value = state.lastName;
-                document.querySelector('#orderCompany').value = state.company;
-                document.querySelector('#orderEmail').value = state.email;
-                
-                // Update display
-                updateDisplay();
-            }
-
-            // Scroll to top of widget
-            document.querySelector('.terra-tag-widget').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
             // Create payment element with less restrictive configuration
             const elements = window.stripe.elements({
