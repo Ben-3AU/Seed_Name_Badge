@@ -145,10 +145,19 @@
                 });
 
                 const paymentElement = elements.create('payment', {
+                    layout: {
+                        type: 'tabs',
+                        defaultCollapsed: false,
+                        radios: true,
+                        spacedAccordionItems: true
+                    },
                     fields: {
-                        billingDetails: {
-                            name: 'never'
-                        }
+                        billingDetails: 'auto'
+                    },
+                    paymentMethodOrder: ['card'],
+                    wallets: {
+                        applePay: 'auto',
+                        googlePay: 'auto'
                     }
                 });
                 await paymentElement.mount('#payment-element');
