@@ -45,7 +45,11 @@
                 }
                 
                 const { publishableKey } = await configResponse.json();
-                console.log('Using Stripe publishable key with prefix:', publishableKey.substring(0, 8));
+                console.log('Debug: Using Stripe publishable key');
+                
+                if (!publishableKey) {
+                    throw new Error('No Stripe publishable key found in configuration');
+                }
                 
                 stripe = Stripe(publishableKey);
 
