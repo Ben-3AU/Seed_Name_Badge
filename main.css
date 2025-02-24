@@ -494,12 +494,12 @@ input[type="number"]::-webkit-outer-spin-button {
 .order-summary {
     background: #f7fafc !important;
     border-radius: 6px !important;
-    padding: 1.5rem !important;
+    padding: 1rem !important;
     margin-bottom: 2rem !important;
     font-family: Verdana, sans-serif !important;
 }
 
-.order-summary h2 {
+.order-summary h2, .order-summary h3 {
     color: #1b4c57 !important;
     font-size: 1.5rem !important;
     font-family: Verdana, sans-serif !important;
@@ -509,9 +509,9 @@ input[type="number"]::-webkit-outer-spin-button {
 .order-summary .summary-row {
     display: flex !important;
     justify-content: flex-start !important;
-    margin-bottom: 2rem !important;
+    margin-bottom: 1rem !important;
     color: #1b4c57 !important;
-    font-size: 0.9rem !important;
+    font-size: 1rem !important;
     line-height: 1.5 !important;
     font-family: Verdana, sans-serif !important;
     border: none !important;
@@ -533,15 +533,9 @@ input[type="number"]::-webkit-outer-spin-button {
     margin-top: 1.5rem !important;
     padding-top: 1.5rem !important;
     border-top: 1px solid #e2e8f0 !important;
-    border-bottom: none !important;
     font-size: 1.5rem !important;
     font-weight: bold !important;
     color: #1b4c57 !important;
-}
-
-.order-summary .summary-row.total span {
-    width: auto !important;
-    font-weight: bold !important;
 }
 
 #payment-form {
