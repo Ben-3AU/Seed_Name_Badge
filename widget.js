@@ -518,29 +518,39 @@
             };
             sessionStorage.setItem('calculatorFormState', JSON.stringify(formState));
 
+            // Scroll to just above the widget
+            const widgetElement = document.getElementById('terra-tag-calculator');
+            const yOffset = -20; // 20px above the widget
+            const y = widgetElement.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+
             // Function to restore form state
             function restoreFormState(state) {
                 // Reset loading states first
                 const payNowBtn = document.querySelector('#payNowBtn');
                 if (payNowBtn) {
                     payNowBtn.classList.remove('loading');
-                    payNowBtn.querySelector('.spinner').style.display = 'none';
-                    payNowBtn.querySelector('span').textContent = 'Checkout';
+                    payNowBtn.disabled = false;
+                    const spinner = payNowBtn.querySelector('.spinner');
+                    const buttonText = payNowBtn.querySelector('span');
+                    if (spinner) spinner.style.display = 'none';
+                    if (buttonText) buttonText.textContent = 'Checkout';
                 }
 
                 // Restore quantity inputs
-                document.querySelector('#quantityWithGuests').value = state.withGuests;
-                document.querySelector('#quantityWithoutGuests').value = state.withoutGuests;
+                const quantityWithGuests = document.querySelector('#quantityWithGuests');
+                const quantityWithoutGuests = document.querySelector('#quantityWithoutGuests');
+                if (quantityWithGuests) quantityWithGuests.value = state.withGuests || '';
+                if (quantityWithoutGuests) quantityWithoutGuests.value = state.withoutGuests || '';
 
                 // Restore button selections
                 ['size', 'printedSides', 'inkCoverage', 'lanyards', 'shipping', 'paperType'].forEach(name => {
                     const value = state[name];
                     const buttons = document.querySelectorAll(`.option-button[data-name="${name}"]`);
                     buttons.forEach(button => {
+                        button.classList.remove('selected');
                         if (button.getAttribute('data-value') === value) {
                             button.classList.add('selected');
-                        } else {
-                            button.classList.remove('selected');
                         }
                     });
                 });
@@ -548,28 +558,33 @@
                 // Reset action buttons state
                 const orderNowBtn = document.querySelector('#orderNowBtn');
                 const emailQuoteBtn = document.querySelector('#emailQuoteBtn');
-                if (orderNowBtn && emailQuoteBtn) {
-                    orderNowBtn.classList.remove('selected');
+                if (orderNowBtn) {
+                    orderNowBtn.classList.add('selected');
+                }
+                if (emailQuoteBtn) {
                     emailQuoteBtn.classList.remove('selected');
                 }
 
                 // Restore form inputs
-                document.querySelector('#orderFirstName').value = state.firstName || '';
-                document.querySelector('#orderLastName').value = state.lastName || '';
-                document.querySelector('#orderCompany').value = state.company || '';
-                document.querySelector('#orderEmail').value = state.email || '';
+                const orderFirstName = document.querySelector('#orderFirstName');
+                const orderLastName = document.querySelector('#orderLastName');
+                const orderCompany = document.querySelector('#orderCompany');
+                const orderEmail = document.querySelector('#orderEmail');
+
+                if (orderFirstName) orderFirstName.value = state.firstName || '';
+                if (orderLastName) orderLastName.value = state.lastName || '';
+                if (orderCompany) orderCompany.value = state.company || '';
+                if (orderEmail) orderEmail.value = state.email || '';
 
                 // Update display and validate form
                 updateDisplay();
                 validateOrderForm();
 
-                // Show/hide forms appropriately
+                // Show order form and hide email quote form
                 const emailQuoteForm = document.querySelector('#emailQuoteForm');
                 const orderForm = document.querySelector('#orderForm');
-                if (emailQuoteForm && orderForm) {
-                    emailQuoteForm.style.display = 'none';
-                    orderForm.style.display = 'none';
-                }
+                if (emailQuoteForm) emailQuoteForm.style.display = 'none';
+                if (orderForm) orderForm.style.display = 'block';
             }
 
             console.log('Debug: Creating payment intent...');
