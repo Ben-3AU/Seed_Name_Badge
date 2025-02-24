@@ -520,6 +520,14 @@
 
             // Function to restore form state
             function restoreFormState(state) {
+                // Reset loading states first
+                const payNowBtn = document.querySelector('#payNowBtn');
+                if (payNowBtn) {
+                    payNowBtn.classList.remove('loading');
+                    payNowBtn.querySelector('.spinner').style.display = 'none';
+                    payNowBtn.querySelector('span').textContent = 'Checkout';
+                }
+
                 // Restore quantity inputs
                 document.querySelector('#quantityWithGuests').value = state.withGuests;
                 document.querySelector('#quantityWithoutGuests').value = state.withoutGuests;
@@ -537,15 +545,31 @@
                     });
                 });
 
-                // Restore form inputs
-                document.querySelector('#orderFirstName').value = state.firstName;
-                document.querySelector('#orderLastName').value = state.lastName;
-                document.querySelector('#orderCompany').value = state.company;
-                document.querySelector('#orderEmail').value = state.email;
+                // Reset action buttons state
+                const orderNowBtn = document.querySelector('#orderNowBtn');
+                const emailQuoteBtn = document.querySelector('#emailQuoteBtn');
+                if (orderNowBtn && emailQuoteBtn) {
+                    orderNowBtn.classList.remove('selected');
+                    emailQuoteBtn.classList.remove('selected');
+                }
 
-                // Update display
+                // Restore form inputs
+                document.querySelector('#orderFirstName').value = state.firstName || '';
+                document.querySelector('#orderLastName').value = state.lastName || '';
+                document.querySelector('#orderCompany').value = state.company || '';
+                document.querySelector('#orderEmail').value = state.email || '';
+
+                // Update display and validate form
                 updateDisplay();
                 validateOrderForm();
+
+                // Show/hide forms appropriately
+                const emailQuoteForm = document.querySelector('#emailQuoteForm');
+                const orderForm = document.querySelector('#orderForm');
+                if (emailQuoteForm && orderForm) {
+                    emailQuoteForm.style.display = 'none';
+                    orderForm.style.display = 'none';
+                }
             }
 
             console.log('Debug: Creating payment intent...');
