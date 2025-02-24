@@ -10,9 +10,18 @@
     <script src="https://js.stripe.com/v3/"></script>
     <!-- Initialize Stripe -->
     <script>
-        window.stripePublicKey = 'pk_test_51QrDDBDCFS4sGBlEhdnhx2eN3J3SO2VWoyhZd5IkFphglGQG97FxaBMxdXNqH4eiDKzCUoQNqgUyZnQN7PWphZNm00I3pBTYW4';
-        window.stripe = Stripe(window.stripePublicKey);
-        console.log('Debug: Stripe initialized with public key');
+        // Initialize Stripe with the public key
+        const STRIPE_PUBLIC_KEY = 'pk_test_51QrDDBDCFS4sGBlEhdnhx2eN3J3SO2VWoyhZd5IkFphglGQG97FxaBMxdXNqH4eiDKzCUoQNqgUyZnQN7PWphZNm00I3pBTYW4';
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                window.stripePublicKey = STRIPE_PUBLIC_KEY; // For backward compatibility
+                window.stripe = Stripe(STRIPE_PUBLIC_KEY);
+                console.log('Debug: Stripe initialized successfully');
+            } catch (error) {
+                console.error('Debug: Error initializing Stripe:', error);
+            }
+        });
     </script>
 </head>
 <body>

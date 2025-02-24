@@ -3,224 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment - Terra Tag</title>
-    <!-- Load Stripe.js -->
+    <title>Complete Your Payment</title>
+    <link rel="stylesheet" href="main.css">
     <script src="https://js.stripe.com/v3/"></script>
-    <!-- Initialize Stripe -->
     <script>
-        window.stripePublicKey = 'pk_test_51QrDDBDCFS4sGBlEhdnhx2eN3J3SO2VWoyhZd5IkFphglGQG97FxaBMxdXNqH4eiDKzCUoQNqgUyZnQN7PWphZNm00I3pBTYW4';
-        window.stripe = Stripe(window.stripePublicKey);
-        console.log('Debug: Stripe initialized with public key');
+        // Initialize Stripe with the public key
+        const STRIPE_PUBLIC_KEY = 'pk_test_51QrDDBDCFS4sGBlEhdnhx2eN3J3SO2VWoyhZd5IkFphglGQG97FxaBMxdXNqH4eiDKzCUoQNqgUyZnQN7PWphZNm00I3pBTYW4';
+        window.stripe = Stripe(STRIPE_PUBLIC_KEY);
     </script>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            padding: 20px;
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #ffffff;
-        }
-        
-        .container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-        }
-        
-        #payment-form {
-            display: none;
-        }
-        
-        #payment-element {
-            margin-bottom: 24px;
-        }
-        
-        #submit {
-            background-color: #1b4c57;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            width: 100%;
-            transition: background-color 0.2s;
-        }
-        
-        #submit:hover {
-            background-color: #2c6d7c;
-        }
-        
-        #submit:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-        
-        #error-message {
-            color: #df1b41;
-            margin-top: 16px;
-            text-align: center;
-        }
-        
-        #loading {
-            text-align: center;
-            color: #666;
-            margin: 20px 0;
-        }
-        
-        .order-details {
-            margin-bottom: 24px;
-            padding: 16px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
-        }
-        
-        .order-details h2 {
-            margin-top: 0;
-            color: #1b4c57;
-            font-size: 1.2em;
-            margin-bottom: 16px;
-        }
-        
-        .amount {
-            font-size: 24px;
-            font-weight: bold;
-            color: #1b4c57;
-            text-align: left;
-            margin: 16px 0;
-        }
-
-        .order-summary {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .order-summary li {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            color: #1b4c57;
-        }
-
-        .order-summary li span:first-child {
-            font-weight: normal;
-            min-width: 300px;
-        }
-
-        .order-summary li span:last-child {
-            text-align: left;
-            margin-left: auto;
-            padding-left: 24px;
-        }
-
-        .back-link {
-            display: flex;
-            align-items: center;
-            color: #1b4c57;
-            text-decoration: none;
-            margin-bottom: 24px;
-            font-size: 16px;
-        }
-        
-        .back-link:hover {
-            text-decoration: underline;
-        }
-        
-        .back-arrow {
-            margin-right: 8px;
-        }
-
-        #card-name-container {
-            margin-bottom: 20px;
-        }
-
-        #card-name-label {
-            display: block;
-            margin-bottom: 3px;
-            color: #30313d;
-            font-family: "Ideal Sans", system-ui, sans-serif;
-            font-size: 0.9em;
-            font-weight: normal;
-        }
-
-        #card-name {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 16px;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
-        <a href="/" class="back-link">
-            <span class="back-arrow">←</span>
-            Back
-        </a>
-        
-        <div class="order-details">
-            <h2>Order Summary</h2>
-            <ul id="order-summary" class="order-summary">
-                <!-- Order details will be populated here -->
-            </ul>
-            <div id="order-amount" class="amount"></div>
-        </div>
-        
-        <div id="loading">
-            Loading payment form...
-        </div>
-        
-        <form id="payment-form">
-            <div id="card-name-container">
-                <label for="card-name" id="card-name-label">Name on card</label>
-                <input type="text" id="card-name" required>
+        <div class="payment-form">
+            <button class="back-button" onclick="window.history.back()">← Back</button>
+            <h2>Complete Your Order</h2>
+            
+            <div id="order-summary" class="order-summary">
+                <h3>Order Summary</h3>
+                <div id="order-details">Loading...</div>
             </div>
-            <div id="payment-element"></div>
-            <button id="submit" type="submit">Pay now</button>
-            <div id="error-message"></div>
-        </form>
+
+            <form id="payment-form">
+                <div id="payment-element"></div>
+                <button id="submit-payment" class="submit-button">
+                    <span id="button-text">Pay Now</span>
+                    <div class="spinner" id="payment-spinner" style="display: none;"></div>
+                </button>
+                <div id="payment-message" class="payment-message"></div>
+            </form>
+        </div>
     </div>
-    
+
     <script>
-        async function initializePayment() {
+        document.addEventListener('DOMContentLoaded', async () => {
             try {
-                if (!window.stripe) {
-                    throw new Error('Stripe not initialized');
-                }
-                
-                // Get URL parameters
+                // Get the payment intent client secret from the URL
                 const urlParams = new URLSearchParams(window.location.search);
                 const clientSecret = urlParams.get('payment_intent_client_secret');
                 const orderId = urlParams.get('order_id');
-                
-                console.log('Payment Intent ID:', clientSecret ? clientSecret.split('_secret_')[0] : 'none');
-                
+
                 if (!clientSecret) {
-                    document.querySelector('#payment-form').style.display = 'none';
-                    document.querySelector('#error-message').textContent = 'Missing payment information. Please try again.';
-                    throw new Error('No client secret provided');
+                    throw new Error('No payment intent client secret found');
                 }
-                
-                if (!orderId) {
-                    document.querySelector('#payment-form').style.display = 'none';
-                    document.querySelector('#error-message').textContent = 'Missing order information. Please try again.';
-                    throw new Error('No order ID provided');
-                }
-                
+
                 // Fetch order details
-                const orderResponse = await fetch(`/api/order/${orderId}`);
-                if (!orderResponse.ok) {
+                const response = await fetch(`/api/get-order?order_id=${orderId}`);
+                if (!response.ok) {
                     throw new Error('Failed to fetch order details');
                 }
-                
-                const orderData = await orderResponse.json();
-                
-                // Update the page with order details
-                document.querySelector('#order-amount').textContent = orderData.amount;
-                
-                // Initialize Stripe Elements
+                const orderData = await response.json();
+
+                // Update order summary
+                document.getElementById('order-details').innerHTML = `
+                    <div class="summary-row">
+                        <span>Name:</span>
+                        <span>${orderData.first_name} ${orderData.last_name}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Email:</span>
+                        <span>${orderData.email}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Total Quantity:</span>
+                        <span>${orderData.total_quantity} badges</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Total Amount:</span>
+                        <span>$${orderData.total_cost.toFixed(2)}</span>
+                    </div>
+                `;
+
+                // Create payment element
                 const elements = window.stripe.elements({
                     clientSecret,
                     appearance: {
@@ -228,69 +81,78 @@
                         variables: {
                             colorPrimary: '#1b4c57',
                             colorBackground: '#ffffff',
-                            colorText: '#30313d',
+                            colorText: '#1b4c57',
                             colorDanger: '#df1b41',
-                            fontFamily: '"Ideal Sans", system-ui, sans-serif',
-                            spacingUnit: '2px',
-                            borderRadius: '4px',
-                        },
-                        rules: {
-                            '.Label': {
-                                color: '#30313d',
-                                fontFamily: '"Ideal Sans", system-ui, sans-serif'
-                            }
+                            fontFamily: 'Verdana, system-ui, sans-serif',
+                            spacingUnit: '4px',
+                            borderRadius: '6px'
                         }
                     }
                 });
-                
-                // Create and mount the payment element
+
                 const paymentElement = elements.create('payment');
-                paymentElement.mount('#payment-element');
-                
-                // Show the payment form
-                document.querySelector('#loading').style.display = 'none';
-                document.querySelector('#payment-form').style.display = 'block';
-                
+                await paymentElement.mount('#payment-element');
+                console.log('Debug: Payment element mounted');
+
                 // Handle form submission
-                const form = document.querySelector('#payment-form');
-                form.addEventListener('submit', async (event) => {
-                    event.preventDefault();
-                    
-                    const submitButton = document.querySelector('#submit');
+                const form = document.getElementById('payment-form');
+                let submitted = false;
+
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    if (submitted) {
+                        console.log('Debug: Payment already submitted');
+                        return;
+                    }
+
+                    const submitButton = document.getElementById('submit-payment');
+                    const spinner = document.getElementById('payment-spinner');
+                    const buttonText = document.getElementById('button-text');
+                    const messageDiv = document.getElementById('payment-message');
+
+                    submitted = true;
                     submitButton.disabled = true;
-                    submitButton.textContent = 'Processing...';
-                    
+                    spinner.style.display = 'inline-block';
+                    buttonText.textContent = 'Processing...';
+                    messageDiv.textContent = '';
+
                     try {
+                        console.log('Debug: Confirming payment...');
                         const { error } = await window.stripe.confirmPayment({
                             elements,
                             confirmParams: {
-                                return_url: `${window.location.origin}/payment/success`,
-                            }
+                                return_url: `${window.location.origin}/payment/success?order_id=${orderId}`,
+                            },
                         });
-                        
+
                         if (error) {
-                            const messageDiv = document.querySelector('#error-message');
+                            console.error('Debug: Payment error:', error);
                             messageDiv.textContent = error.message;
+                            submitted = false;
                             submitButton.disabled = false;
-                            submitButton.textContent = 'Pay now';
+                            spinner.style.display = 'none';
+                            buttonText.textContent = 'Pay Now';
                         }
                     } catch (error) {
-                        console.error('Payment error:', error);
-                        const messageDiv = document.querySelector('#error-message');
+                        console.error('Debug: Unexpected payment error:', error);
                         messageDiv.textContent = 'An unexpected error occurred. Please try again.';
+                        submitted = false;
                         submitButton.disabled = false;
-                        submitButton.textContent = 'Pay now';
+                        spinner.style.display = 'none';
+                        buttonText.textContent = 'Pay Now';
                     }
                 });
-                
+
             } catch (error) {
-                console.error('Initialization error:', error);
-                document.querySelector('#loading').textContent = 'Failed to load payment form. Please try again.';
+                console.error('Debug: Error initializing payment:', error);
+                document.getElementById('order-details').innerHTML = `
+                    <div class="error-message">
+                        Error loading payment details. Please try again.
+                    </div>
+                `;
             }
-        }
-        
-        // Initialize when the page loads
-        window.addEventListener('DOMContentLoaded', initializePayment);
+        });
     </script>
 </body>
 </html> 

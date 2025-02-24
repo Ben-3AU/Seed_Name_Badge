@@ -467,31 +467,37 @@
         const payNowBtn = document.querySelector('#payNowBtn');
         payNowBtn.classList.add('loading');
         
-        const values = getFormValues();
-        const totalPrice = Calculator.getTotalPrice(values);
-        const gstAmount = Calculator.getGST(totalPrice);
-        const totalQuantity = Calculator.getTotalQuantity(values.withGuests, values.withoutGuests);
-        
-        const orderData = {
-            quantity_with_guests: values.withGuests,
-            quantity_without_guests: values.withoutGuests,
-            size: values.size,
-            printed_sides: values.printedSides,
-            ink_coverage: values.inkCoverage,
-            lanyards: values.lanyards === 'yes',
-            shipping: values.shipping,
-            paper_type: getSelectedValue('paperType'),
-            first_name: document.querySelector('#orderFirstName').value.trim(),
-            last_name: document.querySelector('#orderLastName').value.trim(),
-            company: document.querySelector('#orderCompany').value.trim(),
-            email: document.querySelector('#orderEmail').value.trim(),
-            total_quantity: totalQuantity,
-            total_cost: Number(totalPrice.toFixed(2)),
-            gst_amount: Number(gstAmount.toFixed(2)),
-            co2_savings: Calculator.getCO2Savings(totalQuantity)
-        };
-
         try {
+            if (!window.stripe) {
+                console.error('Debug: Stripe not initialized');
+                throw new Error('Payment system not properly initialized. Please refresh the page.');
+            }
+
+            const values = getFormValues();
+            const totalPrice = Calculator.getTotalPrice(values);
+            const gstAmount = Calculator.getGST(totalPrice);
+            const totalQuantity = Calculator.getTotalQuantity(values.withGuests, values.withoutGuests);
+            
+            const orderData = {
+                quantity_with_guests: values.withGuests,
+                quantity_without_guests: values.withoutGuests,
+                size: values.size,
+                printed_sides: values.printedSides,
+                ink_coverage: values.inkCoverage,
+                lanyards: values.lanyards === 'yes',
+                shipping: values.shipping,
+                paper_type: getSelectedValue('paperType'),
+                first_name: document.querySelector('#orderFirstName').value.trim(),
+                last_name: document.querySelector('#orderLastName').value.trim(),
+                company: document.querySelector('#orderCompany').value.trim(),
+                email: document.querySelector('#orderEmail').value.trim(),
+                total_quantity: totalQuantity,
+                total_cost: Number(totalPrice.toFixed(2)),
+                gst_amount: Number(gstAmount.toFixed(2)),
+                co2_savings: Calculator.getCO2Savings(totalQuantity)
+            };
+
+            console.log('Debug: Creating payment intent...');
             const response = await fetch(`${config.BASE_URL}/api/create-payment-intent`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -503,21 +509,14 @@
                 throw new Error(errorData.error || 'Failed to create payment intent');
             }
 
-            const { clientSecret } = await response.json();
-            
-            // Initialize Stripe
-            const stripe = Stripe(window.stripePublicKey);
-            
-            // Redirect to Stripe Checkout
-            const result = await stripe.redirectToCheckout({
-                sessionId: clientSecret
-            });
+            const { clientSecret, orderId } = await response.json();
+            console.log('Debug: Received client secret and order ID');
 
-            if (result.error) {
-                throw result.error;
-            }
+            // Redirect to the payment page with the client secret and order ID
+            window.location.href = `/payment.html?payment_intent_client_secret=${clientSecret}&order_id=${orderId}`;
+
         } catch (error) {
-            console.error('Error processing order:', error);
+            console.error('Debug: Error processing order:', error);
             alert('Error processing order: ' + (error.message || 'Unknown error'));
             payNowBtn.classList.remove('loading');
         }
