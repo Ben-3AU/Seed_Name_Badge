@@ -497,22 +497,11 @@
                 co2_savings: Calculator.getCO2Savings(totalQuantity)
             };
 
-            console.log('Debug: Creating payment intent...');
-            const response = await fetch(`${config.BASE_URL}/api/create-payment-intent`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ orderData })
-            });
+            // Store original calculator content before showing payment form
+            const calculatorForm = document.querySelector('.calculator-view');
+            calculatorForm.dataset.originalContent = calculatorForm.innerHTML;
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to create payment intent');
-            }
-
-            const { clientSecret, orderId } = await response.json();
-            console.log('Debug: Received client secret and order ID');
-
-            // Store form state before showing payment form
+            // Store form state
             const formState = {
                 withGuests: values.withGuests,
                 withoutGuests: values.withoutGuests,
@@ -529,10 +518,53 @@
             };
             sessionStorage.setItem('calculatorFormState', JSON.stringify(formState));
 
-            // Hide calculator form and show payment form
-            const calculatorForm = document.querySelector('.calculator-view');
+            // Function to restore form state
+            function restoreFormState(state) {
+                // Restore quantity inputs
+                document.querySelector('#quantityWithGuests').value = state.withGuests;
+                document.querySelector('#quantityWithoutGuests').value = state.withoutGuests;
+
+                // Restore button selections
+                ['size', 'printedSides', 'inkCoverage', 'lanyards', 'shipping', 'paperType'].forEach(name => {
+                    const value = state[name];
+                    const buttons = document.querySelectorAll(`.option-button[data-name="${name}"]`);
+                    buttons.forEach(button => {
+                        if (button.getAttribute('data-value') === value) {
+                            button.classList.add('selected');
+                        } else {
+                            button.classList.remove('selected');
+                        }
+                    });
+                });
+
+                // Restore form inputs
+                document.querySelector('#orderFirstName').value = state.firstName;
+                document.querySelector('#orderLastName').value = state.lastName;
+                document.querySelector('#orderCompany').value = state.company;
+                document.querySelector('#orderEmail').value = state.email;
+
+                // Update display
+                updateDisplay();
+                validateOrderForm();
+            }
+
+            console.log('Debug: Creating payment intent...');
+            const response = await fetch(`${config.BASE_URL}/api/create-payment-intent`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderData })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to create payment intent');
+            }
+
+            const { clientSecret, orderId } = await response.json();
+            console.log('Debug: Received client secret and order ID');
+
             calculatorForm.innerHTML = `
-                <button class="back-button" onclick="window.location.href = '/calculator'">← Back to Calculator</button>
+                <button class="back-button" onclick="document.querySelector('.calculator-view').innerHTML = document.querySelector('.calculator-view').dataset.originalContent; const formState = JSON.parse(sessionStorage.getItem('calculatorFormState')); if (formState) { restoreFormState(formState); }">← Back</button>
                 <div class="order-summary">
                     <h2>Order Summary</h2>
                     <div class="summary-row">
