@@ -16,18 +16,21 @@
 <body>
     <div class="container">
         <div class="payment-form">
-            <button class="back-button" onclick="window.location.href = '/'">← Back to Calculator</button>
-            <h2>Complete Your Order</h2>
+            <button class="back-button" onclick="window.location.href = '/'">← Back</button>
+            <h2>Order Summary</h2>
             
             <div id="order-summary" class="order-summary">
-                <h3>Order Summary</h3>
                 <div id="order-details">Loading...</div>
             </div>
 
             <form id="payment-form">
+                <div class="form-group">
+                    <label for="card-name">Name on card</label>
+                    <input id="card-name" type="text" required>
+                </div>
                 <div id="payment-element"></div>
                 <button id="submit-payment" class="submit-button">
-                    <span id="button-text">Pay Now</span>
+                    <span id="button-text">Pay now</span>
                     <div class="spinner" id="payment-spinner" style="display: none;"></div>
                 </button>
                 <div id="payment-message" class="payment-message"></div>
@@ -54,6 +57,21 @@
                 }
                 const orderData = await response.json();
 
+                // Format values for display
+                const formatValue = (value) => {
+                    if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+                    if (value === 'upTo40') return 'Up to 40%';
+                    if (value === 'over40') return 'Over 40%';
+                    if (value === 'single') return 'Single sided';
+                    if (value === 'double') return 'Double sided';
+                    if (value === 'standard') return 'Standard';
+                    if (value === 'express') return 'Express';
+                    if (value === 'mixedHerb') return 'Mixed herb';
+                    if (value === 'mixedFlower') return 'Mixed flower';
+                    if (value === 'randomMix') return 'Random mix';
+                    return value;
+                };
+
                 // Update order summary
                 document.getElementById('order-details').innerHTML = `
                     <div class="summary-row">
@@ -61,15 +79,50 @@
                         <span>${orderData.first_name} ${orderData.last_name}</span>
                     </div>
                     <div class="summary-row">
+                        <span>Company:</span>
+                        <span>${orderData.company || '-'}</span>
+                    </div>
+                    <div class="summary-row">
                         <span>Email:</span>
                         <span>${orderData.email}</span>
                     </div>
                     <div class="summary-row">
-                        <span>Total Quantity:</span>
-                        <span>${orderData.total_quantity} badges</span>
+                        <span>Qty with guest details:</span>
+                        <span>${orderData.quantity_with_guests}</span>
                     </div>
                     <div class="summary-row">
-                        <span>Total Amount:</span>
+                        <span>Qty without guest details:</span>
+                        <span>${orderData.quantity_without_guests}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Total quantity:</span>
+                        <span>${orderData.total_quantity}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Size:</span>
+                        <span>${orderData.size}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Printed sides:</span>
+                        <span>${formatValue(orderData.printed_sides)}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Ink coverage:</span>
+                        <span>${formatValue(orderData.ink_coverage)}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Lanyards:</span>
+                        <span>${formatValue(orderData.lanyards)}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Shipping:</span>
+                        <span>${formatValue(orderData.shipping)}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Paper type:</span>
+                        <span>${formatValue(orderData.paper_type)}</span>
+                    </div>
+                    <div class="summary-row total">
                         <span>$${orderData.total_cost.toFixed(2)}</span>
                     </div>
                 `;
@@ -91,7 +144,13 @@
                     }
                 });
 
-                const paymentElement = elements.create('payment');
+                const paymentElement = elements.create('payment', {
+                    fields: {
+                        billingDetails: {
+                            name: 'never'
+                        }
+                    }
+                });
                 await paymentElement.mount('#payment-element');
                 console.log('Debug: Payment element mounted');
 
@@ -104,6 +163,12 @@
 
                     if (submitted) {
                         console.log('Debug: Payment already submitted');
+                        return;
+                    }
+
+                    const cardName = document.getElementById('card-name').value.trim();
+                    if (!cardName) {
+                        document.getElementById('payment-message').textContent = 'Please enter the name on your card';
                         return;
                     }
 
@@ -123,6 +188,11 @@
                         const { error } = await window.stripe.confirmPayment({
                             elements,
                             confirmParams: {
+                                payment_method_data: {
+                                    billing_details: {
+                                        name: cardName
+                                    }
+                                },
                                 return_url: `${BASE_URL}/payment/success?order_id=${orderId}`,
                             },
                         });

@@ -512,8 +512,165 @@
             const { clientSecret, orderId } = await response.json();
             console.log('Debug: Received client secret and order ID');
 
-            // Redirect to the payment page with the client secret and order ID
-            window.location.href = `${config.BASE_URL}/payment.html?payment_intent_client_secret=${clientSecret}&order_id=${orderId}`;
+            // Hide calculator form and show payment form
+            const calculatorForm = document.querySelector('.calculator-view');
+            calculatorForm.innerHTML = `
+                <button class="back-button" onclick="location.reload()">← Back</button>
+                <h2>Order Summary</h2>
+                <div class="order-summary">
+                    <div class="summary-row">
+                        <span>Name:</span>
+                        <span>${orderData.first_name} ${orderData.last_name}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Company:</span>
+                        <span>${orderData.company || '-'}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Email:</span>
+                        <span>${orderData.email}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Qty with guest details:</span>
+                        <span>${orderData.quantity_with_guests}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Qty without guest details:</span>
+                        <span>${orderData.quantity_without_guests}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Total quantity:</span>
+                        <span>${orderData.total_quantity}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Size:</span>
+                        <span>${orderData.size}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Printed sides:</span>
+                        <span>${orderData.printed_sides === 'single' ? 'Single sided' : 'Double sided'}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Ink coverage:</span>
+                        <span>${orderData.ink_coverage === 'upTo40' ? 'Up to 40%' : 'Over 40%'}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Lanyards:</span>
+                        <span>${orderData.lanyards ? 'Yes' : 'No'}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Shipping:</span>
+                        <span>${orderData.shipping === 'standard' ? 'Standard' : 'Express'}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Paper type:</span>
+                        <span>${orderData.paper_type === 'mixedHerb' ? 'Mixed herb' : orderData.paper_type === 'mixedFlower' ? 'Mixed flower' : 'Random mix'}</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>$${orderData.total_cost.toFixed(2)}</span>
+                    </div>
+                </div>
+                <form id="payment-form">
+                    <div class="form-group">
+                        <label for="card-name">Name on card</label>
+                        <input id="card-name" type="text" required>
+                    </div>
+                    <div id="payment-element"></div>
+                    <button id="submit-payment" class="submit-button">
+                        <span id="button-text">Pay now</span>
+                        <div class="spinner" id="payment-spinner" style="display: none;"></div>
+                    </button>
+                    <div id="payment-message" class="payment-message"></div>
+                </form>
+            `;
+
+            // Create payment element
+            const elements = window.stripe.elements({
+                clientSecret,
+                appearance: {
+                    theme: 'stripe',
+                    variables: {
+                        colorPrimary: '#1b4c57',
+                        colorBackground: '#ffffff',
+                        colorText: '#1b4c57',
+                        colorDanger: '#df1b41',
+                        fontFamily: 'Verdana, system-ui, sans-serif',
+                        spacingUnit: '4px',
+                        borderRadius: '6px'
+                    }
+                }
+            });
+
+            const paymentElement = elements.create('payment', {
+                fields: {
+                    billingDetails: {
+                        name: 'never'
+                    }
+                }
+            });
+            await paymentElement.mount('#payment-element');
+            console.log('Debug: Payment element mounted');
+
+            // Handle payment form submission
+            const paymentForm = document.querySelector('#payment-form');
+            let submitted = false;
+
+            paymentForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                if (submitted) {
+                    console.log('Debug: Payment already submitted');
+                    return;
+                }
+
+                const cardName = document.getElementById('card-name').value.trim();
+                if (!cardName) {
+                    document.getElementById('payment-message').textContent = 'Please enter the name on your card';
+                    return;
+                }
+
+                const submitButton = document.getElementById('submit-payment');
+                const spinner = document.getElementById('payment-spinner');
+                const buttonText = document.getElementById('button-text');
+                const messageDiv = document.getElementById('payment-message');
+
+                submitted = true;
+                submitButton.disabled = true;
+                spinner.style.display = 'inline-block';
+                buttonText.textContent = 'Processing...';
+                messageDiv.textContent = '';
+
+                try {
+                    console.log('Debug: Confirming payment...');
+                    const { error } = await window.stripe.confirmPayment({
+                        elements,
+                        confirmParams: {
+                            payment_method_data: {
+                                billing_details: {
+                                    name: cardName
+                                }
+                            },
+                            return_url: `${config.BASE_URL}/payment/success?order_id=${orderId}`,
+                        },
+                    });
+
+                    if (error) {
+                        console.error('Debug: Payment error:', error);
+                        messageDiv.textContent = error.message;
+                        submitted = false;
+                        submitButton.disabled = false;
+                        spinner.style.display = 'none';
+                        buttonText.textContent = 'Pay Now';
+                    }
+                } catch (error) {
+                    console.error('Debug: Unexpected payment error:', error);
+                    messageDiv.textContent = 'An unexpected error occurred. Please try again.';
+                    submitted = false;
+                    submitButton.disabled = false;
+                    spinner.style.display = 'none';
+                    buttonText.textContent = 'Pay Now';
+                }
+            });
 
         } catch (error) {
             console.error('Debug: Error processing order:', error);
