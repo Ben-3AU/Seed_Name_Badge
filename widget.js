@@ -61,6 +61,88 @@
         calculator: Calculator
     };
 
+    // Function to restore form state
+    function restoreFormState(state) {
+        // Reset loading states first
+        const payNowBtn = document.querySelector('#payNowBtn');
+        if (payNowBtn) {
+            payNowBtn.classList.remove('loading');
+            payNowBtn.disabled = false;
+            payNowBtn.innerHTML = `
+                <div class="button-content">
+                    <div class="spinner"></div>
+                    <span>Checkout</span>
+                </div>
+            `;
+        }
+
+        // Restore quantity inputs
+        const quantityWithGuests = document.querySelector('#quantityWithGuests');
+        const quantityWithoutGuests = document.querySelector('#quantityWithoutGuests');
+        if (quantityWithGuests) quantityWithGuests.value = state.withGuests || '';
+        if (quantityWithoutGuests) quantityWithoutGuests.value = state.withoutGuests || '';
+
+        // Restore button selections
+        ['size', 'printedSides', 'inkCoverage', 'lanyards', 'shipping', 'paperType'].forEach(name => {
+            const value = state[name];
+            const buttons = document.querySelectorAll(`.option-button[data-name="${name}"]`);
+            buttons.forEach(button => {
+                button.classList.remove('selected');
+                if (button.getAttribute('data-value') === value) {
+                    button.classList.add('selected');
+                }
+            });
+        });
+
+        // Reset action buttons state
+        const orderNowBtn = document.querySelector('#orderNowBtn');
+        const emailQuoteBtn = document.querySelector('#emailQuoteBtn');
+        if (orderNowBtn) {
+            orderNowBtn.classList.add('selected');
+        }
+        if (emailQuoteBtn) {
+            emailQuoteBtn.classList.remove('selected');
+        }
+
+        // Restore form inputs
+        const orderFirstName = document.querySelector('#orderFirstName');
+        const orderLastName = document.querySelector('#orderLastName');
+        const orderCompany = document.querySelector('#orderCompany');
+        const orderEmail = document.querySelector('#orderEmail');
+
+        if (orderFirstName) orderFirstName.value = state.firstName || '';
+        if (orderLastName) orderLastName.value = state.lastName || '';
+        if (orderCompany) orderCompany.value = state.company || '';
+        if (orderEmail) orderEmail.value = state.email || '';
+
+        // Update display and validate form
+        updateDisplay();
+        validateOrderForm();
+
+        // Show order form and hide email quote form
+        const emailQuoteForm = document.querySelector('#emailQuoteForm');
+        const orderForm = document.querySelector('#orderForm');
+        if (emailQuoteForm) emailQuoteForm.style.display = 'none';
+        if (orderForm) orderForm.style.display = 'block';
+    }
+
+    // Function to handle back button click
+    function handleBackButtonClick() {
+        const calculatorView = document.querySelector('.calculator-view');
+        if (calculatorView && calculatorView.dataset.originalContent) {
+            calculatorView.innerHTML = calculatorView.dataset.originalContent;
+            const formState = JSON.parse(sessionStorage.getItem('calculatorFormState'));
+            if (formState) {
+                restoreFormState(formState);
+            }
+            // Re-attach event listeners after restoring content
+            setupEventListeners();
+        }
+    }
+
+    // Make the function globally accessible
+    window.handleBackButtonClick = handleBackButtonClick;
+
     // Initialize widget
     async function initWidget() {
         try {
@@ -524,69 +606,6 @@
             const y = widgetElement.getBoundingClientRect().top + window.pageYOffset + yOffset;
             window.scrollTo({ top: y, behavior: 'smooth' });
 
-            // Function to restore form state
-            function restoreFormState(state) {
-                // Reset loading states first
-                const payNowBtn = document.querySelector('#payNowBtn');
-                if (payNowBtn) {
-                    payNowBtn.classList.remove('loading');
-                    payNowBtn.disabled = false;
-                    const spinner = payNowBtn.querySelector('.spinner');
-                    const buttonText = payNowBtn.querySelector('span');
-                    if (spinner) spinner.style.display = 'none';
-                    if (buttonText) buttonText.textContent = 'Checkout';
-                }
-
-                // Restore quantity inputs
-                const quantityWithGuests = document.querySelector('#quantityWithGuests');
-                const quantityWithoutGuests = document.querySelector('#quantityWithoutGuests');
-                if (quantityWithGuests) quantityWithGuests.value = state.withGuests || '';
-                if (quantityWithoutGuests) quantityWithoutGuests.value = state.withoutGuests || '';
-
-                // Restore button selections
-                ['size', 'printedSides', 'inkCoverage', 'lanyards', 'shipping', 'paperType'].forEach(name => {
-                    const value = state[name];
-                    const buttons = document.querySelectorAll(`.option-button[data-name="${name}"]`);
-                    buttons.forEach(button => {
-                        button.classList.remove('selected');
-                        if (button.getAttribute('data-value') === value) {
-                            button.classList.add('selected');
-                        }
-                    });
-                });
-
-                // Reset action buttons state
-                const orderNowBtn = document.querySelector('#orderNowBtn');
-                const emailQuoteBtn = document.querySelector('#emailQuoteBtn');
-                if (orderNowBtn) {
-                    orderNowBtn.classList.add('selected');
-                }
-                if (emailQuoteBtn) {
-                    emailQuoteBtn.classList.remove('selected');
-                }
-
-                // Restore form inputs
-                const orderFirstName = document.querySelector('#orderFirstName');
-                const orderLastName = document.querySelector('#orderLastName');
-                const orderCompany = document.querySelector('#orderCompany');
-                const orderEmail = document.querySelector('#orderEmail');
-
-                if (orderFirstName) orderFirstName.value = state.firstName || '';
-                if (orderLastName) orderLastName.value = state.lastName || '';
-                if (orderCompany) orderCompany.value = state.company || '';
-                if (orderEmail) orderEmail.value = state.email || '';
-
-                // Update display and validate form
-                updateDisplay();
-                validateOrderForm();
-
-                // Show order form and hide email quote form
-                const emailQuoteForm = document.querySelector('#emailQuoteForm');
-                const orderForm = document.querySelector('#orderForm');
-                if (emailQuoteForm) emailQuoteForm.style.display = 'none';
-                if (orderForm) orderForm.style.display = 'block';
-            }
-
             console.log('Debug: Creating payment intent...');
             const response = await fetch(`${config.BASE_URL}/api/create-payment-intent`, {
                 method: 'POST',
@@ -603,7 +622,7 @@
             console.log('Debug: Received client secret and order ID');
 
             calculatorForm.innerHTML = `
-                <button class="back-button" onclick="document.querySelector('.calculator-view').innerHTML = document.querySelector('.calculator-view').dataset.originalContent; const formState = JSON.parse(sessionStorage.getItem('calculatorFormState')); if (formState) { restoreFormState(formState); }">← Back</button>
+                <button class="back-button" onclick="handleBackButtonClick()">← Back</button>
                 <div class="order-summary">
                     <h2>Order Summary</h2>
                     <div class="summary-row">
