@@ -236,9 +236,7 @@ app.post('/api/create-payment-intent', async (req, res) => {
         const paymentIntent = await stripe.paymentIntents.create({
             amount: Math.round(orderData.total_cost * 100),
             currency: 'aud',
-            automatic_payment_methods: {
-                enabled: true,
-            },
+            payment_method_types: ['card'],
             metadata: {
                 order_id: order.id,
                 email: orderData.email,
@@ -255,7 +253,7 @@ app.post('/api/create-payment-intent', async (req, res) => {
             console.error('Error updating order with payment intent ID:', updateError);
         }
 
-        // Return the client secret
+        // Return the client secret and order ID
         res.json({ 
             clientSecret: paymentIntent.client_secret,
             orderId: order.id

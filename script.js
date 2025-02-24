@@ -431,7 +431,7 @@ async function handleOrderSubmission(event) {
             throw new Error(errorData.error || 'Failed to create payment intent');
         }
 
-        const { clientSecret } = await response.json();
+        const { clientSecret, orderId } = await response.json();
         
         // Hide calculator form and show payment form
         const calculatorForm = document.getElementById('calculatorForm');
