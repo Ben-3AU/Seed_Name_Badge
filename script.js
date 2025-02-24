@@ -128,20 +128,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             throw new Error('Payment system failed to load. Please refresh the page.');
         }
 
-        // Fetch the Stripe public key from the server
-        console.log('Debug: Fetching Stripe configuration...');
-        const response = await fetch('https://seednamebadge.vercel.app/config');
-        if (!response.ok) {
-            throw new Error('Failed to load payment configuration');
-        }
-        const { publishableKey } = await response.json();
-        
-        if (!publishableKey) {
-            throw new Error('No Stripe public key available');
+        if (!window.stripePublicKey) {
+            console.error('Debug: Stripe public key not set');
+            throw new Error('Payment system configuration missing. Please refresh the page.');
         }
 
-        // Initialize Stripe with the fetched public key
-        window.stripe = Stripe(publishableKey);
+        // Initialize Stripe with the public key
+        console.log('Debug: Initializing Stripe with public key');
+        window.stripe = Stripe(window.stripePublicKey);
         console.log('Debug: Stripe initialized successfully');
 
     } catch (error) {
@@ -485,7 +479,7 @@ async function handleOrderSubmission(event) {
         document.querySelector('.container').appendChild(paymentContainer);
 
         // Create payment element
-        const elements = stripe.elements({
+        const elements = window.stripe.elements({
             clientSecret,
             appearance: {
                 theme: 'stripe',
@@ -518,7 +512,7 @@ async function handleOrderSubmission(event) {
             buttonText.textContent = 'Processing...';
 
             try {
-                const { error } = await stripe.confirmPayment({
+                const { error } = await window.stripe.confirmPayment({
                     elements,
                     confirmParams: {
                         return_url: `${window.location.origin}/payment/success`,
