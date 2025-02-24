@@ -76,12 +76,14 @@ app.use((req, res, next) => {
 
 // Stripe configuration endpoint
 app.get('/config', (req, res) => {
-    if (!process.env.STRIPE_PUBLISHABLE_KEY) {
-        console.error('Missing Stripe publishable key');
-        return res.status(500).json({ error: 'Missing Stripe configuration' });
+    if (!process.env.STRIPE_PUBLISHABLE_KEY || !process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
+        console.error('Missing required configuration');
+        return res.status(500).json({ error: 'Missing required configuration' });
     }
     res.json({
-        publishableKey: process.env.STRIPE_PUBLISHABLE_KEY
+        publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
+        supabaseUrl: process.env.SUPABASE_URL,
+        supabaseKey: process.env.SUPABASE_KEY
     });
 });
 
