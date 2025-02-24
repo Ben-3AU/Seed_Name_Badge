@@ -512,10 +512,27 @@
             const { clientSecret, orderId } = await response.json();
             console.log('Debug: Received client secret and order ID');
 
+            // Store form state before showing payment form
+            const formState = {
+                withGuests: values.withGuests,
+                withoutGuests: values.withoutGuests,
+                size: values.size,
+                printedSides: values.printedSides,
+                inkCoverage: values.inkCoverage,
+                lanyards: values.lanyards,
+                shipping: values.shipping,
+                firstName: document.querySelector('#orderFirstName').value.trim(),
+                lastName: document.querySelector('#orderLastName').value.trim(),
+                company: document.querySelector('#orderCompany').value.trim(),
+                email: document.querySelector('#orderEmail').value.trim(),
+                paperType: getSelectedValue('paperType')
+            };
+            sessionStorage.setItem('calculatorFormState', JSON.stringify(formState));
+
             // Hide calculator form and show payment form
             const calculatorForm = document.querySelector('.calculator-view');
             calculatorForm.innerHTML = `
-                <button class="back-button" onclick="location.reload()">← Back</button>
+                <button class="back-button" onclick="handleBackToCalculator()">← Back</button>
                 <div class="order-summary">
                     <h2>Order Summary</h2>
                     <div class="summary-row">
@@ -567,8 +584,7 @@
                         <span>${orderData.paper_type === 'mixedHerb' ? 'Mixed herb' : orderData.paper_type === 'mixedFlower' ? 'Mixed flower' : 'Random mix'}</span>
                     </div>
                     <div class="summary-row total">
-                        <span>Total: </span>
-                        <span>$ ${orderData.total_cost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        <span>Total: $${orderData.total_cost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                 </div>
                 <form id="payment-form">
@@ -585,7 +601,22 @@
                 </form>
             `;
 
-            // Create payment element
+            // Add back button handler to window object
+            window.handleBackToCalculator = () => {
+                location.reload();
+                const savedState = JSON.parse(sessionStorage.getItem('calculatorFormState'));
+                if (savedState) {
+                    // Restore form state after page reload
+                    document.addEventListener('DOMContentLoaded', () => {
+                        restoreFormState(savedState);
+                    });
+                }
+            };
+
+            // Scroll to top of widget
+            document.querySelector('.terra-tag-widget').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            // Create payment element with less restrictive configuration
             const elements = window.stripe.elements({
                 clientSecret,
                 appearance: {
@@ -605,20 +636,15 @@
             const paymentElement = elements.create('payment', {
                 layout: {
                     type: 'tabs',
-                    defaultCollapsed: false,
-                    radios: true,
-                    spacedAccordionItems: true
+                    defaultCollapsed: false
                 },
                 fields: {
-                    billingDetails: {
-                        name: 'never'
-                    }
+                    billingDetails: 'auto'
                 },
                 wallets: {
                     applePay: 'never',
                     googlePay: 'never'
-                },
-                paymentMethodOrder: ['card', 'bancontact', 'ideal', 'sepa_debit']
+                }
             });
 
             await paymentElement.mount('#payment-element');
@@ -690,6 +716,33 @@
             alert('Error processing order: ' + (error.message || 'Unknown error'));
             payNowBtn.classList.remove('loading');
         }
+    }
+
+    // Add this function to restore form state
+    function restoreFormState(state) {
+        if (!state) return;
+        
+        // Restore quantity inputs
+        document.querySelector('#quantityWithGuests').value = state.withGuests;
+        document.querySelector('#quantityWithoutGuests').value = state.withoutGuests;
+        
+        // Restore button selections
+        ['size', 'printedSides', 'inkCoverage', 'lanyards', 'shipping', 'paperType'].forEach(field => {
+            const button = document.querySelector(`.option-button[data-name="${field}"][data-value="${state[field]}"]`);
+            if (button) {
+                document.querySelectorAll(`.option-button[data-name="${field}"]`).forEach(btn => btn.classList.remove('selected'));
+                button.classList.add('selected');
+            }
+        });
+        
+        // Restore form inputs
+        document.querySelector('#orderFirstName').value = state.firstName;
+        document.querySelector('#orderLastName').value = state.lastName;
+        document.querySelector('#orderCompany').value = state.company;
+        document.querySelector('#orderEmail').value = state.email;
+        
+        // Update display
+        updateDisplay();
     }
 
     // Start initialization when DOM is ready

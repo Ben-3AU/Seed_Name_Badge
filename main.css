@@ -492,55 +492,56 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .order-summary {
-    background: #f7fafc;
-    border-radius: 6px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    font-family: Verdana, sans-serif;
+    background: #f7fafc !important;
+    border-radius: 6px !important;
+    padding: 1.5rem !important;
+    margin-bottom: 2rem !important;
+    font-family: Verdana, sans-serif !important;
 }
 
 .order-summary h2 {
-    color: #1b4c57;
-    font-size: 1.5rem;
-    font-family: Verdana, sans-serif;
-    margin-bottom: 1.5rem;
+    color: #1b4c57 !important;
+    font-size: 1.5rem !important;
+    font-family: Verdana, sans-serif !important;
+    margin-bottom: 1.5rem !important;
 }
 
-.summary-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1.25rem;
-    color: #1b4c57;
-    font-size: 0.9rem;
-    line-height: 1.5;
-    font-family: Verdana, sans-serif;
+.order-summary .summary-row {
+    display: flex !important;
+    justify-content: flex-start !important;
+    margin-bottom: 2rem !important;
+    color: #1b4c57 !important;
+    font-size: 0.9rem !important;
+    line-height: 1.5 !important;
+    font-family: Verdana, sans-serif !important;
+    border: none !important;
 }
 
-.summary-row span:first-child {
-    text-align: left;
+.order-summary .summary-row span:first-child {
+    width: 200px !important;
+    text-align: left !important;
+    font-weight: normal !important;
 }
 
-.summary-row span:last-child {
-    text-align: left;
+.order-summary .summary-row span:last-child {
+    flex: 1 !important;
+    text-align: left !important;
+    font-weight: normal !important;
 }
 
-.summary-row:not(.total) {
-    padding-bottom: 0;
-    border-bottom: none;
+.order-summary .summary-row.total {
+    margin-top: 1.5rem !important;
+    padding-top: 1.5rem !important;
+    border-top: 1px solid #e2e8f0 !important;
+    border-bottom: none !important;
+    font-size: 1.5rem !important;
+    font-weight: bold !important;
+    color: #1b4c57 !important;
 }
 
-.summary-row.total {
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #e2e8f0;
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #1b4c57;
-}
-
-.summary-row.total span:first-child {
-    margin-right: 0.5rem;
+.order-summary .summary-row.total span {
+    width: auto !important;
+    font-weight: bold !important;
 }
 
 #payment-form {
