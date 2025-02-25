@@ -11,26 +11,26 @@
       "use": "@vercel/node"
     },
     {
+      "src": "src/ui/widget.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "src/ui/styles.css",
+      "use": "@vercel/static"
+    },
+    {
       "src": "*.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "*.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "*.css",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/payment.html",
-      "dest": "/payment.html"
+      "src": "/",
+      "dest": "/index.html"
     },
     {
       "src": "/widget.js",
-      "dest": "/widget.js",
+      "dest": "/src/ui/widget.js",
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, OPTIONS",
@@ -41,7 +41,7 @@
     },
     {
       "src": "/main.css",
-      "dest": "/main.css",
+      "dest": "/src/ui/styles.css",
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, OPTIONS",
