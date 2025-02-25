@@ -1,3 +1,32 @@
+:root {
+    /* Fonts */
+    --font-primary: Verdana, system-ui, sans-serif;
+    --font-size-small: 14px;
+    --font-size-medium: 16px;
+    --font-size-large: 18px;
+    --font-size-xlarge: 24px;
+
+    /* Colors */
+    --color-primary: #1b4c57;
+    --color-secondary: #4a5568;
+    --color-text-primary: #1b4c57;
+    --color-text-secondary: #4a5568;
+    --color-text-light: #ffffff;
+    --color-background-main: #ffffff;
+    --color-background-light: #f7fafc;
+    --color-background-dark: #e2e8f0;
+    --color-success: #48bb78;
+    --color-error: #e53e3e;
+    --color-border: #e2e8f0;
+
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-small: 8px;
+    --spacing-medium: 16px;
+    --spacing-large: 24px;
+    --spacing-xlarge: 32px;
+}
+
 /* Base styles for widget */
 #terra-tag-calculator {
     font-size: 16px;
