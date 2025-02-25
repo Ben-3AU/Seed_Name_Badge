@@ -11,11 +11,7 @@
       "use": "@vercel/node"
     },
     {
-      "src": "src/ui/widget.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "src/ui/styles.css",
+      "src": "src/**",
       "use": "@vercel/static"
     },
     {
@@ -29,34 +25,26 @@
       "dest": "/index.html"
     },
     {
-      "src": "/widget.js",
-      "dest": "/src/ui/widget.js",
+      "src": "/api/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/src/(.*)",
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, OPTIONS",
         "Access-Control-Allow-Headers": "*",
         "Cache-Control": "no-cache, no-store, must-revalidate",
         "Content-Type": "application/javascript"
-      }
+      },
+      "dest": "/src/$1"
     },
     {
-      "src": "/main.css",
-      "dest": "/src/ui/styles.css",
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, OPTIONS",
-        "Access-Control-Allow-Headers": "*",
-        "Cache-Control": "no-cache, no-store, must-revalidate",
-        "Content-Type": "text/css"
-      }
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "server.js"
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "server.js"
+      "dest": "/server.js"
     }
   ]
 } 

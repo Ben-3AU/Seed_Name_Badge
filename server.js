@@ -84,14 +84,12 @@ app.use((req, res, next) => {
 });
 
 // API Routes
-app.get('/config', asyncHandler(async (req, res) => {
-    if (!process.env.STRIPE_PUBLISHABLE_KEY || !process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
-        throw new APIError('Missing required configuration', 500);
+app.get('/api/config', asyncHandler(async (req, res) => {
+    if (!process.env.STRIPE_PUBLISHABLE_KEY) {
+        throw new APIError('Missing Stripe configuration', 500);
     }
     res.json({
-        publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
-        supabaseUrl: process.env.SUPABASE_URL,
-        supabaseKey: process.env.SUPABASE_KEY
+        publishableKey: process.env.STRIPE_PUBLISHABLE_KEY
     });
 }));
 
