@@ -5,22 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tag Calculator</title>
     <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="/src/ui/styles.css">
+    <link rel="stylesheet" href="/main.css">
     <!-- Load Stripe.js -->
     <script src="https://js.stripe.com/v3/"></script>
-    <!-- Initialize widget -->
-    <script type="module">
-        import { SeedNameBadgeWidget } from '/src/ui/widget.js';
-        
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const widget = new SeedNameBadgeWidget('terra-tag-calculator');
-                await widget.initialize();
-            } catch (error) {
-                console.error('Failed to initialize widget:', error);
-            }
-        });
-    </script>
+    <!-- Load widget -->
+    <script src="/src/ui/widget.js"></script>
 </head>
 <body>
     <div id="terra-tag-calculator"></div>

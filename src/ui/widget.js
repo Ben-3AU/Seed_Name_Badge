@@ -1,803 +1,490 @@
-'use strict';
-
-import { UI } from '../core/constants.js';
-import { Calculator } from '../core/calculator.js';
-import { State } from '../core/state.js';
-import { StripeService } from '../services/stripe.js';
-import { Button } from './components/Button.js';
-import { Input } from './components/Input.js';
-import { Summary } from './components/Summary.js';
-
-// Export the widget class
-export class SeedNameBadgeWidget {
-    constructor(containerId) {
-        this.container = document.getElementById(containerId);
-        if (!this.container) {
-            throw new Error(`Container with id "${containerId}" not found`);
+// Seed Name Badge Calculator Widget
+(() => {
+    // UI Constants
+    const UI = {
+        LABELS: {
+            title: 'Tag Calculator',
+            forms: {
+                withGuests: 'Enter quantity with guest details printed',
+                withoutGuests: 'Enter quantity without guest details printed',
+                size: 'Size',
+                printedSides: 'Printed sides',
+                inkCoverage: 'Ink coverage',
+                lanyards: 'Lanyards included',
+                shipping: 'Shipping',
+                firstName: 'First name',
+                lastName: 'Last name',
+                email: 'Email',
+                company: 'Company',
+                paperType: 'Paper type'
+            },
+            buttons: {
+                getQuote: 'Email the quote',
+                payNow: 'Order Now',
+                back: '← Back to Calculator'
+            }
+        },
+        OPTIONS: {
+            size: ['A7', 'A6'],
+            printedSides: ['single', 'double'],
+            inkCoverage: ['upTo40', 'over40'],
+            lanyards: ['yes', 'no'],
+            shipping: ['standard', 'express'],
+            paperType: ['mixedHerb', 'mixedFlower', 'randomMix']
         }
+    };
 
-        this.calculator = new Calculator();
-        this.state = new State();
-        this.stripeService = new StripeService();
-    }
+    // Calculator functionality
+    const Calculator = {
+        getTotalQuantity(withGuests, withoutGuests) {
+            return (withGuests || 0) + (withoutGuests || 0);
+        },
 
-    async initialize() {
+        getTotalPrice(values) {
+            const { withGuests, withoutGuests, size, printedSides, inkCoverage, lanyards, shipping } = values;
+            const totalQuantity = this.getTotalQuantity(withGuests, withoutGuests);
+            let totalPrice = (withGuests * 6) + (withoutGuests * 5);
+
+            if (totalQuantity > 300) totalPrice -= 0.50 * totalQuantity;
+
+            if (size === 'A6') totalPrice += 3 * totalQuantity;
+            if (printedSides === 'double') totalPrice += (size === 'A7' ? 0.50 : 1.00) * totalQuantity;
+            if (inkCoverage === 'over40') totalPrice += (size === 'A7' ? 0.50 : 1.00) * totalQuantity;
+            if (lanyards === 'no') totalPrice -= 0.50 * totalQuantity;
+
+            let shippingCost = 0;
+            if (size === 'A7') {
+                if (totalQuantity < 200) shippingCost = 20;
+                else if (totalQuantity <= 500) shippingCost = 30;
+                else shippingCost = 50;
+            } else {
+                if (totalQuantity < 200) shippingCost = 30;
+                else if (totalQuantity <= 500) shippingCost = 45;
+                else shippingCost = 75;
+            }
+
+            if (shipping === 'express') shippingCost *= 2;
+            totalPrice += shippingCost;
+            totalPrice *= 1.10;
+            totalPrice *= 1.017;
+
+            return totalPrice;
+        },
+
+        getGST(totalPrice) {
+            return totalPrice / 11;
+        },
+
+        getCO2Savings(totalQuantity) {
+            return totalQuantity * 0.11;
+        }
+    };
+
+    // State management
+    const state = {
+        formData: {
+            withGuests: 0,
+            withoutGuests: 0,
+            size: 'A7',
+            printedSides: 'single',
+            inkCoverage: 'upTo40',
+            lanyards: 'yes',
+            shipping: 'standard',
+            paperType: 'mixedHerb'
+        },
+        stripe: null
+    };
+
+    // Initialize widget
+    async function initWidget() {
         try {
-            await this.stripeService.initialize();
-            this.createStructure();
-            this.setupEventListeners();
-            this.updateDisplay();
+            injectStyles();
+            await loadDependencies();
+            createWidgetStructure();
+            setupEventListeners();
         } catch (error) {
-            console.error('Failed to initialize widget:', error);
-            this.showError('Failed to initialize calculator. Please refresh the page.');
+            console.error('Widget initialization error:', error);
         }
     }
 
-    createStructure() {
-        this.container.innerHTML = `
-            <div class="terra-tag-widget">
-                <h1 class="terra-tag-title">${UI.LABELS.title}</h1>
-                <form class="terra-tag-form">
-                    <div class="form-row">
-                        ${new Input({
-                            type: 'number',
-                            name: 'withGuests',
-                            label: UI.LABELS.forms.withGuests,
-                            value: this.state.data.formData.withGuests,
-                            onChange: (e) => this.handleQuantityChange(e)
-                        }).render().outerHTML}
-                        
-                        ${new Input({
-                            type: 'number',
-                            name: 'withoutGuests',
-                            label: UI.LABELS.forms.withoutGuests,
-                            value: this.state.data.formData.withoutGuests,
-                            onChange: (e) => this.handleQuantityChange(e)
-                        }).render().outerHTML}
+    // Load external dependencies
+    async function loadDependencies() {
+        await loadScript('https://js.stripe.com/v3/');
+        state.stripe = Stripe('YOUR_PUBLISHABLE_KEY'); // Replace with actual key
+    }
+
+    // Helper function to load scripts
+    function loadScript(src) {
+        return new Promise((resolve, reject) => {
+            if (document.querySelector(`script[src="${src}"]`)) {
+                resolve();
+                return;
+            }
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+
+    // Create widget structure
+    function createWidgetStructure() {
+        const container = document.getElementById('terra-tag-calculator');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="calculator-container">
+                <h1 class="calculator-heading">${UI.LABELS.title}</h1>
+                <form class="calculator-form">
+                    <div class="form-group">
+                        <label>${UI.LABELS.forms.withGuests}</label>
+                        <input type="number" id="withGuests" min="0" value="0">
                     </div>
-
-                    <div class="options-section">
-                        ${this.createOptionsGroup('size', UI.LABELS.forms.size, UI.OPTIONS.size)}
-                        ${this.createOptionsGroup('printedSides', UI.LABELS.forms.printedSides, UI.OPTIONS.printedSides)}
-                        ${this.createOptionsGroup('inkCoverage', UI.LABELS.forms.inkCoverage, UI.OPTIONS.inkCoverage)}
-                        ${this.createOptionsGroup('lanyards', UI.LABELS.forms.lanyards, UI.OPTIONS.lanyards)}
-                        ${this.createOptionsGroup('shipping', UI.LABELS.forms.shipping, UI.OPTIONS.shipping)}
+                    <div class="form-group">
+                        <label>${UI.LABELS.forms.withoutGuests}</label>
+                        <input type="number" id="withoutGuests" min="0" value="0">
                     </div>
-
-                    <div id="totalPrice" class="price-section"></div>
-
-                    <div class="actions-section">
-                        ${new Button({
-                            type: 'primary',
-                            label: UI.LABELS.buttons.getQuote,
-                            onClick: () => this.showQuoteForm()
-                        }).render().outerHTML}
-                        
-                        ${new Button({
-                            type: 'secondary',
-                            label: UI.LABELS.buttons.payNow,
-                            onClick: () => this.showOrderForm()
-                        }).render().outerHTML}
+                    ${createOptionsGroups()}
+                    <div id="totalPrice" class="total-price"></div>
+                    <div class="action-buttons">
+                        <button type="button" id="getQuoteBtn">${UI.LABELS.buttons.getQuote}</button>
+                        <button type="button" id="payNowBtn">${UI.LABELS.buttons.payNow}</button>
                     </div>
                 </form>
-
-                <div id="quoteForm" class="form-section" style="display: none;">
-                    <h2>Get Quote</h2>
-                    ${new Input({
-                        type: 'text',
-                        name: 'firstName',
-                        label: UI.LABELS.forms.firstName,
-                        required: true
-                    }).render().outerHTML}
-                    
-                    ${new Input({
-                        type: 'email',
-                        name: 'email',
-                        label: UI.LABELS.forms.email,
-                        required: true
-                    }).render().outerHTML}
-                    
-                    ${new Button({
-                        type: 'primary',
-                        label: UI.LABELS.buttons.getQuote,
-                        onClick: (e) => this.handleQuoteSubmit(e)
-                    }).render().outerHTML}
-                </div>
-
-                <div id="orderForm" class="form-section" style="display: none;">
-                    <h2>Complete Order</h2>
-                    ${new Input({
-                        type: 'text',
-                        name: 'firstName',
-                        label: UI.LABELS.forms.firstName,
-                        required: true
-                    }).render().outerHTML}
-                    
-                    ${new Input({
-                        type: 'text',
-                        name: 'lastName',
-                        label: UI.LABELS.forms.lastName,
-                        required: true
-                    }).render().outerHTML}
-                    
-                    ${new Input({
-                        type: 'text',
-                        name: 'company',
-                        label: UI.LABELS.forms.company
-                    }).render().outerHTML}
-                    
-                    ${new Input({
-                        type: 'email',
-                        name: 'email',
-                        label: UI.LABELS.forms.email,
-                        required: true
-                    }).render().outerHTML}
-                    
-                    ${this.createOptionsGroup('paperType', UI.LABELS.forms.paperType, UI.OPTIONS.paperType)}
-                    
-                    ${new Button({
-                        type: 'primary',
-                        label: UI.LABELS.buttons.payNow,
-                        onClick: (e) => this.handleOrderSubmit(e)
-                    }).render().outerHTML}
-                </div>
             </div>
         `;
-
-        this.injectStyles();
     }
 
-    createOptionsGroup(name, label, options) {
-        return `
-            <div class="options-group">
-                <label>${label}</label>
-                <div class="options-buttons">
-                    ${options.map((option, index) => `
+    // Create options groups HTML
+    function createOptionsGroups() {
+        return Object.entries(UI.OPTIONS).map(([name, options]) => `
+            <div class="form-group" data-type="${name}">
+                <label>${UI.LABELS.forms[name]}</label>
+                <div class="button-group">
+                    ${options.map(option => `
                         <button type="button"
-                            class="option-button ${this.state.data.formData[name] === option ? 'selected' : ''}"
-                            data-option="${name}"
+                            class="option-button ${state.formData[name] === option ? 'selected' : ''}"
+                            data-name="${name}"
                             data-value="${option}"
-                            onclick="this.handleOptionSelect('${name}', '${option}')"
-                        >
-                            ${option}
-                        </button>
+                        >${option}</button>
                     `).join('')}
                 </div>
             </div>
-        `;
+        `).join('');
     }
 
-    setupEventListeners() {
+    // Setup event listeners
+    function setupEventListeners() {
+        const container = document.getElementById('terra-tag-calculator');
+        if (!container) return;
+
         // Quantity inputs
-        this.container.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('input', (e) => this.handleQuantityChange(e));
+        container.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', handleQuantityChange);
         });
 
         // Option buttons
-        this.container.querySelectorAll('.option-button').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const { option, value } = e.target.dataset;
-                this.handleOptionSelect(option, value);
-            });
+        container.querySelectorAll('.option-button').forEach(button => {
+            button.addEventListener('click', handleOptionSelect);
         });
 
-        // Form inputs
-        this.container.querySelectorAll('input[type="text"], input[type="email"]').forEach(input => {
-            input.addEventListener('input', (e) => {
-                this.state.updateFormData({
-                    [e.target.name]: e.target.value
-                });
-            });
-        });
+        // Action buttons
+        container.querySelector('#getQuoteBtn').addEventListener('click', handleGetQuote);
+        container.querySelector('#payNowBtn').addEventListener('click', handlePayNow);
     }
 
-    handleQuantityChange(event) {
-        const { name, value } = event.target;
-        this.state.updateFormData({
-            [name]: parseInt(value) || 0
-        });
-        this.updateDisplay();
+    // Event handlers
+    function handleQuantityChange(event) {
+        const { id, value } = event.target;
+        state.formData[id] = parseInt(value) || 0;
+        updateDisplay();
     }
 
-    handleOptionSelect(option, value) {
-        this.state.updateFormData({ [option]: value });
+    function handleOptionSelect(event) {
+        const { name, value } = event.target.dataset;
+        state.formData[name] = value;
         
         // Update button states
-        const buttons = this.container.querySelectorAll(`[data-option="${option}"]`);
+        const buttons = document.querySelectorAll(`[data-name="${name}"]`);
         buttons.forEach(button => {
             button.classList.toggle('selected', button.dataset.value === value);
         });
         
-        this.updateDisplay();
+        updateDisplay();
     }
 
-    updateDisplay() {
-        const { formData } = this.state.data;
-        const totalQuantity = this.calculator.getTotalQuantity(
-            formData.withGuests,
-            formData.withoutGuests
+    async function handleGetQuote() {
+        // Implement quote functionality
+    }
+
+    async function handlePayNow() {
+        // Implement payment functionality
+    }
+
+    // Update display
+    function updateDisplay() {
+        const totalQuantity = Calculator.getTotalQuantity(
+            state.formData.withGuests,
+            state.formData.withoutGuests
         );
 
-        const priceSection = this.container.querySelector('#totalPrice');
-        const actionsSection = this.container.querySelector('.actions-section');
+        const priceSection = document.getElementById('totalPrice');
+        const actionButtons = document.querySelector('.action-buttons');
 
         if (totalQuantity < 75) {
-            priceSection.innerHTML = `
-                <div class="warning-message">
-                    ${UI.MESSAGES.error.validation.minQuantity}
-                </div>
-            `;
-            actionsSection.style.display = 'none';
+            priceSection.innerHTML = '<div class="warning">Minimum order quantity is 75</div>';
+            actionButtons.style.display = 'none';
             return;
         }
 
-        const totalPrice = this.calculator.getTotalPrice(formData);
-        const gst = this.calculator.getGST(totalPrice);
-        const co2Savings = this.calculator.getCO2Savings(totalQuantity);
+        const totalPrice = Calculator.getTotalPrice(state.formData);
+        const gst = Calculator.getGST(totalPrice);
+        const co2Savings = Calculator.getCO2Savings(totalQuantity);
 
         priceSection.innerHTML = `
-            <div class="price-content">
-                <div class="total-price">
-                    ${this.formatCurrency(totalPrice)}
-                </div>
+            <div class="total-price-content">
+                <div class="total-cost">${formatCurrency(totalPrice)}</div>
                 <div class="price-details">
-                    <div>GST Included: ${this.formatCurrency(gst)}</div>
+                    <div>GST Included: ${formatCurrency(gst)}</div>
                     <div>CO2 Savings: ${co2Savings.toFixed(2)} kg</div>
                 </div>
             </div>
         `;
 
-        actionsSection.style.display = 'flex';
+        actionButtons.style.display = 'flex';
     }
 
-    showQuoteForm() {
-        if (!this.state.validate()) {
-            return;
-        }
-
-        this.container.querySelector('#quoteForm').style.display = 'block';
-        this.container.querySelector('#orderForm').style.display = 'none';
-    }
-
-    showOrderForm() {
-        if (!this.state.validate()) {
-            return;
-        }
-
-        this.container.querySelector('#orderForm').style.display = 'block';
-        this.container.querySelector('#quoteForm').style.display = 'none';
-    }
-
-    validateQuantity() {
-        const withGuests = parseInt(this.container.querySelector('#withGuests').value) || 0;
-        const withoutGuests = parseInt(this.container.querySelector('#withoutGuests').value) || 0;
-        const totalQuantity = withGuests + withoutGuests;
-
-        if (totalQuantity < 75) {
-            this.setError('quantity', UI.MESSAGES.error.validation.minQuantity);
-            return false;
-        }
-
-        this.clearError('quantity');
-        return true;
-    }
-
-    validateField(input) {
-        const value = input.value.trim();
-        const name = input.name;
-
-        if (input.required && !value) {
-            this.setFieldError(input, UI.MESSAGES.error.validation.required);
-            return false;
-        }
-
-        if (input.type === 'email' && value && !this.isValidEmail(value)) {
-            this.setFieldError(input, UI.MESSAGES.error.validation.email);
-            return false;
-        }
-
-        this.clearFieldError(input);
-        return true;
-    }
-
-    setFieldError(input, message) {
-        const errorDiv = input.parentElement.querySelector('.error-message');
-        if (errorDiv) {
-            errorDiv.textContent = message;
-            input.classList.add('error');
-            this.formErrors.set(input.name, message);
-        }
-    }
-
-    clearFieldError(input) {
-        const errorDiv = input.parentElement.querySelector('.error-message');
-        if (errorDiv) {
-            errorDiv.textContent = '';
-            input.classList.remove('error');
-            this.formErrors.delete(input.name);
-        }
-    }
-
-    isValidEmail(email) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    }
-
-    handleError(error, context = '') {
-        console.error(`${context}:`, error);
-        this.showError(error.message || UI.MESSAGES.error.system.general);
-    }
-
-    async handleQuoteSubmit(event) {
-        event.preventDefault();
-        const form = event.target;
-        let isValid = true;
-
-        // Validate all fields
-        form.querySelectorAll('input').forEach(input => {
-            if (!this.validateField(input)) {
-                isValid = false;
-            }
-        });
-
-        if (!isValid) return;
-
-        try {
-            const formData = new FormData(form);
-            const quoteData = {
-                ...Object.fromEntries(formData),
-                ...this.state.data.formData,
-                totalPrice: this.calculator.getTotalPrice(this.state.data.formData)
-            };
-
-            const response = await fetch('/api/quote', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(quoteData)
-            });
-
-            if (!response.ok) throw new Error(UI.MESSAGES.error.quote);
-
-            this.showSuccess(UI.MESSAGES.success.quote);
-            this.showCalculatorView();
-        } catch (error) {
-            this.handleError(error, 'Quote submission failed');
-        }
-    }
-
-    async handleOrderSubmit(event) {
-        event.preventDefault();
-        
-        const submitButton = event.target.querySelector('button[type="submit"]');
-        submitButton.classList.add('loading');
-        
-        try {
-            if (!this.stripeService.isInitialized()) {
-                throw new Error(UI.MESSAGES.error.system.stripe);
-            }
-
-            const formData = new FormData(event.target);
-            const orderData = {
-                quantity_with_guests: parseInt(this.state.data.formData.withGuests) || 0,
-                quantity_without_guests: parseInt(this.state.data.formData.withoutGuests) || 0,
-                size: this.state.data.formData.size,
-                printed_sides: this.state.data.formData.printedSides,
-                ink_coverage: this.state.data.formData.inkCoverage,
-                lanyards: this.state.data.formData.lanyards === 'yes',
-                shipping: this.state.data.formData.shipping,
-                paper_type: formData.get('paperType'),
-                first_name: formData.get('firstName'),
-                last_name: formData.get('lastName'),
-                company: formData.get('company') || '',
-                email: formData.get('email'),
-                total_quantity: this.calculator.getTotalQuantity(
-                    this.state.data.formData.withGuests,
-                    this.state.data.formData.withoutGuests
-                ),
-                total_cost: this.calculator.getTotalPrice(this.state.data.formData),
-                gst_amount: this.calculator.getGST(this.calculator.getTotalPrice(this.state.data.formData)),
-                co2_savings: this.calculator.getCO2Savings(this.calculator.getTotalQuantity(
-                    this.state.data.formData.withGuests,
-                    this.state.data.formData.withoutGuests
-                ))
-            };
-
-            // Store order data in state
-            this.state.update({ orderData });
-
-            // Create payment intent
-            const response = await fetch('/api/create-payment-intent', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ orderData })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to create payment intent');
-            }
-
-            const { clientSecret, orderId } = await response.json();
-            
-            // Hide calculator form and show payment form
-            this.showPaymentForm(orderData, clientSecret, orderId);
-            
-        } catch (error) {
-            console.error('Order submission error:', error);
-            this.showError(UI.MESSAGES.error.payment);
-        } finally {
-            submitButton.classList.remove('loading');
-        }
-    }
-
-    showPaymentForm(orderData, clientSecret, orderId) {
-        const calculatorForm = this.container.querySelector('#calculator-form');
-        calculatorForm.style.display = 'none';
-        
-        const paymentContainer = document.createElement('div');
-        paymentContainer.id = 'payment-container';
-        paymentContainer.innerHTML = `
-            <div class="payment-form">
-                <button class="back-button" onclick="this.handleBackButtonClick()">
-                    ${UI.LABELS.buttons.back}
-                </button>
-                <h2>Complete Your Order</h2>
-                
-                <div class="order-summary">
-                    <h3>Order Summary</h3>
-                    <div class="summary-row">
-                        <span>Name:</span>
-                        <span>${orderData.first_name} ${orderData.last_name}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Email:</span>
-                        <span>${orderData.email}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Total Quantity:</span>
-                        <span>${orderData.total_quantity} badges</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Total Amount:</span>
-                        <span>$${orderData.total_cost.toFixed(2)}</span>
-                    </div>
-                </div>
-
-                <form id="payment-form">
-                    <div class="form-group">
-                        <label for="card-name">Name on card</label>
-                        <input id="card-name" type="text" required>
-                    </div>
-                    <div id="payment-element"></div>
-                    <button id="submit-payment" class="submit-button">
-                        <span id="button-text">Pay Now</span>
-                        <div class="spinner" id="payment-spinner" style="display: none;"></div>
-                    </button>
-                    <div id="payment-message" class="payment-message"></div>
-                </form>
-            </div>
-        `;
-        
-        this.container.appendChild(paymentContainer);
-
-        // Create payment element
-        const elements = this.stripeService.stripe.elements({
-            clientSecret,
-            appearance: {
-                theme: 'stripe',
-                variables: {
-                    colorPrimary: '#1b4c57',
-                    colorBackground: '#ffffff',
-                    colorText: '#1b4c57',
-                    colorDanger: '#df1b41',
-                    fontFamily: 'Verdana, system-ui, sans-serif',
-                    borderRadius: '6px'
-                }
-            }
-        });
-
-        const paymentElement = elements.create('payment', {
-            layout: {
-                type: 'tabs',
-                defaultCollapsed: false
-            },
-            fields: {
-                billingDetails: {
-                    name: 'never'
-                }
-            }
-        });
-
-        paymentElement.mount('#payment-element');
-        
-        // Handle payment form submission
-        const form = document.getElementById('payment-form');
-        let submitted = false;
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            if (submitted) {
-                console.log('Payment already submitted');
-                return;
-            }
-
-            const cardName = document.getElementById('card-name').value.trim();
-            if (!cardName) {
-                document.getElementById('payment-message').textContent = 'Please enter the name on your card';
-                return;
-            }
-
-            const submitButton = document.getElementById('submit-payment');
-            const spinner = document.getElementById('payment-spinner');
-            const buttonText = document.getElementById('button-text');
-            const messageDiv = document.getElementById('payment-message');
-
-            submitted = true;
-            submitButton.disabled = true;
-            spinner.style.display = 'inline-block';
-            buttonText.textContent = 'Processing...';
-            messageDiv.textContent = '';
-
-            try {
-                const { error } = await this.stripeService.stripe.confirmPayment({
-                    elements,
-                    confirmParams: {
-                        payment_method_data: {
-                            billing_details: {
-                                name: cardName
-                            }
-                        },
-                        return_url: `${window.location.origin}/payment/success?order_id=${orderId}`
-                    }
-                });
-
-                if (error) {
-                    console.error('Payment error:', error);
-                    messageDiv.textContent = error.message;
-                    submitted = false;
-                    submitButton.disabled = false;
-                    spinner.style.display = 'none';
-                    buttonText.textContent = 'Pay Now';
-                }
-            } catch (error) {
-                console.error('Unexpected payment error:', error);
-                messageDiv.textContent = 'An unexpected error occurred. Please try again.';
-                submitted = false;
-                submitButton.disabled = false;
-                spinner.style.display = 'none';
-                buttonText.textContent = 'Pay Now';
-            }
-        });
-    }
-
-    handleBackButtonClick() {
-        const paymentContainer = document.getElementById('payment-container');
-        if (paymentContainer) {
-            paymentContainer.remove();
-        }
-
-        const calculatorForm = this.container.querySelector('#calculator-form');
-        calculatorForm.style.display = 'block';
-    }
-
-    showSuccess(message) {
-        const successMessage = document.createElement('div');
-        successMessage.className = 'success-message';
-        successMessage.textContent = message;
-        
-        this.container.appendChild(successMessage);
-        setTimeout(() => successMessage.remove(), 3000);
-    }
-
-    showError(message) {
-        const errorMessage = document.createElement('div');
-        errorMessage.className = 'error-message';
-        errorMessage.textContent = message;
-        
-        this.container.appendChild(errorMessage);
-        setTimeout(() => errorMessage.remove(), 3000);
-    }
-
-    formatCurrency(amount) {
+    // Helper functions
+    function formatCurrency(amount) {
         return new Intl.NumberFormat('en-AU', {
             style: 'currency',
-            currency: 'AUD',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
+            currency: 'AUD'
         }).format(amount);
     }
 
-    injectStyles() {
-        if (document.querySelector('#terra-tag-widget-styles')) {
-            return;
-        }
+    // Inject required styles
+    function injectStyles() {
+        if (document.getElementById('terra-tag-calculator-styles')) return;
 
         const styles = document.createElement('style');
-        styles.id = 'terra-tag-widget-styles';
+        styles.id = 'terra-tag-calculator-styles';
         styles.textContent = `
-            .terra-tag-widget {
-                font-family: ${UI.FONTS.primary};
+            /* Base styles for widget */
+            #terra-tag-calculator {
+                font-size: 16px;
+                font-family: Verdana, sans-serif;
+                line-height: 1.6;
+                color: #1b4c57;
+            }
+
+            #terra-tag-calculator * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            .calculator-container {
                 max-width: 600px;
-                margin: 0 auto;
-                padding: ${UI.SPACING.large};
+                margin: 2rem auto;
+                padding: 2rem;
+                background-color: #fff;
+                border-radius: 8px;
             }
 
-            .terra-tag-title {
-                font-size: ${UI.FONTS.sizes.xlarge};
-                color: ${UI.COLORS.text.primary};
+            .calculator-heading {
+                font-family: Verdana, sans-serif;
+                font-size: 1.5rem;
+                font-weight: normal;
+                color: #1b4c57;
                 text-align: center;
-                margin-bottom: ${UI.SPACING.large};
+                margin-bottom: 2rem;
             }
 
-            .terra-tag-form {
+            .calculator-form {
                 display: flex;
                 flex-direction: column;
-                gap: ${UI.SPACING.large};
+                gap: 1.5rem;
             }
 
-            .form-row {
-                display: flex;
-                gap: ${UI.SPACING.medium};
-            }
-
-            .options-section {
+            .form-group {
                 display: flex;
                 flex-direction: column;
-                gap: ${UI.SPACING.medium};
+                gap: 0.5rem;
+                margin-bottom: 1.5rem;
             }
 
-            .options-group {
-                display: flex;
-                flex-direction: column;
-                gap: ${UI.SPACING.small};
+            label {
+                font-size: 0.9375rem;
+                font-weight: 500;
+                color: #1b4c57;
             }
 
-            .options-buttons {
+            input[type="number"] {
+                text-indent: 1rem;
+                height: 48px;
+                font-size: 16px;
+                font-family: Verdana, sans-serif;
+                line-height: normal;
+                padding: 0;
+                border: 1px solid #e2e8f0;
+                border-radius: 6px;
+                width: 100%;
+                transition: border-color 0.2s ease;
+                color: #1b4c57;
+                -webkit-appearance: textfield;
+                appearance: textfield;
+            }
+
+            input[type="number"]::-webkit-inner-spin-button,
+            input[type="number"]::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+            .button-group {
                 display: flex;
                 gap: 0;
             }
 
             .option-button {
                 flex: 1;
-                padding: ${UI.SPACING.medium};
-                font-family: ${UI.FONTS.primary};
-                font-size: ${UI.FONTS.sizes.medium};
-                background: ${UI.COLORS.background.light};
-                border: 1px solid ${UI.COLORS.border};
-                color: ${UI.COLORS.text.primary};
+                padding: 0.75rem 1rem;
+                font-family: Verdana, sans-serif;
+                font-size: 0.9375rem;
+                font-weight: normal;
+                color: #1b4c57;
+                background-color: #edf2f7;
+                border: 1px solid #e2e8f0;
+                border-radius: 0;
                 cursor: pointer;
                 transition: all 0.2s ease;
+                height: 48px;
+                -webkit-user-select: none;
+                user-select: none;
+                outline: none;
             }
 
-            .option-button:first-child {
-                border-radius: 4px 0 0 4px;
-            }
-
-            .option-button:last-child {
-                border-radius: 0 4px 4px 0;
+            .option-button:hover {
+                background-color: #e2e8f0;
             }
 
             .option-button.selected {
-                background: ${UI.COLORS.primary};
-                color: ${UI.COLORS.text.light};
-                border-color: ${UI.COLORS.primary};
+                background-color: #1b4c57;
+                border-color: #1b4c57;
+                color: white;
             }
 
-            .price-section {
-                background: ${UI.COLORS.background.light};
-                padding: ${UI.SPACING.large};
-                border-radius: 8px;
-                text-align: center;
+            .option-button:first-child {
+                border-top-left-radius: 6px;
+                border-bottom-left-radius: 6px;
+            }
+
+            .option-button:last-child {
+                border-top-right-radius: 6px;
+                border-bottom-right-radius: 6px;
             }
 
             .total-price {
-                font-size: ${UI.FONTS.sizes.xlarge};
+                padding: 1rem;
+                background-color: #f7fafc;
+                border-radius: 6px;
+                color: #1b4c57;
+                text-align: center;
+            }
+
+            .total-price-content {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                margin: 1rem 0;
+            }
+
+            .total-cost {
+                font-size: 2em;
                 font-weight: 600;
-                color: ${UI.COLORS.text.primary};
-                margin-bottom: ${UI.SPACING.small};
+                margin-bottom: 0.5rem;
             }
 
             .price-details {
-                font-size: ${UI.FONTS.sizes.small};
-                color: ${UI.COLORS.text.secondary};
-            }
-
-            .actions-section {
                 display: flex;
-                gap: ${UI.SPACING.medium};
-                justify-content: center;
+                flex-direction: column;
+                width: 100%;
+                text-align: center;
             }
 
-            .form-section {
-                margin-top: ${UI.SPACING.large};
-                padding-top: ${UI.SPACING.large};
-                border-top: 1px solid ${UI.COLORS.border};
+            .price-details div:first-child {
+                margin-bottom: 0.125rem;
             }
 
-            .form-section h2 {
-                font-size: ${UI.FONTS.sizes.large};
-                color: ${UI.COLORS.text.primary};
-                margin-bottom: ${UI.SPACING.large};
+            .action-buttons {
+                display: flex;
+                gap: 1rem;
+                margin-top: 1.5rem;
             }
 
-            .success-message,
-            .error-message {
-                position: fixed;
-                bottom: ${UI.SPACING.large};
-                left: 50%;
-                transform: translateX(-50%);
-                padding: ${UI.SPACING.medium} ${UI.SPACING.large};
-                border-radius: 4px;
-                font-family: ${UI.FONTS.primary};
-                font-size: ${UI.FONTS.sizes.medium};
-                animation: slideUp 0.3s ease;
+            #getQuoteBtn,
+            #payNowBtn {
+                flex: 1;
+                padding: 0.75rem 1rem;
+                font-size: 1rem;
+                font-weight: 600;
+                color: white;
+                background-color: #1b4c57;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                height: 48px;
             }
 
-            .success-message {
-                background: ${UI.COLORS.success};
-                color: ${UI.COLORS.text.light};
+            #getQuoteBtn:hover,
+            #payNowBtn:hover {
+                background-color: #163f48;
             }
 
-            .error-message {
-                background: ${UI.COLORS.error};
-                color: ${UI.COLORS.text.light};
-            }
-
-            @keyframes slideUp {
-                from {
-                    transform: translate(-50%, 100%);
-                    opacity: 0;
-                }
-                to {
-                    transform: translate(-50%, 0);
-                    opacity: 1;
-                }
+            .warning {
+                color: #e53e3e;
+                text-align: center;
+                font-weight: 500;
             }
 
             @media (max-width: 640px) {
-                .terra-tag-widget {
-                    padding: ${UI.SPACING.medium};
+                .calculator-container {
+                    margin: 1rem;
+                    padding: 1.5rem;
                 }
 
-                .form-row {
+                .action-buttons {
                     flex-direction: column;
                 }
 
-                .options-buttons {
+                .button-group {
                     flex-direction: column;
+                }
+
+                .option-button {
+                    width: 100%;
+                    border-radius: 0;
                 }
 
                 .option-button:first-child {
-                    border-radius: 4px 4px 0 0;
+                    border-radius: 6px 6px 0 0;
                 }
 
                 .option-button:last-child {
-                    border-radius: 0 0 4px 4px;
-                }
-
-                .actions-section {
-                    flex-direction: column;
+                    border-radius: 0 0 6px 6px;
                 }
             }
         `;
 
         document.head.appendChild(styles);
     }
-}
 
-// Initialize when DOM is ready
-if (typeof document !== 'undefined') {
+    // Initialize when DOM is ready
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            const widget = new SeedNameBadgeWidget('terra-tag-calculator');
-            widget.initialize().catch(error => {
-                console.error('Failed to initialize widget:', error);
-            });
-        });
+        document.addEventListener('DOMContentLoaded', initWidget);
     } else {
-        const widget = new SeedNameBadgeWidget('terra-tag-calculator');
-        widget.initialize().catch(error => {
-            console.error('Failed to initialize widget:', error);
-        });
+        initWidget();
     }
-} 
+})(); 
