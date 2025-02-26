@@ -146,7 +146,6 @@
                         <input type="number" id="withoutGuests" min="0" value="" placeholder="0">
                     </div>
                     ${createOptionsGroups()}
-                    <div id="totalPrice" class="total-price"></div>
                     <div class="action-buttons">
                         <div class="button-group">
                             <button type="button" id="payNowBtn" class="action-button">${UI.LABELS.buttons.payNow}</button>
@@ -240,14 +239,24 @@
             state.formData.withoutGuests
         );
 
-        const priceSection = document.getElementById('totalPrice');
+        const form = document.querySelector('.calculator-form');
         const actionButtons = document.querySelector('.action-buttons');
+        let priceSection = document.getElementById('totalPrice');
+
+        // Remove existing price section if it exists
+        if (priceSection) {
+            priceSection.remove();
+        }
 
         if (totalQuantity < 75) {
-            priceSection.innerHTML = '';
             actionButtons.style.display = 'none';
             return;
         }
+
+        // Create new price section
+        priceSection = document.createElement('div');
+        priceSection.id = 'totalPrice';
+        priceSection.className = 'total-price';
 
         const totalPrice = Calculator.getTotalPrice(state.formData);
         const gst = Calculator.getGST(totalPrice);
@@ -263,6 +272,8 @@
             </div>
         `;
 
+        // Insert price section before action buttons
+        form.insertBefore(priceSection, actionButtons);
         actionButtons.style.display = 'block';
     }
 
@@ -418,7 +429,9 @@
                 flex-direction: column !important;
                 align-items: center !important;
                 margin: 0 !important;
-                padding: 0.5rem 0 !important;
+                padding: 0.5rem !important;
+                background-color: #f7fafc !important;
+                border-radius: 6px !important;
             }
 
             .total-cost {
@@ -447,9 +460,6 @@
             }
 
             #terra-tag-calculator .total-price {
-                padding: 1rem !important;
-                background-color: #f7fafc !important;
-                border-radius: 6px !important;
                 color: #1b4c57 !important;
                 text-align: center !important;
                 font-family: Verdana, sans-serif !important;
