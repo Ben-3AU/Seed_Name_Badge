@@ -157,7 +157,7 @@
                             <label>${UI.LABELS.forms.email}</label>
                             <input type="email" id="quoteEmail" required>
                         </div>
-                        <button type="submit" class="action-button quote-submit-button" style="opacity: 0.5; border-radius: 6px;">Submit</button>
+                        <button type="submit" class="action-button quote-submit-button" style="opacity: 0.8; border-radius: 6px; border: 1px solid #e2e8f0; color: white;">Submit</button>
                     </form>
                 </div>
             </div>
@@ -193,7 +193,7 @@
                                 `).join('')}
                             </div>
                         </div>
-                        <button type="submit" class="action-button checkout-button" style="opacity: 0.5; border-radius: 6px;">Checkout</button>
+                        <button type="submit" class="action-button checkout-button" style="opacity: 0.8; border-radius: 6px; border: 1px solid #e2e8f0; color: white;">Checkout</button>
                     </form>
                 </div>
             </div>
@@ -831,22 +831,44 @@
 
             /* Add specific styling for checkout button */
             .checkout-button {
-                opacity: 0.5;
-                transition: opacity 0.3s ease;
+                opacity: 0.8;
+                transition: all 0.3s ease;
+                border: 1px solid #e2e8f0;
+                color: white;
+            }
+
+            .checkout-button:not(.ready) {
+                cursor: not-allowed;
             }
 
             .checkout-button.ready {
                 opacity: 1;
+                cursor: pointer;
+            }
+
+            .checkout-button.ready:hover {
+                background-color: #163943;
             }
 
             /* Add specific styling for form buttons */
             .quote-submit-button {
-                opacity: 0.5;
-                transition: opacity 0.3s ease;
+                opacity: 0.8;
+                transition: all 0.3s ease;
+                border: 1px solid #e2e8f0;
+                color: white;
+            }
+
+            .quote-submit-button:not(.ready) {
+                cursor: not-allowed;
             }
 
             .quote-submit-button.ready {
                 opacity: 1;
+                cursor: pointer;
+            }
+
+            .quote-submit-button.ready:hover {
+                background-color: #163943;
             }
         `;
 
