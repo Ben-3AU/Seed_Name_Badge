@@ -3,7 +3,7 @@
     // UI Constants
     const UI = {
         LABELS: {
-            title: 'Tag Calculator',
+            title: 'Minimum order of 75',
             forms: {
                 withGuests: 'Enter quantity with guest details printed',
                 withoutGuests: 'Enter quantity without guest details printed',
@@ -26,11 +26,11 @@
         },
         OPTIONS: {
             size: ['A7', 'A6'],
-            printedSides: ['single', 'double'],
-            inkCoverage: ['upTo40', 'over40'],
-            lanyards: ['yes', 'no'],
-            shipping: ['standard', 'express'],
-            paperType: ['mixedHerb', 'mixedFlower', 'randomMix']
+            printedSides: ['Single', 'Double'],
+            inkCoverage: ['Up to 40%', 'Over 40%'],
+            lanyards: ['Yes', 'No'],
+            shipping: ['Standard', 'Express'],
+            paperType: ['Mixed herb', 'Mixed flower', 'Random mix']
         }
     };
 
@@ -48,9 +48,9 @@
             if (totalQuantity > 300) totalPrice -= 0.50 * totalQuantity;
 
             if (size === 'A6') totalPrice += 3 * totalQuantity;
-            if (printedSides === 'double') totalPrice += (size === 'A7' ? 0.50 : 1.00) * totalQuantity;
-            if (inkCoverage === 'over40') totalPrice += (size === 'A7' ? 0.50 : 1.00) * totalQuantity;
-            if (lanyards === 'no') totalPrice -= 0.50 * totalQuantity;
+            if (printedSides === 'Double') totalPrice += (size === 'A7' ? 0.50 : 1.00) * totalQuantity;
+            if (inkCoverage === 'Over 40%') totalPrice += (size === 'A7' ? 0.50 : 1.00) * totalQuantity;
+            if (lanyards === 'No') totalPrice -= 0.50 * totalQuantity;
 
             let shippingCost = 0;
             if (size === 'A7') {
@@ -63,7 +63,7 @@
                 else shippingCost = 75;
             }
 
-            if (shipping === 'express') shippingCost *= 2;
+            if (shipping === 'Express') shippingCost *= 2;
             totalPrice += shippingCost;
             totalPrice *= 1.10;
             totalPrice *= 1.017;
@@ -86,11 +86,11 @@
             withGuests: 0,
             withoutGuests: 0,
             size: 'A7',
-            printedSides: 'single',
-            inkCoverage: 'upTo40',
-            lanyards: 'yes',
-            shipping: 'standard',
-            paperType: 'mixedHerb'
+            printedSides: 'Single',
+            inkCoverage: 'Up to 40%',
+            lanyards: 'Yes',
+            shipping: 'Standard',
+            paperType: 'Mixed herb'
         },
         stripe: null
     };
@@ -139,17 +139,19 @@
                 <form class="calculator-form">
                     <div class="form-group">
                         <label>${UI.LABELS.forms.withGuests}</label>
-                        <input type="number" id="withGuests" min="0" value="0">
+                        <input type="number" id="withGuests" min="0" value="0" placeholder="0">
                     </div>
                     <div class="form-group">
                         <label>${UI.LABELS.forms.withoutGuests}</label>
-                        <input type="number" id="withoutGuests" min="0" value="0">
+                        <input type="number" id="withoutGuests" min="0" value="0" placeholder="0">
                     </div>
                     ${createOptionsGroups()}
                     <div id="totalPrice" class="total-price"></div>
                     <div class="action-buttons">
-                        <button type="button" id="getQuoteBtn">${UI.LABELS.buttons.getQuote}</button>
-                        <button type="button" id="payNowBtn">${UI.LABELS.buttons.payNow}</button>
+                        <div class="button-group">
+                            <button type="button" id="payNowBtn" class="action-button">${UI.LABELS.buttons.payNow}</button>
+                            <button type="button" id="getQuoteBtn" class="action-button">${UI.LABELS.buttons.getQuote}</button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -158,11 +160,14 @@
 
     // Create options groups HTML
     function createOptionsGroups() {
-        return Object.entries(UI.OPTIONS).map(([name, options]) => `
+        // Define the order of options, moving paperType to the end
+        const optionOrder = ['size', 'printedSides', 'inkCoverage', 'lanyards', 'shipping', 'paperType'];
+        
+        return optionOrder.map(name => `
             <div class="form-group" data-type="${name}">
                 <label>${UI.LABELS.forms[name]}</label>
                 <div class="button-group">
-                    ${options.map(option => `
+                    ${UI.OPTIONS[name].map(option => `
                         <button type="button"
                             class="option-button ${state.formData[name] === option ? 'selected' : ''}"
                             data-name="${name}"
@@ -298,7 +303,7 @@
                 font-weight: normal;
                 color: #1b4c57;
                 text-align: center;
-                margin-bottom: 2rem;
+                margin-bottom: 3rem;
             }
 
             .calculator-form {
@@ -315,15 +320,17 @@
             }
 
             label {
-                font-size: 0.9375rem;
+                font-size: 16px;
                 font-weight: 500;
                 color: #1b4c57;
             }
 
-            input[type="number"] {
+            input[type="number"],
+            input[type="text"],
+            input[type="email"] {
                 text-indent: 1rem;
                 height: 48px;
-                font-size: 16px;
+                font-size: 16px !important;
                 font-family: Verdana, sans-serif;
                 line-height: normal;
                 padding: 0;
@@ -336,10 +343,13 @@
                 appearance: textfield;
             }
 
-            input[type="number"]::-webkit-inner-spin-button,
-            input[type="number"]::-webkit-outer-spin-button {
-                -webkit-appearance: none;
-                margin: 0;
+            input[type="number"]::placeholder,
+            input[type="text"]::placeholder,
+            input[type="email"]::placeholder {
+                color: #1b4c57;
+                opacity: 0.5;
+                font-size: 16px;
+                text-indent: 1rem;
             }
 
             .button-group {
@@ -411,6 +421,7 @@
                 flex-direction: column;
                 width: 100%;
                 text-align: center;
+                font-size: 14px;
             }
 
             .price-details div:first-child {
@@ -418,45 +429,54 @@
             }
 
             .action-buttons {
-                display: flex;
-                gap: 1rem;
                 margin-top: 1.5rem;
             }
 
-            #getQuoteBtn,
-            #payNowBtn {
+            .action-buttons .button-group {
+                display: flex;
+                gap: 0;
+                justify-content: center;
+            }
+
+            .action-button {
                 flex: 1;
                 padding: 0.75rem 1rem;
                 font-size: 1rem;
                 font-weight: 600;
-                color: white;
-                background-color: #1b4c57;
-                border: none;
-                border-radius: 6px;
+                color: #1b4c57;
+                background-color: #edf2f7;
+                border: 1px solid #e2e8f0;
+                border-radius: 0;
                 cursor: pointer;
                 transition: all 0.2s ease;
                 height: 48px;
+                max-width: 200px;
             }
 
-            #getQuoteBtn:hover,
-            #payNowBtn:hover {
-                background-color: #163f48;
+            .action-button:hover {
+                background-color: #e2e8f0;
             }
 
-            .warning {
-                color: #e53e3e;
-                text-align: center;
-                font-weight: 500;
+            .action-button.selected {
+                background-color: #1b4c57;
+                border-color: #1b4c57;
+                color: white;
+            }
+
+            .action-button:first-child {
+                border-top-left-radius: 6px;
+                border-bottom-left-radius: 6px;
+            }
+
+            .action-button:last-child {
+                border-top-right-radius: 6px;
+                border-bottom-right-radius: 6px;
             }
 
             @media (max-width: 640px) {
                 .calculator-container {
                     margin: 1rem;
                     padding: 1.5rem;
-                }
-
-                .action-buttons {
-                    flex-direction: column;
                 }
 
                 .button-group {
@@ -473,6 +493,25 @@
                 }
 
                 .option-button:last-child {
+                    border-radius: 0 0 6px 6px;
+                }
+
+                .action-buttons .button-group {
+                    flex-direction: column;
+                    align-items: center;
+                }
+
+                .action-button {
+                    width: 100%;
+                    max-width: none;
+                    border-radius: 0;
+                }
+
+                .action-button:first-child {
+                    border-radius: 6px 6px 0 0;
+                }
+
+                .action-button:last-child {
                     border-radius: 0 0 6px 6px;
                 }
             }
