@@ -91,26 +91,18 @@
             lanyards: 'Yes',
             shipping: 'Standard',
             paperType: 'Mixed herb'
-        },
-        stripe: null
+        }
     };
 
     // Initialize widget
     async function initWidget() {
         try {
             injectStyles();
-            await loadDependencies();
             createWidgetStructure();
             setupEventListeners();
         } catch (error) {
             console.error('Widget initialization error:', error);
         }
-    }
-
-    // Load external dependencies
-    async function loadDependencies() {
-        await loadScript('https://js.stripe.com/v3/');
-        state.stripe = Stripe('YOUR_PUBLISHABLE_KEY'); // Replace with actual key
     }
 
     // Helper function to load scripts
@@ -156,34 +148,21 @@
             </div>
             <div id="quoteForm" class="form-overlay" style="display: none;">
                 <div class="form-container">
-                    <h2>Get Quote</h2>
                     <form id="emailQuoteForm">
                         <div class="form-group">
                             <label>${UI.LABELS.forms.firstName}</label>
                             <input type="text" id="quoteFirstName" required>
                         </div>
                         <div class="form-group">
-                            <label>${UI.LABELS.forms.lastName}</label>
-                            <input type="text" id="quoteLastName" required>
-                        </div>
-                        <div class="form-group">
                             <label>${UI.LABELS.forms.email}</label>
                             <input type="email" id="quoteEmail" required>
                         </div>
-                        <div class="form-group">
-                            <label>${UI.LABELS.forms.company}</label>
-                            <input type="text" id="quoteCompany" required>
-                        </div>
-                        <div class="button-group">
-                            <button type="submit" class="action-button">Send Quote</button>
-                            <button type="button" class="action-button" onclick="document.getElementById('quoteForm').style.display='none'">Cancel</button>
-                        </div>
+                        <button type="submit" class="action-button selected" style="width: 100%;">Submit</button>
                     </form>
                 </div>
             </div>
             <div id="paymentForm" class="form-overlay" style="display: none;">
                 <div class="form-container">
-                    <h2>Complete Order</h2>
                     <form id="orderForm">
                         <div class="form-group">
                             <label>${UI.LABELS.forms.firstName}</label>
@@ -194,21 +173,26 @@
                             <input type="text" id="orderLastName" required>
                         </div>
                         <div class="form-group">
+                            <label>${UI.LABELS.forms.company}</label>
+                            <input type="text" id="orderCompany" required>
+                        </div>
+                        <div class="form-group">
                             <label>${UI.LABELS.forms.email}</label>
                             <input type="email" id="orderEmail" required>
                         </div>
                         <div class="form-group">
-                            <label>${UI.LABELS.forms.company}</label>
-                            <input type="text" id="orderCompany" required>
+                            <label>${UI.LABELS.forms.paperType}</label>
+                            <div class="button-group">
+                                ${UI.OPTIONS.paperType.map(option => `
+                                    <button type="button"
+                                        class="option-button ${state.formData.paperType === option ? 'selected' : ''}"
+                                        data-name="paperType"
+                                        data-value="${option}"
+                                    >${option}</button>
+                                `).join('')}
+                            </div>
                         </div>
-                        <div id="card-element" class="form-group">
-                            <!-- Stripe Card Element will be inserted here -->
-                        </div>
-                        <div id="card-errors" role="alert"></div>
-                        <div class="button-group">
-                            <button type="submit" class="action-button">Pay Now</button>
-                            <button type="button" class="action-button" onclick="document.getElementById('paymentForm').style.display='none'">Cancel</button>
-                        </div>
+                        <button type="submit" class="action-button selected" style="width: 100%;">Checkout</button>
                     </form>
                 </div>
             </div>
@@ -287,8 +271,14 @@
         const quoteForm = document.getElementById('quoteForm');
         console.log('Quote form element:', quoteForm);
         
-        quoteForm.style.display = 'flex';
+        quoteForm.style.display = 'block';
         console.log('Quote form display style:', quoteForm.style.display);
+        
+        // Move form after action buttons
+        const actionButtons = document.querySelector('.action-buttons');
+        if (actionButtons && actionButtons.nextSibling !== quoteForm) {
+            actionButtons.parentNode.insertBefore(quoteForm, actionButtons.nextSibling);
+        }
         
         const emailQuoteForm = document.getElementById('emailQuoteForm');
         
@@ -297,9 +287,7 @@
             
             const formData = {
                 firstName: document.getElementById('quoteFirstName').value,
-                lastName: document.getElementById('quoteLastName').value,
                 email: document.getElementById('quoteEmail').value,
-                company: document.getElementById('quoteCompany').value,
                 orderDetails: {
                     ...state.formData,
                     totalPrice: Calculator.getTotalPrice(state.formData),
@@ -336,30 +324,28 @@
         const paymentForm = document.getElementById('paymentForm');
         console.log('Payment form element:', paymentForm);
         
-        paymentForm.style.display = 'flex';
+        paymentForm.style.display = 'block';
         console.log('Payment form display style:', paymentForm.style.display);
         
-        const orderForm = document.getElementById('orderForm');
-        const stripe = state.stripe;
-        
-        if (!stripe) {
-            console.error('Stripe has not been initialized');
-            return;
+        // Move form after action buttons
+        const actionButtons = document.querySelector('.action-buttons');
+        if (actionButtons && actionButtons.nextSibling !== paymentForm) {
+            actionButtons.parentNode.insertBefore(paymentForm, actionButtons.nextSibling);
         }
-
-        // Create and mount the Stripe card Element
-        const elements = stripe.elements();
-        const card = elements.create('card');
-        card.mount('#card-element');
-
-        // Handle validation errors
-        card.addEventListener('change', function(event) {
-            const displayError = document.getElementById('card-errors');
-            if (event.error) {
-                displayError.textContent = event.error.message;
-            } else {
-                displayError.textContent = '';
-            }
+        
+        const orderForm = document.getElementById('orderForm');
+        
+        // Add event listeners for paper type buttons
+        orderForm.querySelectorAll('[data-name="paperType"]').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const { value } = event.target.dataset;
+                state.formData.paperType = value;
+                
+                // Update button states
+                orderForm.querySelectorAll('[data-name="paperType"]').forEach(btn => {
+                    btn.classList.toggle('selected', btn.dataset.value === value);
+                });
+            });
         });
 
         orderForm.onsubmit = async (e) => {
@@ -383,8 +369,7 @@
                     }
                 };
 
-                // Create payment intent
-                const response = await fetch('/api/create-payment-intent', {
+                const response = await fetch('/api/create-order', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -392,34 +377,15 @@
                     body: JSON.stringify(formData)
                 });
 
-                if (!response.ok) throw new Error('Failed to create payment intent');
+                if (!response.ok) throw new Error('Failed to create order');
 
-                const { clientSecret } = await response.json();
-
-                // Confirm payment
-                const result = await stripe.confirmCardPayment(clientSecret, {
-                    payment_method: {
-                        card: card,
-                        billing_details: {
-                            name: `${formData.firstName} ${formData.lastName}`,
-                            email: formData.email
-                        }
-                    }
-                });
-
-                if (result.error) {
-                    throw new Error(result.error.message);
-                }
-
-                // Payment successful
-                alert('Payment successful! Order confirmation has been sent to your email.');
+                alert('Order has been created! You will receive a confirmation email.');
                 paymentForm.style.display = 'none';
                 orderForm.reset();
-                card.clear();
 
             } catch (error) {
-                console.error('Payment error:', error);
-                alert('Payment failed: ' + error.message);
+                console.error('Order error:', error);
+                alert('Failed to create order: ' + error.message);
             }
 
             submitButton.disabled = false;
@@ -749,34 +715,23 @@
             }
 
             .form-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-color: rgba(0, 0, 0, 0.5);
+                position: relative;
                 display: none;
-                justify-content: center;
-                align-items: center;
-                z-index: 1000;
+                background-color: #fff;
+                margin-top: 1rem;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
 
             .form-container {
                 background-color: white;
-                padding: 2rem;
+                padding: 1rem;
                 border-radius: 8px;
                 width: 100%;
-                max-width: 500px;
-                margin: 1rem;
             }
 
             .form-container h2 {
-                font-family: Verdana, sans-serif;
-                font-size: 1.5rem;
-                font-weight: normal;
-                color: #1b4c57;
-                text-align: center;
-                margin-bottom: 1.5rem;
+                display: none;
             }
 
             #card-element {
