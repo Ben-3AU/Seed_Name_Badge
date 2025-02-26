@@ -331,7 +331,7 @@
             };
 
             try {
-                const response = await fetch('https://terra-tag-calculator.vercel.app/api/send-quote', {
+                const response = await fetch('https://seednamebadge.vercel.app/api/send-quote', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -340,7 +340,7 @@
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json();
+                    const errorData = await response.json().catch(() => ({ message: 'Failed to send quote' }));
                     throw new Error(errorData.message || 'Failed to send quote');
                 }
 
