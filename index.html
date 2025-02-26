@@ -10,11 +10,11 @@
     <script src="https://js.stripe.com/v3/"></script>
     <!-- Initialize widget -->
     <script type="module">
-        import { TerraTagWidget } from '/src/ui/widget.js';
+        import { SeedNameBadgeWidget } from '/src/ui/widget.js';
         
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                const widget = new TerraTagWidget('terra-tag-calculator');
+                const widget = new SeedNameBadgeWidget('terra-tag-calculator');
                 await widget.initialize();
             } catch (error) {
                 console.error('Failed to initialize widget:', error);
