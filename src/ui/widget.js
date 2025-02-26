@@ -1,3 +1,5 @@
+'use strict';
+
 import { UI } from '../core/constants.js';
 import { Calculator } from '../core/calculator.js';
 import { State } from '../core/state.js';
