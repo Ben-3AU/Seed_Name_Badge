@@ -160,8 +160,8 @@
 
     // Create options groups HTML
     function createOptionsGroups() {
-        // Define the order of options, moving paperType to the end
-        const optionOrder = ['size', 'printedSides', 'inkCoverage', 'lanyards', 'shipping', 'paperType'];
+        // Define the order of options
+        const optionOrder = ['size', 'printedSides', 'inkCoverage', 'lanyards', 'shipping'];
         
         return optionOrder.map(name => `
             <div class="form-group" data-type="${name}">
@@ -249,7 +249,7 @@
 
         priceSection.innerHTML = `
             <div class="total-price-content">
-                <div class="total-cost">${formatCurrency(totalPrice)}</div>
+                <div class="total-cost">Total cost: ${formatCurrency(totalPrice)}</div>
                 <div class="price-details">
                     <div>GST Included: ${formatCurrency(gst)}</div>
                     <div>CO2 Savings: ${co2Savings.toFixed(2)} kg</div>
@@ -303,7 +303,7 @@
                 font-weight: normal;
                 color: #1b4c57;
                 text-align: center;
-                margin-bottom: 3rem;
+                margin-bottom: 4rem;
             }
 
             .calculator-form {
@@ -328,12 +328,11 @@
             input[type="number"],
             input[type="text"],
             input[type="email"] {
-                text-indent: 1rem;
+                padding: 0 1rem;
                 height: 48px;
                 font-size: 16px !important;
                 font-family: Verdana, sans-serif;
                 line-height: normal;
-                padding: 0;
                 border: 1px solid #e2e8f0;
                 border-radius: 6px;
                 width: 100%;
@@ -349,7 +348,6 @@
                 color: #1b4c57;
                 opacity: 0.5;
                 font-size: 16px;
-                text-indent: 1rem;
             }
 
             .button-group {
@@ -428,6 +426,10 @@
                 margin-bottom: 0.125rem;
             }
 
+            .price-details div:last-child {
+                margin-bottom: 1rem;
+            }
+
             .action-buttons {
                 margin-top: 1.5rem;
             }
@@ -450,7 +452,6 @@
                 cursor: pointer;
                 transition: all 0.2s ease;
                 height: 48px;
-                max-width: 200px;
             }
 
             .action-button:hover {
