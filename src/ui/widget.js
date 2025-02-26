@@ -154,6 +154,64 @@
                     </div>
                 </form>
             </div>
+            <div id="quoteForm" class="form-overlay" style="display: none;">
+                <div class="form-container">
+                    <h2>Get Quote</h2>
+                    <form id="emailQuoteForm">
+                        <div class="form-group">
+                            <label>${UI.LABELS.forms.firstName}</label>
+                            <input type="text" id="quoteFirstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>${UI.LABELS.forms.lastName}</label>
+                            <input type="text" id="quoteLastName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>${UI.LABELS.forms.email}</label>
+                            <input type="email" id="quoteEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label>${UI.LABELS.forms.company}</label>
+                            <input type="text" id="quoteCompany" required>
+                        </div>
+                        <div class="button-group">
+                            <button type="submit" class="action-button">Send Quote</button>
+                            <button type="button" class="action-button" onclick="document.getElementById('quoteForm').style.display='none'">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div id="paymentForm" class="form-overlay" style="display: none;">
+                <div class="form-container">
+                    <h2>Complete Order</h2>
+                    <form id="orderForm">
+                        <div class="form-group">
+                            <label>${UI.LABELS.forms.firstName}</label>
+                            <input type="text" id="orderFirstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>${UI.LABELS.forms.lastName}</label>
+                            <input type="text" id="orderLastName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>${UI.LABELS.forms.email}</label>
+                            <input type="email" id="orderEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label>${UI.LABELS.forms.company}</label>
+                            <input type="text" id="orderCompany" required>
+                        </div>
+                        <div id="card-element" class="form-group">
+                            <!-- Stripe Card Element will be inserted here -->
+                        </div>
+                        <div id="card-errors" role="alert"></div>
+                        <div class="button-group">
+                            <button type="submit" class="action-button">Pay Now</button>
+                            <button type="button" class="action-button" onclick="document.getElementById('paymentForm').style.display='none'">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         `;
     }
 
@@ -225,11 +283,147 @@
     }
 
     async function handleGetQuote() {
-        // Implement quote functionality
+        console.log('Quote button clicked');
+        const quoteForm = document.getElementById('quoteForm');
+        console.log('Quote form element:', quoteForm);
+        
+        quoteForm.style.display = 'flex';
+        console.log('Quote form display style:', quoteForm.style.display);
+        
+        const emailQuoteForm = document.getElementById('emailQuoteForm');
+        
+        emailQuoteForm.onsubmit = async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                firstName: document.getElementById('quoteFirstName').value,
+                lastName: document.getElementById('quoteLastName').value,
+                email: document.getElementById('quoteEmail').value,
+                company: document.getElementById('quoteCompany').value,
+                orderDetails: {
+                    ...state.formData,
+                    totalPrice: Calculator.getTotalPrice(state.formData),
+                    gst: Calculator.getGST(Calculator.getTotalPrice(state.formData)),
+                    co2Savings: Calculator.getCO2Savings(
+                        Calculator.getTotalQuantity(state.formData.withGuests, state.formData.withoutGuests)
+                    )
+                }
+            };
+
+            try {
+                const response = await fetch('/api/send-quote', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) throw new Error('Failed to send quote');
+
+                alert('Quote has been sent to your email!');
+                quoteForm.style.display = 'none';
+                emailQuoteForm.reset();
+            } catch (error) {
+                console.error('Error sending quote:', error);
+                alert('Failed to send quote. Please try again.');
+            }
+        };
     }
 
     async function handlePayNow() {
-        // Implement payment functionality
+        console.log('Pay now button clicked');
+        const paymentForm = document.getElementById('paymentForm');
+        console.log('Payment form element:', paymentForm);
+        
+        paymentForm.style.display = 'flex';
+        console.log('Payment form display style:', paymentForm.style.display);
+        
+        const orderForm = document.getElementById('orderForm');
+        const stripe = state.stripe;
+        
+        if (!stripe) {
+            console.error('Stripe has not been initialized');
+            return;
+        }
+
+        // Create and mount the Stripe card Element
+        const elements = stripe.elements();
+        const card = elements.create('card');
+        card.mount('#card-element');
+
+        // Handle validation errors
+        card.addEventListener('change', function(event) {
+            const displayError = document.getElementById('card-errors');
+            if (event.error) {
+                displayError.textContent = event.error.message;
+            } else {
+                displayError.textContent = '';
+            }
+        });
+
+        orderForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const submitButton = orderForm.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+
+            try {
+                const formData = {
+                    firstName: document.getElementById('orderFirstName').value,
+                    lastName: document.getElementById('orderLastName').value,
+                    email: document.getElementById('orderEmail').value,
+                    company: document.getElementById('orderCompany').value,
+                    orderDetails: {
+                        ...state.formData,
+                        totalPrice: Calculator.getTotalPrice(state.formData),
+                        gst: Calculator.getGST(Calculator.getTotalPrice(state.formData)),
+                        co2Savings: Calculator.getCO2Savings(
+                            Calculator.getTotalQuantity(state.formData.withGuests, state.formData.withoutGuests)
+                        )
+                    }
+                };
+
+                // Create payment intent
+                const response = await fetch('/api/create-payment-intent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) throw new Error('Failed to create payment intent');
+
+                const { clientSecret } = await response.json();
+
+                // Confirm payment
+                const result = await stripe.confirmCardPayment(clientSecret, {
+                    payment_method: {
+                        card: card,
+                        billing_details: {
+                            name: `${formData.firstName} ${formData.lastName}`,
+                            email: formData.email
+                        }
+                    }
+                });
+
+                if (result.error) {
+                    throw new Error(result.error.message);
+                }
+
+                // Payment successful
+                alert('Payment successful! Order confirmation has been sent to your email.');
+                paymentForm.style.display = 'none';
+                orderForm.reset();
+                card.clear();
+
+            } catch (error) {
+                console.error('Payment error:', error);
+                alert('Payment failed: ' + error.message);
+            }
+
+            submitButton.disabled = false;
+        };
     }
 
     // Update display
@@ -552,6 +746,51 @@
                 .action-button:last-child {
                     border-radius: 0 0 6px 6px;
                 }
+            }
+
+            .form-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                display: none;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            }
+
+            .form-container {
+                background-color: white;
+                padding: 2rem;
+                border-radius: 8px;
+                width: 100%;
+                max-width: 500px;
+                margin: 1rem;
+            }
+
+            .form-container h2 {
+                font-family: Verdana, sans-serif;
+                font-size: 1.5rem;
+                font-weight: normal;
+                color: #1b4c57;
+                text-align: center;
+                margin-bottom: 1.5rem;
+            }
+
+            #card-element {
+                padding: 1rem;
+                border: 1px solid #e2e8f0;
+                border-radius: 6px;
+                background-color: white;
+            }
+
+            #card-errors {
+                color: #dc2626;
+                font-size: 0.875rem;
+                margin-top: 0.5rem;
+                margin-bottom: 1rem;
             }
         `;
 
