@@ -158,6 +158,7 @@
                             <input type="email" id="quoteEmail" required>
                         </div>
                         <button type="submit" class="action-button quote-submit-button" style="border-radius: 6px; border: 1px solid #e2e8f0; color: white;">Submit</button>
+                        <div id="quoteSuccessMessage" style="color: #83A764; text-align: center; margin-top: 1rem; opacity: 0; transition: opacity 0.3s ease; font-size: 16px; font-family: Verdana, sans-serif;">Quote sent! Please check your inbox</div>
                     </form>
                 </div>
             </div>
@@ -330,7 +331,7 @@
             };
 
             try {
-                const response = await fetch('/api/send-quote', {
+                const response = await fetch('https://terra-tag-calculator.vercel.app/api/send-quote', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -338,12 +339,13 @@
                     body: JSON.stringify(formData)
                 });
 
-                if (!response.ok) throw new Error('Failed to send quote');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to send quote');
+                }
 
-                alert('Quote has been sent to your email!');
-                quoteForm.style.display = 'none';
-                emailQuoteForm.reset();
-                document.getElementById('getQuoteBtn').classList.remove('selected');
+                const successMessage = document.getElementById('quoteSuccessMessage');
+                successMessage.style.opacity = '1';
             } catch (error) {
                 console.error('Error sending quote:', error);
                 alert('Failed to send quote. Please try again.');
