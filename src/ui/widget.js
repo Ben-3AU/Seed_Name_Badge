@@ -148,22 +148,22 @@
             </div>
             <div id="quoteForm" class="form-overlay" style="display: none;">
                 <div class="form-container">
-                    <form id="emailQuoteForm">
+                    <form id="emailQuoteForm" novalidate>
                         <div class="form-group">
                             <label>${UI.LABELS.forms.firstName}</label>
                             <input type="text" id="quoteFirstName" required>
                         </div>
-                        <div class="form-group" style="margin-bottom: 0.5rem;">
+                        <div class="form-group" style="margin-bottom: 1rem !important;">
                             <label>${UI.LABELS.forms.email}</label>
                             <input type="email" id="quoteEmail" required>
                         </div>
-                        <button type="submit" class="action-button selected" style="width: 100%; margin-top: 0.5rem;">Submit</button>
+                        <button type="submit" class="action-button quote-submit-button" style="opacity: 0.5; border-radius: 6px;">Submit</button>
                     </form>
                 </div>
             </div>
             <div id="paymentForm" class="form-overlay" style="display: none;">
                 <div class="form-container">
-                    <form id="orderForm">
+                    <form id="orderForm" novalidate>
                         <div class="form-group">
                             <label>${UI.LABELS.forms.firstName}</label>
                             <input type="text" id="orderFirstName" required>
@@ -180,12 +180,12 @@
                             <label>${UI.LABELS.forms.email}</label>
                             <input type="email" id="orderEmail" required>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" style="margin-bottom: 1rem !important;">
                             <label>${UI.LABELS.forms.paperType}</label>
                             <div class="button-group">
                                 ${UI.OPTIONS.paperType.map(option => `
                                     <button type="button"
-                                        class="option-button ${state.formData.paperType === option ? 'selected' : ''}"
+                                        class="option-button"
                                         data-name="paperType"
                                         data-value="${option}"
                                         required
@@ -193,7 +193,7 @@
                                 `).join('')}
                             </div>
                         </div>
-                        <button type="submit" class="action-button selected" style="width: 100%; margin-top: 0.5rem;">Checkout</button>
+                        <button type="submit" class="action-button checkout-button" style="opacity: 0.5; border-radius: 6px;">Checkout</button>
                     </form>
                 </div>
             </div>
@@ -292,9 +292,29 @@
         }
         
         const emailQuoteForm = document.getElementById('emailQuoteForm');
+        const submitButton = emailQuoteForm.querySelector('.quote-submit-button');
+        
+        // Function to check if all required fields are filled
+        const checkFormValidity = () => {
+            const firstName = document.getElementById('quoteFirstName').value;
+            const email = document.getElementById('quoteEmail').value;
+            
+            const isValid = firstName && email;
+            submitButton.classList.toggle('ready', isValid);
+            return isValid;
+        };
+
+        // Add input event listeners to required fields
+        ['quoteFirstName', 'quoteEmail'].forEach(id => {
+            document.getElementById(id).addEventListener('input', checkFormValidity);
+        });
         
         emailQuoteForm.onsubmit = async (e) => {
             e.preventDefault();
+            
+            if (!checkFormValidity()) {
+                return;
+            }
             
             const formData = {
                 firstName: document.getElementById('quoteFirstName').value,
@@ -356,7 +376,20 @@
         }
         
         const orderForm = document.getElementById('orderForm');
+        const checkoutButton = orderForm.querySelector('.checkout-button');
         
+        // Function to check if all required fields are filled
+        const checkFormValidity = () => {
+            const firstName = document.getElementById('orderFirstName').value;
+            const lastName = document.getElementById('orderLastName').value;
+            const email = document.getElementById('orderEmail').value;
+            const paperType = state.formData.paperType;
+            
+            const isValid = firstName && lastName && email && paperType;
+            checkoutButton.classList.toggle('ready', isValid);
+            return isValid;
+        };
+
         // Add event listeners for paper type buttons
         orderForm.querySelectorAll('[data-name="paperType"]').forEach(button => {
             button.addEventListener('click', (event) => {
@@ -367,11 +400,29 @@
                 orderForm.querySelectorAll('[data-name="paperType"]').forEach(btn => {
                     btn.classList.toggle('selected', btn.dataset.value === value);
                 });
+                
+                checkFormValidity();
             });
+        });
+
+        // Add input event listeners to required fields
+        ['orderFirstName', 'orderLastName', 'orderEmail'].forEach(id => {
+            document.getElementById(id).addEventListener('input', checkFormValidity);
+        });
+
+        // Reset paper type selection
+        state.formData.paperType = '';
+        orderForm.querySelectorAll('[data-name="paperType"]').forEach(btn => {
+            btn.classList.remove('selected');
         });
 
         orderForm.onsubmit = async (e) => {
             e.preventDefault();
+            
+            if (!checkFormValidity()) {
+                return;
+            }
+
             const submitButton = orderForm.querySelector('button[type="submit"]');
             submitButton.disabled = true;
 
@@ -514,10 +565,10 @@
             }
 
             .form-group {
-                display: flex;
-                flex-direction: column;
-                gap: 0.5rem;
-                margin-bottom: 1.5rem;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+                margin-bottom: 1.5rem !important;
             }
 
             label {
@@ -776,6 +827,26 @@
             input:-webkit-autofill:active {
                 -webkit-box-shadow: 0 0 0 30px white inset !important;
                 -webkit-text-fill-color: #1b4c57 !important;
+            }
+
+            /* Add specific styling for checkout button */
+            .checkout-button {
+                opacity: 0.5;
+                transition: opacity 0.3s ease;
+            }
+
+            .checkout-button.ready {
+                opacity: 1;
+            }
+
+            /* Add specific styling for form buttons */
+            .quote-submit-button {
+                opacity: 0.5;
+                transition: opacity 0.3s ease;
+            }
+
+            .quote-submit-button.ready {
+                opacity: 1;
             }
         `;
 
