@@ -780,4 +780,16 @@ export class TerraTagWidget {
 
         document.head.appendChild(styles);
     }
+}
+
+if (typeof window !== 'undefined') {
+    window.addEventListener('DOMContentLoaded', () => {
+        const widgetContainer = document.getElementById('terra-tag-calculator');
+        if (widgetContainer) {
+            const widget = new TerraTagWidget('terra-tag-calculator');
+            widget.initialize().catch(error => {
+                console.error('Failed to initialize widget:', error);
+            });
+        }
+    });
 } 
