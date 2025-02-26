@@ -1,5 +1,10 @@
 // Seed Name Badge Calculator Widget
 (() => {
+    // Configuration
+    const config = {
+        BASE_URL: 'https://seednamebadge.vercel.app'
+    };
+
     // UI Constants
     const UI = {
         LABELS: {
@@ -26,11 +31,30 @@
         },
         OPTIONS: {
             size: ['A7', 'A6'],
-            printedSides: ['Single', 'Double'],
-            inkCoverage: ['Up to 40%', 'Over 40%'],
-            lanyards: ['Yes', 'No'],
-            shipping: ['Standard', 'Express'],
-            paperType: ['Mixed herb', 'Mixed flower', 'Random mix']
+            printedSides: ['single', 'double'],
+            inkCoverage: ['upTo40', 'over40'],
+            lanyards: ['yes', 'no'],
+            shipping: ['standard', 'express'],
+            paperType: ['mixedHerb', 'mixedFlower', 'randomMix']
+        },
+        DISPLAY_VALUES: {
+            inkCoverage: {
+                upTo40: 'Up to 40%',
+                over40: 'Over 40%'
+            },
+            printedSides: {
+                single: 'Single sided',
+                double: 'Double sided'
+            },
+            shipping: {
+                standard: 'Standard',
+                express: 'Express'
+            },
+            paperType: {
+                mixedHerb: 'Mixed herb',
+                mixedFlower: 'Mixed flower',
+                randomMix: 'Random mix'
+            }
         }
     };
 
@@ -48,9 +72,9 @@
             if (totalQuantity > 300) totalPrice -= 0.50 * totalQuantity;
 
             if (size === 'A6') totalPrice += 3 * totalQuantity;
-            if (printedSides === 'Double') totalPrice += (size === 'A7' ? 0.50 : 1.00) * totalQuantity;
-            if (inkCoverage === 'Over 40%') totalPrice += (size === 'A7' ? 0.50 : 1.00) * totalQuantity;
-            if (lanyards === 'No') totalPrice -= 0.50 * totalQuantity;
+            if (printedSides === 'double') totalPrice += (size === 'A7' ? 0.50 : 1.00) * totalQuantity;
+            if (inkCoverage === 'over40') totalPrice += (size === 'A7' ? 0.50 : 1.00) * totalQuantity;
+            if (lanyards === 'no') totalPrice -= 0.50 * totalQuantity;
 
             let shippingCost = 0;
             if (size === 'A7') {
@@ -63,7 +87,7 @@
                 else shippingCost = 75;
             }
 
-            if (shipping === 'Express') shippingCost *= 2;
+            if (shipping === 'express') shippingCost *= 2;
             totalPrice += shippingCost;
             totalPrice *= 1.10;
             totalPrice *= 1.017;
@@ -86,23 +110,31 @@
             withGuests: 0,
             withoutGuests: 0,
             size: 'A7',
-            printedSides: 'Single',
-            inkCoverage: 'Up to 40%',
-            lanyards: 'Yes',
-            shipping: 'Standard',
-            paperType: 'Mixed herb'
+            printedSides: 'single',
+            inkCoverage: 'upTo40',
+            lanyards: 'yes',
+            shipping: 'standard',
+            paperType: 'mixedHerb'
         }
     };
 
     // Initialize widget
     async function initWidget() {
         try {
+            await loadDependencies();
             injectStyles();
             createWidgetStructure();
             setupEventListeners();
         } catch (error) {
             console.error('Widget initialization error:', error);
         }
+    }
+
+    // Load external dependencies
+    async function loadDependencies() {
+        await Promise.all([
+            loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js')
+        ]);
     }
 
     // Helper function to load scripts
@@ -190,7 +222,7 @@
                                         data-name="paperType"
                                         data-value="${option}"
                                         required
-                                    >${option}</button>
+                                    >${UI.DISPLAY_VALUES.paperType[option]}</button>
                                 `).join('')}
                             </div>
                         </div>
@@ -215,7 +247,7 @@
                             class="option-button ${state.formData[name] === option ? 'selected' : ''}"
                             data-name="${name}"
                             data-value="${option}"
-                        >${option}</button>
+                        >${UI.DISPLAY_VALUES[name][option]}</button>
                     `).join('')}
                 </div>
             </div>
@@ -251,7 +283,7 @@
         } else {
             event.target.placeholder = '0';
         }
-        state.formData[id] = parseInt(value) || 0;
+        state.formData[id] = value;
         updateDisplay();
     }
 
@@ -331,7 +363,7 @@
             };
 
             try {
-                const response = await fetch('https://seednamebadge.vercel.app/api/send-quote', {
+                const response = await fetch(`${config.BASE_URL}/api/send-quote`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
