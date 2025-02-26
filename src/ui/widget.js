@@ -139,11 +139,11 @@
                 <form class="calculator-form">
                     <div class="form-group">
                         <label>${UI.LABELS.forms.withGuests}</label>
-                        <input type="number" id="withGuests" min="0" value="0" placeholder="0">
+                        <input type="number" id="withGuests" min="0" value="" placeholder="0">
                     </div>
                     <div class="form-group">
                         <label>${UI.LABELS.forms.withoutGuests}</label>
-                        <input type="number" id="withoutGuests" min="0" value="0" placeholder="0">
+                        <input type="number" id="withoutGuests" min="0" value="" placeholder="0">
                     </div>
                     ${createOptionsGroups()}
                     <div id="totalPrice" class="total-price"></div>
@@ -202,6 +202,12 @@
     // Event handlers
     function handleQuantityChange(event) {
         const { id, value } = event.target;
+        // Clear the placeholder when user starts typing
+        if (value !== '') {
+            event.target.placeholder = '';
+        } else {
+            event.target.placeholder = '0';
+        }
         state.formData[id] = parseInt(value) || 0;
         updateDisplay();
     }
@@ -257,7 +263,7 @@
             </div>
         `;
 
-        actionButtons.style.display = 'flex';
+        actionButtons.style.display = 'block';
     }
 
     // Helper functions
@@ -298,12 +304,13 @@
             }
 
             .calculator-heading {
-                font-family: Verdana, sans-serif;
-                font-size: 1.5rem;
-                font-weight: normal;
-                color: #1b4c57;
-                text-align: center;
-                margin-bottom: 4rem;
+                font-family: Verdana, sans-serif !important;
+                font-size: 1.5rem !important;
+                font-weight: normal !important;
+                color: #1b4c57 !important;
+                text-align: center !important;
+                margin-bottom: 4rem !important;
+                line-height: 1.6 !important;
             }
 
             .calculator-form {
@@ -340,14 +347,27 @@
                 color: #1b4c57;
                 -webkit-appearance: textfield;
                 appearance: textfield;
+                text-indent: 1rem;
             }
 
             input[type="number"]::placeholder,
             input[type="text"]::placeholder,
             input[type="email"]::placeholder {
-                color: #1b4c57;
-                opacity: 0.5;
+                color: #1b4c57 !important;
+                opacity: 0.5 !important;
                 font-size: 16px;
+                text-indent: 1rem;
+            }
+
+            /* Remove spinner buttons */
+            input[type="number"]::-webkit-inner-spin-button,
+            input[type="number"]::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+            input[type="number"] {
+                -moz-appearance: textfield;
             }
 
             .button-group {
@@ -393,51 +413,57 @@
                 border-bottom-right-radius: 6px;
             }
 
-            .total-price {
-                padding: 1rem;
-                background-color: #f7fafc;
-                border-radius: 6px;
-                color: #1b4c57;
-                text-align: center;
-            }
-
             .total-price-content {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                margin: 1rem 0;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                margin: 0.5rem 0 !important;
             }
 
             .total-cost {
-                font-size: 2em;
-                font-weight: 600;
-                margin-bottom: 0.5rem;
+                font-size: 2em !important;
+                font-weight: 600 !important;
+                margin-bottom: 0.5rem !important;
+                font-family: Verdana, sans-serif !important;
+                line-height: 1.2 !important;
             }
 
             .price-details {
-                display: flex;
-                flex-direction: column;
-                width: 100%;
-                text-align: center;
-                font-size: 14px;
+                display: flex !important;
+                flex-direction: column !important;
+                width: 100% !important;
+                text-align: center !important;
+                font-size: 14px !important;
+                font-family: Verdana, sans-serif !important;
             }
 
             .price-details div:first-child {
-                margin-bottom: 0.125rem;
+                margin-bottom: 0.125rem !important;
             }
 
             .price-details div:last-child {
-                margin-bottom: 1rem;
+                margin-bottom: 0.5rem !important;
+            }
+
+            #terra-tag-calculator .total-price {
+                padding: 1rem !important;
+                background-color: #f7fafc !important;
+                border-radius: 6px !important;
+                color: #1b4c57 !important;
+                text-align: center !important;
+                font-family: Verdana, sans-serif !important;
             }
 
             .action-buttons {
                 margin-top: 1.5rem;
+                display: none;
             }
 
             .action-buttons .button-group {
                 display: flex;
                 gap: 0;
                 justify-content: center;
+                width: 100%;
             }
 
             .action-button {
@@ -452,6 +478,7 @@
                 cursor: pointer;
                 transition: all 0.2s ease;
                 height: 48px;
+                width: 100%;
             }
 
             .action-button:hover {
@@ -499,12 +526,11 @@
 
                 .action-buttons .button-group {
                     flex-direction: column;
-                    align-items: center;
+                    align-items: stretch;
                 }
 
                 .action-button {
                     width: 100%;
-                    max-width: none;
                     border-radius: 0;
                 }
 
