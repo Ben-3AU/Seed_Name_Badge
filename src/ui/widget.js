@@ -782,14 +782,20 @@ export class TerraTagWidget {
     }
 }
 
-if (typeof window !== 'undefined') {
-    window.addEventListener('DOMContentLoaded', () => {
-        const widgetContainer = document.getElementById('terra-tag-calculator');
-        if (widgetContainer) {
-            const widget = new TerraTagWidget('terra-tag-calculator');
-            widget.initialize().catch(error => {
-                console.error('Failed to initialize widget:', error);
-            });
-        }
-    });
+// Initialize widget when script is loaded
+const initializeWidget = () => {
+    const widgetContainer = document.getElementById('terra-tag-calculator');
+    if (widgetContainer) {
+        const widget = new TerraTagWidget('terra-tag-calculator');
+        widget.initialize().catch(error => {
+            console.error('Failed to initialize widget:', error);
+        });
+    }
+};
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeWidget);
+} else {
+    initializeWidget();
 } 
