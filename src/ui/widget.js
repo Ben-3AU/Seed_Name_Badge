@@ -8,7 +8,8 @@ import { Button } from './components/Button.js';
 import { Input } from './components/Input.js';
 import { Summary } from './components/Summary.js';
 
-class SeedNameBadgeWidget {
+// Export the widget class
+export class SeedNameBadgeWidget {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
         if (!this.container) {
@@ -784,22 +785,19 @@ class SeedNameBadgeWidget {
     }
 }
 
-// Create and export a single instance
-const widget = new SeedNameBadgeWidget('terra-tag-calculator');
-
-// Export both the class and a default instance
-export { SeedNameBadgeWidget };
-export default widget;
-
 // Initialize when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            const widget = new SeedNameBadgeWidget('terra-tag-calculator');
+            widget.initialize().catch(error => {
+                console.error('Failed to initialize widget:', error);
+            });
+        });
+    } else {
+        const widget = new SeedNameBadgeWidget('terra-tag-calculator');
         widget.initialize().catch(error => {
             console.error('Failed to initialize widget:', error);
         });
-    });
-} else {
-    widget.initialize().catch(error => {
-        console.error('Failed to initialize widget:', error);
-    });
+    }
 } 
