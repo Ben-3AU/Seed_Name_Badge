@@ -157,7 +157,7 @@
                             <label>${UI.LABELS.forms.email}</label>
                             <input type="email" id="quoteEmail" required>
                         </div>
-                        <button type="submit" class="action-button quote-submit-button" style="opacity: 0.8; border-radius: 6px; border: 1px solid #e2e8f0; color: white;">Submit</button>
+                        <button type="submit" class="action-button quote-submit-button" style="opacity: 0.8; border-radius: 6px; border: 1px solid #e2e8f0; color: white; background-color: #1b4c57;">Submit</button>
                     </form>
                 </div>
             </div>
@@ -193,7 +193,7 @@
                                 `).join('')}
                             </div>
                         </div>
-                        <button type="submit" class="action-button checkout-button" style="opacity: 0.8; border-radius: 6px; border: 1px solid #e2e8f0; color: white;">Checkout</button>
+                        <button type="submit" class="action-button checkout-button" style="opacity: 0.8; border-radius: 6px; border: 1px solid #e2e8f0; color: white; background-color: #1b4c57;">Checkout</button>
                     </form>
                 </div>
             </div>
@@ -835,6 +835,7 @@
                 transition: all 0.3s ease;
                 border: 1px solid #e2e8f0;
                 color: white;
+                background-color: #1b4c57;
             }
 
             .checkout-button:not(.ready) {
@@ -851,23 +852,28 @@
             }
 
             /* Add specific styling for form buttons */
-            .quote-submit-button {
+            .quote-submit-button,
+            .checkout-button {
                 opacity: 0.8;
                 transition: all 0.3s ease;
                 border: 1px solid #e2e8f0;
                 color: white;
+                background-color: #1b4c57;
             }
 
-            .quote-submit-button:not(.ready) {
+            .quote-submit-button:not(.ready),
+            .checkout-button:not(.ready) {
                 cursor: not-allowed;
             }
 
-            .quote-submit-button.ready {
+            .quote-submit-button.ready,
+            .checkout-button.ready {
                 opacity: 1;
                 cursor: pointer;
             }
 
-            .quote-submit-button.ready:hover {
+            .quote-submit-button.ready:hover,
+            .checkout-button.ready:hover {
                 background-color: #163943;
             }
         `;
