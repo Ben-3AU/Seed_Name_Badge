@@ -244,7 +244,7 @@
         const actionButtons = document.querySelector('.action-buttons');
 
         if (totalQuantity < 75) {
-            priceSection.innerHTML = '<div class="warning">Minimum order quantity is 75</div>';
+            priceSection.innerHTML = '';
             actionButtons.style.display = 'none';
             return;
         }
@@ -309,7 +309,7 @@
                 font-weight: normal !important;
                 color: #1b4c57 !important;
                 text-align: center !important;
-                margin-bottom: 4rem !important;
+                margin-bottom: 2rem !important;
                 line-height: 1.6 !important;
             }
 
@@ -417,7 +417,8 @@
                 display: flex !important;
                 flex-direction: column !important;
                 align-items: center !important;
-                margin: 0.5rem 0 !important;
+                margin: 0 !important;
+                padding: 0.5rem 0 !important;
             }
 
             .total-cost {
