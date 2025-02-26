@@ -153,11 +153,11 @@
                             <label>${UI.LABELS.forms.firstName}</label>
                             <input type="text" id="quoteFirstName" required>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" style="margin-bottom: 0.5rem;">
                             <label>${UI.LABELS.forms.email}</label>
                             <input type="email" id="quoteEmail" required>
                         </div>
-                        <button type="submit" class="action-button selected" style="width: 100%;">Submit</button>
+                        <button type="submit" class="action-button selected" style="width: 100%; margin-top: 0.5rem;">Submit</button>
                     </form>
                 </div>
             </div>
@@ -174,7 +174,7 @@
                         </div>
                         <div class="form-group">
                             <label>${UI.LABELS.forms.company}</label>
-                            <input type="text" id="orderCompany" required>
+                            <input type="text" id="orderCompany">
                         </div>
                         <div class="form-group">
                             <label>${UI.LABELS.forms.email}</label>
@@ -188,11 +188,12 @@
                                         class="option-button ${state.formData.paperType === option ? 'selected' : ''}"
                                         data-name="paperType"
                                         data-value="${option}"
+                                        required
                                     >${option}</button>
                                 `).join('')}
                             </div>
                         </div>
-                        <button type="submit" class="action-button selected" style="width: 100%;">Checkout</button>
+                        <button type="submit" class="action-button selected" style="width: 100%; margin-top: 0.5rem;">Checkout</button>
                     </form>
                 </div>
             </div>
@@ -269,8 +270,18 @@
     async function handleGetQuote() {
         console.log('Quote button clicked');
         const quoteForm = document.getElementById('quoteForm');
+        const paymentForm = document.getElementById('paymentForm');
+        const quoteBtn = document.getElementById('getQuoteBtn');
+        const payNowBtn = document.getElementById('payNowBtn');
+        
         console.log('Quote form element:', quoteForm);
         
+        // Update button states
+        quoteBtn.classList.add('selected');
+        payNowBtn.classList.remove('selected');
+        
+        // Hide payment form if visible
+        paymentForm.style.display = 'none';
         quoteForm.style.display = 'block';
         console.log('Quote form display style:', quoteForm.style.display);
         
@@ -312,6 +323,7 @@
                 alert('Quote has been sent to your email!');
                 quoteForm.style.display = 'none';
                 emailQuoteForm.reset();
+                document.getElementById('getQuoteBtn').classList.remove('selected');
             } catch (error) {
                 console.error('Error sending quote:', error);
                 alert('Failed to send quote. Please try again.');
@@ -322,8 +334,18 @@
     async function handlePayNow() {
         console.log('Pay now button clicked');
         const paymentForm = document.getElementById('paymentForm');
+        const quoteForm = document.getElementById('quoteForm');
+        const quoteBtn = document.getElementById('getQuoteBtn');
+        const payNowBtn = document.getElementById('payNowBtn');
+        
         console.log('Payment form element:', paymentForm);
         
+        // Update button states
+        payNowBtn.classList.add('selected');
+        quoteBtn.classList.remove('selected');
+        
+        // Hide quote form if visible
+        quoteForm.style.display = 'none';
         paymentForm.style.display = 'block';
         console.log('Payment form display style:', paymentForm.style.display);
         
@@ -382,6 +404,7 @@
                 alert('Order has been created! You will receive a confirmation email.');
                 paymentForm.style.display = 'none';
                 orderForm.reset();
+                document.getElementById('payNowBtn').classList.remove('selected');
 
             } catch (error) {
                 console.error('Order error:', error);
@@ -519,6 +542,7 @@
                 -webkit-appearance: textfield;
                 appearance: textfield;
                 text-indent: 1rem;
+                background-color: white !important;
             }
 
             input[type="number"]::placeholder,
@@ -720,13 +744,11 @@
                 background-color: #fff;
                 margin-top: 1rem;
                 border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
 
             .form-container {
                 background-color: white;
                 padding: 1rem;
-                border-radius: 8px;
                 width: 100%;
             }
 
@@ -746,6 +768,14 @@
                 font-size: 0.875rem;
                 margin-top: 0.5rem;
                 margin-bottom: 1rem;
+            }
+
+            input:-webkit-autofill,
+            input:-webkit-autofill:hover,
+            input:-webkit-autofill:focus,
+            input:-webkit-autofill:active {
+                -webkit-box-shadow: 0 0 0 30px white inset !important;
+                -webkit-text-fill-color: #1b4c57 !important;
             }
         `;
 
