@@ -1,6 +1,6 @@
 import { UI } from '../core/constants.js';
 import { Calculator } from '../core/calculator.js';
-import { WidgetState } from '../core/state.js';
+import { State } from '../core/state.js';
 import { StripeService } from '../services/stripe.js';
 import { Button } from './components/Button.js';
 import { Input } from './components/Input.js';
@@ -14,7 +14,7 @@ export class TerraTagWidget {
         }
 
         this.calculator = new Calculator();
-        this.state = new WidgetState();
+        this.state = new State();
         this.stripeService = new StripeService();
     }
 

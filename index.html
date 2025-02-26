@@ -5,164 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tag Calculator</title>
     <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="/src/ui/styles.css">
     <!-- Load Stripe.js -->
     <script src="https://js.stripe.com/v3/"></script>
-    <!-- Initialize Stripe -->
-    <script>
-        document.addEventListener('DOMContentLoaded', async function() {
+    <!-- Initialize widget -->
+    <script type="module">
+        import { TerraTagWidget } from '/src/ui/widget.js';
+        
+        document.addEventListener('DOMContentLoaded', async () => {
             try {
-                const response = await fetch('/api/config');
-                if (!response.ok) {
-                    throw new Error('Failed to load Stripe configuration');
-                }
-                const { publishableKey } = await response.json();
-                console.log('Using Stripe publishable key with prefix:', publishableKey.substring(0, 8));
-                window.stripePublicKey = publishableKey; // For backward compatibility
-                window.stripe = Stripe(publishableKey);
-                console.log('Debug: Stripe initialized successfully');
+                const widget = new TerraTagWidget('terra-tag-calculator');
+                await widget.initialize();
             } catch (error) {
-                console.error('Debug: Error initializing Stripe:', error);
+                console.error('Failed to initialize widget:', error);
             }
         });
     </script>
 </head>
 <body>
-    <div class="container">
-        <h1 class="calculator-heading">Minimum order of 75</h1>
-        <form id="calculatorForm" class="calculator-form">
-            <div class="form-group">
-                <label for="quantityWithGuests">Enter quantity with guest details printed</label>
-                <input type="number" id="quantityWithGuests" name="quantityWithGuests" min="0" placeholder="0">
-            </div>
-
-            <div class="form-group">
-                <label for="quantityWithoutGuests">Enter quantity without guest details printed</label>
-                <input type="number" id="quantityWithoutGuests" name="quantityWithoutGuests" min="0" placeholder="0">
-            </div>
-
-            <div id="minimumQuantityWarning" class="warning-message" style="display: none;">
-                Enter a minimum of 75 above
-            </div>
-
-            <div class="form-group">
-                <label>Size</label>
-                <div class="button-group">
-                    <button type="button" class="option-button selected" data-name="size" data-value="A7">A7</button>
-                    <button type="button" class="option-button" data-name="size" data-value="A6">A6</button>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Printed sides</label>
-                <div class="button-group">
-                    <button type="button" class="option-button selected" data-name="printedSides" data-value="single">Single sided</button>
-                    <button type="button" class="option-button" data-name="printedSides" data-value="double">Double sided</button>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Ink coverage</label>
-                <div class="button-group">
-                    <button type="button" class="option-button selected" data-name="inkCoverage" data-value="upTo40">Up to 40%</button>
-                    <button type="button" class="option-button" data-name="inkCoverage" data-value="over40">Over 40%</button>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Lanyards included</label>
-                <div class="button-group">
-                    <button type="button" class="option-button selected" data-name="lanyards" data-value="yes">Yes</button>
-                    <button type="button" class="option-button" data-name="lanyards" data-value="no">No</button>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Shipping</label>
-                <div class="button-group">
-                    <button type="button" class="option-button selected" data-name="shipping" data-value="standard">Standard</button>
-                    <button type="button" class="option-button" data-name="shipping" data-value="express">Express</button>
-                </div>
-            </div>
-
-            <div id="totalPrice" class="total-price">
-                <!-- Price content will be displayed here -->
-            </div>
-
-            <!-- Action Buttons (hidden by default) -->
-            <div id="actionButtons" class="action-buttons" style="display: none;">
-                <div class="button-group">
-                    <button type="button" class="action-button" id="orderNowBtn">Order Now</button>
-                    <button type="button" class="action-button" id="emailQuoteBtn">Email the quote</button>
-                </div>
-            </div>
-
-            <!-- Email Quote Form (hidden by default) -->
-            <div id="emailQuoteForm" class="additional-form" style="display: none;">
-                <div class="form-group">
-                    <label for="quoteFirstName">First name</label>
-                    <input type="text" id="quoteFirstName" name="quoteFirstName" required>
-                </div>
-                <div class="form-group">
-                    <label for="quoteEmail">Email</label>
-                    <input type="email" id="quoteEmail" name="quoteEmail" required>
-                </div>
-                <button id="submitQuoteBtn" type="submit" class="submit-button">
-                    <div class="button-content">
-                        <div class="spinner"></div>
-                        <span>Submit</span>
-                    </div>
-                </button>
-                <div id="quoteSuccessMessage" class="quote-success-message">Quote sent! Please check your inbox.</div>
-            </div>
-
-            <!-- Order Form (hidden by default) -->
-            <div id="orderForm" class="additional-form" style="display: none;">
-                <div class="form-group">
-                    <label for="orderFirstName">First name</label>
-                    <input type="text" id="orderFirstName" name="orderFirstName" required>
-                </div>
-                <div class="form-group">
-                    <label for="orderLastName">Last name</label>
-                    <input type="text" id="orderLastName" name="orderLastName" required>
-                </div>
-                <div class="form-group">
-                    <label for="orderCompany">Company</label>
-                    <input type="text" id="orderCompany" name="orderCompany">
-                </div>
-                <div class="form-group">
-                    <label for="orderEmail">Email</label>
-                    <input type="email" id="orderEmail" name="orderEmail" required>
-                </div>
-                <div class="form-group" data-type="paper-type">
-                    <label>Paper type</label>
-                    <div class="button-group">
-                        <button type="button" class="option-button" data-name="paperType" data-value="mixedHerb">Mixed herb</button>
-                        <button type="button" class="option-button" data-name="paperType" data-value="mixedFlower">Mixed flower</button>
-                        <button type="button" class="option-button" data-name="paperType" data-value="randomMix">Random mix</button>
-                    </div>
-                </div>
-                <button id="payNowBtn" type="submit" class="submit-button">
-                    <div class="button-content">
-                        <div class="spinner"></div>
-                        <span>Pay Now</span>
-                    </div>
-                </button>
-            </div>
-        </form>
-    </div>
-    <!-- Load Supabase first -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
-    
-    <!-- Add a debug script -->
-    <script>
-        console.log('Debug: Page loaded, about to load main script');
-        window.addEventListener('load', function() {
-            console.log('Debug: Window fully loaded');
-        });
-    </script>
-    
-    <!-- Load main script -->
-    <script src="script.js"></script>
+    <div id="terra-tag-calculator"></div>
 </body>
 </html> 
