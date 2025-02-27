@@ -3,13 +3,6 @@ const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
 const fetch = require('node-fetch');
-const { createClient } = require('@supabase/supabase-js');
-
-// Initialize Supabase client
-const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_KEY
-);
 
 // Create a transporter using SMTP2GO credentials
 const transporter = nodemailer.createTransport({
@@ -115,8 +108,8 @@ async function sendQuoteEmail(quoteData) {
         });
 
         // After successful email send, update Supabase
-        if (quoteData.id) {
-            const { error } = await supabase
+        if (quoteData.id && window.widgetSupabase) {
+            const { error } = await window.widgetSupabase
                 .from('seed_name_badge_quotes')
                 .update({ email_sent: true })
                 .eq('id', quoteData.id);
