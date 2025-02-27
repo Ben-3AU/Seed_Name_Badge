@@ -370,7 +370,7 @@
             };
 
             try {
-                const response = await fetch('/api/submit-quote', {
+                const response = await fetch(`${config.BASE_URL}/api/submit-quote`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -487,7 +487,7 @@
                     }
                 };
 
-                const response = await fetch('/api/create-order', {
+                const response = await fetch(`${config.BASE_URL}/api/create-order`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
