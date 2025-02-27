@@ -73,53 +73,35 @@ async function sendEmailWithTemplate(options) {
 // Function to send quote email
 async function sendQuoteEmail(quoteData) {
     try {
-        const brisbaneDate = new Date().toLocaleString('en-AU', {
-            timeZone: 'Australia/Brisbane',
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-        });
-        
         const templateData = {
             first_name: quoteData.first_name,
-            submitted: brisbaneDate.replace(/\s*at\s*/, ' at '),
-            submission_id: quoteData.id || '',
-            quantity_with_guest_details_printed: quoteData.quantity_with_guests,
-            quantity_without_guest_details_printed: quoteData.quantity_without_guests,
             total_quantity: quoteData.total_quantity,
-            size: quoteData.size,
-            printed_sides: quoteData.printed_sides === 'double' ? 'Double sided' : 'Single sided',
-            ink_coverage: quoteData.ink_coverage === 'over40' ? 'Over 40%' : 'Up to 40%',
-            lanyards_included: quoteData.lanyards ? 'Yes' : 'No',
-            shipping: quoteData.shipping.charAt(0).toUpperCase() + quoteData.shipping.slice(1),
-            total_cost: quoteData.total_cost.toFixed(2),
-            gst_amount: quoteData.gst_amount.toFixed(2),
-            co2_savings: quoteData.co2_savings.toFixed(2)
+            total_cost: new Intl.NumberFormat('en-AU', {
+                style: 'currency',
+                currency: 'AUD'
+            }).format(quoteData.total_cost),
+            gst_amount: new Intl.NumberFormat('en-AU', {
+                style: 'currency',
+                currency: 'AUD'
+            }).format(quoteData.gst_amount),
+            co2_savings: quoteData.co2_savings.toFixed(2),
+            order_details: {
+                quantity_with_guests: quoteData.quantity_with_guests,
+                quantity_without_guests: quoteData.quantity_without_guests,
+                size: quoteData.size,
+                printed_sides: quoteData.printed_sides === 'double' ? 'Double sided' : 'Single sided',
+                ink_coverage: quoteData.ink_coverage === 'over40' ? 'Over 40%' : 'Up to 40%',
+                lanyards: quoteData.lanyards ? 'Yes' : 'No',
+                shipping: quoteData.shipping.charAt(0).toUpperCase() + quoteData.shipping.slice(1)
+            }
         };
 
-        const emailResult = await sendEmailWithTemplate({
-            template_id: process.env.SMTP2GO_QUOTE_TEMPLATE_ID,
+        return await sendEmailWithTemplate({
+            template_id: 'TERRA_TAG_QUOTE',
             template_data: templateData,
             recipients: quoteData.email,
             bcc: [process.env.ADMIN_EMAIL]
         });
-
-        // After successful email send, update Supabase
-        if (quoteData.id && window.widgetSupabase) {
-            const { error } = await window.widgetSupabase
-                .from('seed_name_badge_quotes')
-                .update({ email_sent: true })
-                .eq('id', quoteData.id);
-
-            if (error) {
-                console.error('Error updating email_sent status in Supabase:', error);
-            }
-        }
-
-        return emailResult;
     } catch (error) {
         console.error('Error sending quote email:', error);
         throw error;
