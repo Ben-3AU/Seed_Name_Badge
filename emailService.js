@@ -3,6 +3,13 @@ const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
 const fetch = require('node-fetch');
+const { createClient } = require('@supabase/supabase-js');
+
+// Initialize Supabase client
+const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_KEY
+);
 
 // Create a transporter using SMTP2GO credentials
 const transporter = nodemailer.createTransport({
@@ -73,35 +80,53 @@ async function sendEmailWithTemplate(options) {
 // Function to send quote email
 async function sendQuoteEmail(quoteData) {
     try {
+        const brisbaneDate = new Date().toLocaleString('en-AU', {
+            timeZone: 'Australia/Brisbane',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        });
+        
         const templateData = {
             first_name: quoteData.first_name,
+            submitted: brisbaneDate.replace(/\s*at\s*/, ' at '),
+            submission_id: quoteData.id || '',
+            quantity_with_guest_details_printed: quoteData.quantity_with_guests,
+            quantity_without_guest_details_printed: quoteData.quantity_without_guests,
             total_quantity: quoteData.total_quantity,
-            total_cost: new Intl.NumberFormat('en-AU', {
-                style: 'currency',
-                currency: 'AUD'
-            }).format(quoteData.total_cost),
-            gst_amount: new Intl.NumberFormat('en-AU', {
-                style: 'currency',
-                currency: 'AUD'
-            }).format(quoteData.gst_amount),
-            co2_savings: quoteData.co2_savings.toFixed(2),
-            order_details: {
-                quantity_with_guests: quoteData.quantity_with_guests,
-                quantity_without_guests: quoteData.quantity_without_guests,
-                size: quoteData.size,
-                printed_sides: quoteData.printed_sides === 'double' ? 'Double sided' : 'Single sided',
-                ink_coverage: quoteData.ink_coverage === 'over40' ? 'Over 40%' : 'Up to 40%',
-                lanyards: quoteData.lanyards ? 'Yes' : 'No',
-                shipping: quoteData.shipping.charAt(0).toUpperCase() + quoteData.shipping.slice(1)
-            }
+            size: quoteData.size,
+            printed_sides: quoteData.printed_sides === 'double' ? 'Double sided' : 'Single sided',
+            ink_coverage: quoteData.ink_coverage === 'over40' ? 'Over 40%' : 'Up to 40%',
+            lanyards_included: quoteData.lanyards ? 'Yes' : 'No',
+            shipping: quoteData.shipping.charAt(0).toUpperCase() + quoteData.shipping.slice(1),
+            total_cost: quoteData.total_cost.toFixed(2),
+            gst_amount: quoteData.gst_amount.toFixed(2),
+            co2_savings: quoteData.co2_savings.toFixed(2)
         };
 
-        return await sendEmailWithTemplate({
+        const emailResult = await sendEmailWithTemplate({
             template_id: process.env.SMTP2GO_QUOTE_TEMPLATE_ID,
             template_data: templateData,
             recipients: quoteData.email,
             bcc: [process.env.ADMIN_EMAIL]
         });
+
+        // After successful email send, update Supabase
+        if (quoteData.id) {
+            const { error } = await supabase
+                .from('seed_name_badge_quotes')
+                .update({ email_sent: true })
+                .eq('id', quoteData.id);
+
+            if (error) {
+                console.error('Error updating email_sent status in Supabase:', error);
+            }
+        }
+
+        return emailResult;
     } catch (error) {
         console.error('Error sending quote email:', error);
         throw error;
