@@ -31,29 +31,29 @@
         },
         OPTIONS: {
             size: ['A7', 'A6'],
-            printedSides: ['Single', 'Double'],
-            inkCoverage: ['Up to 40%', 'Over 40%'],
-            lanyards: ['Yes', 'No'],
-            shipping: ['Standard', 'Express'],
-            paperType: ['Mixed herb', 'Mixed flower', 'Random mix']
+            printedSides: ['single', 'double'],
+            inkCoverage: ['upTo40', 'over40'],
+            lanyards: ['yes', 'no'],
+            shipping: ['standard', 'express'],
+            paperType: ['mixedHerb', 'mixedFlower', 'randomMix']
         },
         DISPLAY_VALUES: {
             inkCoverage: {
-                'Up to 40%': 'Up to 40%',
-                'Over 40%': 'Over 40%'
+                upTo40: 'Up to 40%',
+                over40: 'Over 40%'
             },
             printedSides: {
-                Single: 'Single sided',
-                Double: 'Double sided'
+                single: 'Single sided',
+                double: 'Double sided'
             },
             shipping: {
-                Standard: 'Standard',
-                Express: 'Express'
+                standard: 'Standard',
+                express: 'Express'
             },
             paperType: {
-                'Mixed herb': 'Mixed herb',
-                'Mixed flower': 'Mixed flower',
-                'Random mix': 'Random mix'
+                mixedHerb: 'Mixed herb',
+                mixedFlower: 'Mixed flower',
+                randomMix: 'Random mix'
             }
         }
     };
@@ -72,9 +72,9 @@
             if (totalQuantity > 300) totalPrice -= 0.50 * totalQuantity;
 
             if (size === 'A6') totalPrice += 3 * totalQuantity;
-            if (printedSides === 'Double') totalPrice += (size === 'A7' ? 0.50 : 1.00) * totalQuantity;
-            if (inkCoverage === 'Over 40%') totalPrice += (size === 'A7' ? 0.50 : 1.00) * totalQuantity;
-            if (lanyards === 'No') totalPrice -= 0.50 * totalQuantity;
+            if (printedSides === 'double') totalPrice += (size === 'A7' ? 0.50 : 1.00) * totalQuantity;
+            if (inkCoverage === 'over40') totalPrice += (size === 'A7' ? 0.50 : 1.00) * totalQuantity;
+            if (lanyards === 'no') totalPrice -= 0.50 * totalQuantity;
 
             let shippingCost = 0;
             if (size === 'A7') {
@@ -87,7 +87,7 @@
                 else shippingCost = 75;
             }
 
-            if (shipping === 'Express') shippingCost *= 2;
+            if (shipping === 'express') shippingCost *= 2;
             totalPrice += shippingCost;
             totalPrice *= 1.10;
             totalPrice *= 1.017;
@@ -110,11 +110,11 @@
             withGuests: 0,
             withoutGuests: 0,
             size: 'A7',
-            printedSides: 'Single',
-            inkCoverage: 'Up to 40%',
-            lanyards: 'Yes',
-            shipping: 'Standard',
-            paperType: 'Mixed herb'
+            printedSides: 'single',
+            inkCoverage: 'upTo40',
+            lanyards: 'yes',
+            shipping: 'standard',
+            paperType: 'mixedHerb'
         }
     };
 
@@ -363,15 +363,11 @@
             };
 
             try {
-                const response = await fetch('https://seednamebadge.vercel.app/api/send-quote', {
+                const response = await fetch(`${config.BASE_URL}/api/send-quote`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*',
-                        'Access-Control-Allow-Methods': 'POST',
-                        'Access-Control-Allow-Headers': 'Content-Type'
                     },
-                    mode: 'cors',
                     body: JSON.stringify(formData)
                 });
 
