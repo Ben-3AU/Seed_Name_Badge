@@ -97,7 +97,7 @@ async function sendQuoteEmail(quoteData) {
         };
 
         return await sendEmailWithTemplate({
-            template_id: 'TERRA_TAG_QUOTE',
+            template_id: process.env.SMTP2GO_QUOTE_TEMPLATE_ID,
             template_data: templateData,
             recipients: quoteData.email,
             bcc: [process.env.ADMIN_EMAIL]
