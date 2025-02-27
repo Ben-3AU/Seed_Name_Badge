@@ -346,32 +346,36 @@
             if (!checkFormValidity()) {
                 return;
             }
+
+            submitButton.disabled = true;
+            submitButton.classList.add('loading');
             
-            const formData = {
-                first_name: document.getElementById('quoteFirstName').value,
-                email: document.getElementById('quoteEmail').value,
+            const quoteData = {
                 quantity_with_guests: state.formData.withGuests,
                 quantity_without_guests: state.formData.withoutGuests,
-                total_quantity: Calculator.getTotalQuantity(state.formData.withGuests, state.formData.withoutGuests),
                 size: state.formData.size,
                 printed_sides: state.formData.printedSides,
                 ink_coverage: state.formData.inkCoverage,
-                lanyards: state.formData.lanyards,
+                lanyards: state.formData.lanyards === 'yes',
                 shipping: state.formData.shipping,
-                total_cost: Calculator.getTotalPrice(state.formData),
-                gst_amount: Calculator.getGST(Calculator.getTotalPrice(state.formData)),
+                first_name: document.getElementById('quoteFirstName').value.trim(),
+                email: document.getElementById('quoteEmail').value.trim(),
+                total_quantity: Calculator.getTotalQuantity(state.formData.withGuests, state.formData.withoutGuests),
+                total_cost: Number(Calculator.getTotalPrice(state.formData).toFixed(2)),
+                gst_amount: Number(Calculator.getGST(Calculator.getTotalPrice(state.formData)).toFixed(2)),
                 co2_savings: Calculator.getCO2Savings(
                     Calculator.getTotalQuantity(state.formData.withGuests, state.formData.withoutGuests)
-                )
+                ),
+                email_sent: false
             };
 
             try {
-                const response = await fetch(`${config.BASE_URL}/api/submit-quote`, {
+                const response = await fetch('/api/submit-quote', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify(quoteData)
                 });
 
                 if (!response.ok) {
@@ -381,9 +385,13 @@
 
                 const successMessage = document.getElementById('quoteSuccessMessage');
                 successMessage.style.opacity = '1';
+                setTimeout(() => successMessage.style.opacity = '0', 3000);
             } catch (error) {
                 console.error('Error sending quote:', error);
                 alert('Failed to send quote. Please try again.');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.classList.remove('loading');
             }
         };
     }
