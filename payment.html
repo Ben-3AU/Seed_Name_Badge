@@ -3,240 +3,328 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Complete Your Payment</title>
-    <link rel="stylesheet" href="main.css">
+    <title>Payment - Terra Tag</title>
     <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        #payment-form {
+            display: none;
+        }
+        
+        #payment-element {
+            margin-bottom: 24px;
+        }
+        
+        #submit {
+            background-color: #1b4c57;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+        }
+        
+        #submit:hover {
+            background-color: #2c6d7c;
+        }
+        
+        #submit:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        #error-message {
+            color: #df1b41;
+            margin-top: 16px;
+            text-align: center;
+        }
+        
+        #loading {
+            text-align: center;
+            color: #666;
+            margin: 20px 0;
+        }
+        
+        .order-details {
+            margin-bottom: 24px;
+            padding: 16px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        .order-details h2 {
+            margin-top: 0;
+            color: #1b4c57;
+            font-size: 1.2em;
+            margin-bottom: 16px;
+        }
+        
+        .amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1b4c57;
+            text-align: left;
+            margin: 16px 0;
+        }
+
+        .order-summary {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .order-summary li {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: #1b4c57;
+        }
+
+        .order-summary li span:first-child {
+            font-weight: normal;
+            min-width: 300px;
+        }
+
+        .order-summary li span:last-child {
+            text-align: left;
+            margin-left: auto;
+            padding-left: 24px;
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            color: #1b4c57;
+            text-decoration: none;
+            margin-bottom: 24px;
+            font-size: 16px;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .back-arrow {
+            margin-right: 8px;
+        }
+
+        #card-name-container {
+            margin-bottom: 20px;
+        }
+
+        #card-name-label {
+            display: block;
+            margin-bottom: 3px;
+            color: #30313d;
+            font-family: "Ideal Sans", system-ui, sans-serif;
+            font-size: 0.9em;
+            font-weight: normal;
+        }
+
+        #card-name {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <div class="payment-form">
-            <button class="back-button" onclick="window.history.back()">← Back</button>
+        <a href="/" class="back-link">
+            <span class="back-arrow">←</span>
+            Back
+        </a>
+        
+        <div class="order-details">
             <h2>Order Summary</h2>
-            
-            <div id="order-summary" class="order-summary">
-                <div id="order-details">Loading...</div>
-            </div>
-
-            <form id="payment-form">
-                <div class="form-group">
-                    <label for="card-name">Name on card</label>
-                    <input id="card-name" type="text" required>
-                </div>
-                <div id="payment-element"></div>
-                <button id="submit-payment" class="submit-button">
-                    <span id="button-text">Pay now</span>
-                    <div class="spinner" id="payment-spinner" style="display: none;"></div>
-                </button>
-                <div id="payment-message" class="payment-message"></div>
-            </form>
+            <ul id="order-summary" class="order-summary">
+                <!-- Order details will be populated here -->
+            </ul>
+            <div id="order-amount" class="amount"></div>
         </div>
+        
+        <div id="loading">
+            Loading payment form...
+        </div>
+        
+        <form id="payment-form">
+            <div id="card-name-container">
+                <label for="card-name" id="card-name-label">Name on card</label>
+                <input type="text" id="card-name" required>
+            </div>
+            <div id="payment-element"></div>
+            <button id="submit" type="submit">Pay now</button>
+            <div id="error-message"></div>
+        </form>
     </div>
-
+    
     <script>
-        const BASE_URL = 'https://seednamebadge.vercel.app';
         let stripe;
-
-        document.addEventListener('DOMContentLoaded', async () => {
+        let elements;
+        let paymentElement;
+        
+        async function initializeStripe() {
             try {
                 // Fetch Stripe configuration
-                const configResponse = await fetch('/api/config');
-                if (!configResponse.ok) {
+                const response = await fetch('/config');
+                if (!response.ok) {
                     throw new Error('Failed to load Stripe configuration');
                 }
                 
-                const { publishableKey } = await configResponse.json();
+                const { publishableKey } = await response.json();
                 console.log('Using Stripe publishable key with prefix:', publishableKey.substring(0, 8));
                 
                 stripe = Stripe(publishableKey);
-
-                // Get the payment intent client secret from the URL
+                
+                // Get URL parameters
                 const urlParams = new URLSearchParams(window.location.search);
                 const clientSecret = urlParams.get('payment_intent_client_secret');
                 const orderId = urlParams.get('order_id');
-
+                
+                console.log('Payment Intent ID:', clientSecret ? clientSecret.split('_secret_')[0] : 'none');
+                
                 if (!clientSecret) {
-                    throw new Error('No payment intent client secret found');
+                    document.querySelector('#payment-form').style.display = 'none';
+                    document.querySelector('#error-message').textContent = 'Missing payment information. Please try again.';
+                    throw new Error('No client secret provided');
                 }
-
+                
+                if (!orderId) {
+                    document.querySelector('#payment-form').style.display = 'none';
+                    document.querySelector('#error-message').textContent = 'Missing order information. Please try again.';
+                    throw new Error('No order ID provided');
+                }
+                
                 // Fetch order details
-                const response = await fetch(`/api/get-order/${orderId}`);
-                if (!response.ok) {
+                const orderResponse = await fetch(`/api/order/${orderId}`);
+                if (!orderResponse.ok) {
                     throw new Error('Failed to fetch order details');
                 }
-                const orderData = await response.json();
-
-                // Format values for display
-                const formatValue = (value) => {
-                    if (typeof value === 'boolean') return value ? 'Yes' : 'No';
-                    if (value === 'upTo40') return 'Up to 40%';
-                    if (value === 'over40') return 'Over 40%';
-                    if (value === 'single') return 'Single sided';
-                    if (value === 'double') return 'Double sided';
-                    if (value === 'standard') return 'Standard';
-                    if (value === 'express') return 'Express';
-                    if (value === 'mixedHerb') return 'Mixed herb';
-                    if (value === 'mixedFlower') return 'Mixed flower';
-                    if (value === 'randomMix') return 'Random mix';
-                    return value;
-                };
-
-                // Update order summary
-                document.getElementById('order-details').innerHTML = `
-                    <div class="summary-row">
-                        <span>Name:</span>
-                        <span>${orderData.first_name} ${orderData.last_name}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Company:</span>
-                        <span>${orderData.company || '-'}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Email:</span>
-                        <span>${orderData.email}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Qty with guest details:</span>
-                        <span>${orderData.quantity_with_guests}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Qty without guest details:</span>
-                        <span>${orderData.quantity_without_guests}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Total quantity:</span>
-                        <span>${orderData.total_quantity}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Size:</span>
-                        <span>${orderData.size}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Printed sides:</span>
-                        <span>${formatValue(orderData.printed_sides)}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Ink coverage:</span>
-                        <span>${formatValue(orderData.ink_coverage)}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Lanyards:</span>
-                        <span>${formatValue(orderData.lanyards)}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Shipping:</span>
-                        <span>${formatValue(orderData.shipping)}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Paper type:</span>
-                        <span>${formatValue(orderData.paper_type)}</span>
-                    </div>
-                    <div class="summary-row total">
-                        <span>$${orderData.total_cost.toFixed(2)}</span>
-                    </div>
-                `;
-
-                // Create payment element with simpler configuration
-                const elements = stripe.elements({
+                
+                const orderData = await orderResponse.json();
+                
+                // Update the page with order details
+                document.querySelector('#order-amount').textContent = orderData.amount;
+                
+                // Initialize Stripe Elements
+                elements = stripe.elements({
                     clientSecret,
                     appearance: {
                         theme: 'stripe',
                         variables: {
                             colorPrimary: '#1b4c57',
                             colorBackground: '#ffffff',
-                            colorText: '#1b4c57',
+                            colorText: '#30313d',
                             colorDanger: '#df1b41',
-                            fontFamily: 'Verdana, system-ui, sans-serif',
-                            borderRadius: '6px'
-                        }
-                    }
-                });
-
-                const paymentElement = elements.create('payment', {
-                    layout: {
-                        type: 'tabs',
-                        defaultCollapsed: false
-                    },
-                    wallets: {
-                        googlePay: 'auto'
-                    },
-                    fields: {
-                        billingDetails: {
-                            name: 'never'
-                        }
-                    }
-                });
-
-                await paymentElement.mount('#payment-element');
-                console.log('Debug: Payment element mounted');
-
-                // Handle form submission
-                const form = document.getElementById('payment-form');
-                let submitted = false;
-
-                form.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-
-                    if (submitted) {
-                        console.log('Debug: Payment already submitted');
-                        return;
-                    }
-
-                    const cardName = document.getElementById('card-name').value.trim();
-                    if (!cardName) {
-                        document.getElementById('payment-message').textContent = 'Please enter the name on your card';
-                        return;
-                    }
-
-                    const submitButton = document.getElementById('submit-payment');
-                    const spinner = document.getElementById('payment-spinner');
-                    const buttonText = document.getElementById('button-text');
-                    const messageDiv = document.getElementById('payment-message');
-
-                    submitted = true;
-                    submitButton.disabled = true;
-                    spinner.style.display = 'inline-block';
-                    buttonText.textContent = 'Processing...';
-                    messageDiv.textContent = '';
-
-                    try {
-                        console.log('Debug: Confirming payment...');
-                        const { error } = await stripe.confirmPayment({
-                            elements,
-                            confirmParams: {
-                                payment_method_data: {
-                                    billing_details: {
-                                        name: cardName
-                                    }
-                                },
-                                return_url: `/payment/success?order_id=${orderId}`
+                            fontFamily: '"Ideal Sans", system-ui, sans-serif',
+                            spacingUnit: '2px',
+                            borderRadius: '4px',
+                        },
+                        rules: {
+                            '.Label': {
+                                color: '#30313d',
+                                fontFamily: '"Ideal Sans", system-ui, sans-serif'
                             }
-                        });
-
-                        if (error) {
-                            console.error('Debug: Payment error:', error);
-                            messageDiv.textContent = error.message;
-                            submitted = false;
-                            submitButton.disabled = false;
-                            spinner.style.display = 'none';
-                            buttonText.textContent = 'Pay Now';
                         }
-                    } catch (error) {
-                        console.error('Debug: Unexpected payment error:', error);
-                        messageDiv.textContent = 'An unexpected error occurred. Please try again.';
-                        submitted = false;
-                        submitButton.disabled = false;
-                        spinner.style.display = 'none';
-                        buttonText.textContent = 'Pay Now';
                     }
                 });
-
-            } catch (error) {
-                console.error('Debug: Error initializing payment:', error);
-                document.getElementById('order-details').innerHTML = `
-                    <div class="error-message">
-                        Error loading payment details. Please try again.
-                    </div>
+                
+                // Create the payment element
+                paymentElement = elements.create('payment');
+                paymentElement.mount('#payment-element');
+                
+                // Create order summary table
+                const orderSummary = document.querySelector('#order-summary');
+                orderSummary.style.width = '100%';
+                orderSummary.style.borderCollapse = 'collapse';
+                orderSummary.innerHTML = `
+                    <table style="width: 100%;">
+                        <tr><td style="padding: 4px 0;">Name:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.first_name} ${orderData.order_details.last_name}</td></tr>
+                        <tr><td style="padding: 4px 0;">Company:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.company}</td></tr>
+                        <tr><td style="padding: 4px 0;">Email:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.email}</td></tr>
+                        <tr><td style="padding: 4px 0;">Quantity with guest details printed:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.quantity_with_guests}</td></tr>
+                        <tr><td style="padding: 4px 0;">Quantity without guest details printed:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.quantity_without_guests}</td></tr>
+                        <tr><td style="padding: 4px 0;">Total quantity:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.quantity_with_guests + orderData.order_details.quantity_without_guests}</td></tr>
+                        <tr><td style="padding: 4px 0;">Size:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.size}</td></tr>
+                        <tr><td style="padding: 4px 0;">Printed sides:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.printed_sides}</td></tr>
+                        <tr><td style="padding: 4px 0;">Ink coverage:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.ink_coverage}</td></tr>
+                        <tr><td style="padding: 4px 0;">Lanyards:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.lanyards ? 'Yes' : 'No'}</td></tr>
+                        <tr><td style="padding: 4px 0;">Shipping:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.shipping}</td></tr>
+                        <tr><td style="padding: 4px 0;">Paper type:</td><td style="padding: 4px 0 4px 24px;">${orderData.order_details.paper_type}</td></tr>
+                    </table>
                 `;
+                
+                // Handle loading errors
+                paymentElement.on('loaderror', function(event) {
+                    console.error('Payment Element loading error:', event);
+                    document.querySelector('#error-message').textContent = 'There was a problem loading the payment form. Please refresh the page or try again later.';
+                });
+                
+                // Show the payment form once everything is loaded
+                document.querySelector('#payment-form').style.display = 'block';
+                document.querySelector('#loading').style.display = 'none';
+                
+            } catch (error) {
+                console.error('Stripe initialization error:', error);
+                document.querySelector('#error-message').textContent = 'Failed to initialize payment form. Please try again later.';
+                document.querySelector('#loading').style.display = 'none';
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initializeStripe);
+        
+        // Handle form submission
+        const form = document.querySelector('#payment-form');
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            const submitButton = document.querySelector('#submit');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Processing...';
+            
+            try {
+                const { error } = await stripe.confirmPayment({
+                    elements,
+                    confirmParams: {
+                        return_url: window.location.origin + '/success.html',
+                        payment_method_data: {
+                            billing_details: {
+                                name: document.getElementById('card-name').value
+                            }
+                        }
+                    },
+                });
+                
+                if (error) {
+                    console.error('Payment confirmation error:', error);
+                    document.querySelector('#error-message').textContent = error.message;
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Pay now';
+                }
+            } catch (e) {
+                console.error('Payment submission error:', e);
+                document.querySelector('#error-message').textContent = 'An unexpected error occurred. Please try again.';
+                submitButton.disabled = false;
+                submitButton.textContent = 'Pay now';
             }
         });
     </script>

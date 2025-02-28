@@ -1,24 +1,15 @@
-# Environment variables
+# Dependencies
+node_modules/
+
+# Environment files
 .env
 .env.local
 .env.*.local
 
-# Dependencies
-node_modules/
-
-# Build output
-dist/
-build/
-
 # Logs
+logs
 *.log
 npm-debug.log*
-
-# Editor directories and files
-.idea/
-.vscode/
-*.swp
-*.swo
 
 # Runtime data
 pids
@@ -33,9 +24,6 @@ lib-cov
 coverage
 
 # Temporary files
+*.swp
 .DS_Store
-Thumbs.db
-
-# Reference directory and all its contents
-reference/
-reference/**/* 
+Thumbs.db 
