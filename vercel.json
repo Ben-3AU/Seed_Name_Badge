@@ -60,8 +60,9 @@
       "src": "/widget.js",
       "dest": "/widget.js",
       "headers": {
-        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Origin": "https://*.terratag.com.au",
         "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Max-Age": "86400",
         "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
         "Pragma": "no-cache",
         "Expires": "0",
@@ -72,8 +73,9 @@
       "src": "/widget-calculator.js",
       "dest": "/widget-calculator.js",
       "headers": {
-        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Origin": "https://*.terratag.com.au",
         "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Max-Age": "86400",
         "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
         "Pragma": "no-cache",
         "Expires": "0",
