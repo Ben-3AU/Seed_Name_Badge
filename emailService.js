@@ -99,13 +99,9 @@ async function sendQuoteEmail(quoteData) {
         const templateData = {
             id: String(quoteData.id),
             created_at: (() => {
-                console.log('Original created_at from Supabase (Brisbane time):', quoteData.created_at);
-                // Since the timestamp is already in Brisbane time, we don't need timezone conversion
-                const date = new Date(quoteData.created_at);
-                console.log('Date object:', date);
-                
-                // Format without timezone conversion since it's already Brisbane time
-                const formatted = date.toLocaleString('en-AU', {
+                // Create a date in Brisbane timezone
+                const brisbaneDateString = new Date().toLocaleString('en-AU', {
+                    timeZone: 'Australia/Brisbane',
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
@@ -113,8 +109,8 @@ async function sendQuoteEmail(quoteData) {
                     minute: 'numeric',
                     hour12: true
                 });
-                console.log('Formatted date:', formatted);
-                return formatted;
+                console.log('Generated Brisbane time:', brisbaneDateString);
+                return brisbaneDateString;
             })(),
             first_name: quoteData.first_name,
             quantity_with_guests: quoteData.quantity_with_guests,

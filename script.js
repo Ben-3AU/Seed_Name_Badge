@@ -275,13 +275,10 @@ async function handleQuoteSubmission(event) {
     try {
         console.log('Attempting to save quote with data:', quoteData);
         
-        // Remove created_at from quoteData
-        const { created_at, ...quoteDataWithoutTimestamp } = quoteData;
-        
-        // Try to insert the quote without created_at
+        // Try to insert the quote
         let { data: savedQuote, error: insertError } = await window.widgetSupabase
             .from('seed_name_badge_quotes')
-            .insert([quoteDataWithoutTimestamp])
+            .insert([quoteData])
             .select()
             .single();
 
@@ -301,7 +298,7 @@ async function handleQuoteSubmission(event) {
             if (existingQuotes && existingQuotes.length > 0) {
                 const { data: updatedQuote, error: updateError } = await window.widgetSupabase
                     .from('seed_name_badge_quotes')
-                    .update(quoteDataWithoutTimestamp)
+                    .update(quoteData)
                     .eq('id', existingQuotes[0].id)
                     .select()
                     .single();

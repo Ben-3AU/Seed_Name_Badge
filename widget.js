@@ -58,7 +58,14 @@
             .terra-tag-widget .form-group {
                 display: flex;
                 flex-direction: column;
-                gap: 3px !important;  /* Force 3px gap for all form groups */
+                gap: 3px !important;
+                margin-bottom: 1rem;
+            }
+
+            .terra-tag-widget .form-group label {
+                color: #1b4c57;
+                font-weight: 500;
+                margin-bottom: 0 !important;  /* Remove margin since we're using gap */
             }
 
             .terra-tag-widget label {
@@ -423,6 +430,11 @@
                     padding: 0 8px !important;
                 }
 
+                .terra-tag-widget .order-details h2 {
+                    text-align: left !important;
+                    margin-left: 8px !important;
+                }
+
                 .terra-tag-widget .summary-row {
                     display: block !important;
                     margin-bottom: 12px !important;
@@ -453,6 +465,11 @@
                 .terra-tag-widget .order-summary {
                     display: block !important;
                     padding: 0 8px !important;
+                }
+
+                .terra-tag-widget .order-details h2 {
+                    text-align: left !important;
+                    margin-left: 8px !important;
                 }
 
                 .terra-tag-widget .summary-row {
@@ -649,6 +666,35 @@
                 color: #30313d;
                 font-family: "Ideal Sans", system-ui, sans-serif;
                 font-size: 0.9em;
+            }
+
+            /* Email quote form */
+            #emailQuoteForm .form-group {
+                gap: 3px !important;
+                margin-bottom: 1rem;
+            }
+
+            #emailQuoteForm .form-group label {
+                margin-bottom: 0 !important;
+            }
+
+            /* Order form */
+            #orderForm .form-group {
+                gap: 3px !important;
+                margin-bottom: 1rem;
+            }
+
+            #orderForm .form-group label {
+                margin-bottom: 0 !important;
+            }
+
+            /* Ensure we don't affect payment form styles */
+            #payment-form .form-group {
+                /* Preserve existing payment form styles */
+            }
+
+            #payment-form .card-name-group {
+                /* Preserve existing payment form styles */
             }
         `;
 
