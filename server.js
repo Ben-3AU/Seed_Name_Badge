@@ -86,42 +86,23 @@ app.get('/test-stripe', async (req, res) => {
     }
 });
 
-// Handle quote email submission
-app.post('/api/submit-quote', async (req, res) => {
+// Handle quote email sending
+app.post('/api/send-quote-email', async (req, res) => {
     try {
         const quoteData = req.body;
-        console.log('Received quote data:', quoteData);
-        
-        // Always insert a new quote
-        console.log('Creating new quote');
-        const { data: savedQuote, error: insertError } = await supabase
-            .from('seed_name_badge_quotes')
-            .insert([{
-                ...quoteData,
-                email_sent: false,
-                created_at: new Date().toISOString()
-            }])
-            .select()
-            .single();
-
-        if (insertError) {
-            console.error('Error inserting quote:', insertError);
-            throw insertError;
-        }
-
-        console.log('Quote saved successfully:', savedQuote);
+        console.log('Received quote data for email:', quoteData);
 
         // Send quote email
         try {
             console.log('Attempting to send email...');
-            await sendQuoteEmail(savedQuote);
+            await sendQuoteEmail(quoteData);
             console.log('Email sent successfully');
 
             // Update quote record to mark email as sent
             const { error: updateError } = await supabase
                 .from('seed_name_badge_quotes')
                 .update({ email_sent: true })
-                .eq('id', savedQuote.id);
+                .eq('id', quoteData.id);
 
             if (updateError) {
                 console.error('Error updating quote email status:', updateError);
@@ -129,25 +110,19 @@ app.post('/api/submit-quote', async (req, res) => {
 
             res.json({ 
                 success: true, 
-                message: 'Quote submitted and email sent',
-                quote: savedQuote
+                message: 'Quote email sent successfully'
             });
         } catch (emailError) {
             console.error('Error sending email:', emailError);
-            // Even if email fails, we still return success for the quote submission
-            res.json({ 
-                success: true, 
-                message: 'Quote submitted but email failed to send',
-                quote: savedQuote,
-                emailError: emailError.message
+            res.status(500).json({ 
+                success: false,
+                message: 'Failed to send quote email',
+                error: emailError.message
             });
         }
     } catch (error) {
-        console.error('Error processing quote:', error);
-        res.status(500).json({ 
-            error: error.message,
-            details: error.details || null
-        });
+        console.error('Error processing quote email:', error);
+        res.status(500).json({ error: error.message });
     }
 });
 

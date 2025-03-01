@@ -254,6 +254,10 @@ async function handleQuoteSubmission(event) {
     
     const totalCost = calculations.getTotalPrice(ui.getFormValues());
     const gstAmount = calculations.getGST(totalCost);
+    const totalQuantity = calculations.getTotalQuantity(
+        parseInt(document.getElementById('quantityWithGuests').value) || 0,
+        parseInt(document.getElementById('quantityWithoutGuests').value) || 0
+    );
     
     const quoteData = {
         quantity_with_guests: parseInt(document.getElementById('quantityWithGuests').value) || 0,
@@ -265,36 +269,37 @@ async function handleQuoteSubmission(event) {
         shipping: ui.getSelectedValue('shipping'),
         first_name: document.getElementById('quoteFirstName').value.trim(),
         email: document.getElementById('quoteEmail').value.trim(),
-        total_quantity: calculations.getTotalQuantity(parseInt(document.getElementById('quantityWithGuests').value) || 0, parseInt(document.getElementById('quantityWithoutGuests').value) || 0),
+        total_quantity: totalQuantity,
         total_cost: Number(totalCost.toFixed(2)),
         gst_amount: Number(gstAmount.toFixed(2)),
-        co2_savings: calculations.getCO2Savings(calculations.getTotalQuantity(parseInt(document.getElementById('quantityWithGuests').value) || 0, parseInt(document.getElementById('quantityWithoutGuests').value) || 0)),
+        co2_savings: Number(calculations.getCO2Savings(totalQuantity).toFixed(2)),
         email_sent: false
     };
 
     try {
         console.log('Attempting to save quote with data:', quoteData);
         
-        // Always create a new quote
-        const { data: savedQuote, error: insertError } = await window.widgetSupabase
+        // Save quote to Supabase first
+        const { data: savedQuote, error: saveError } = await window.widgetSupabase
             .from('seed_name_badge_quotes')
             .insert([quoteData])
             .select()
             .single();
 
-        if (insertError) {
-            console.error('Error saving quote:', insertError);
-            throw insertError;
+        if (saveError) {
+            console.error('Supabase error details:', {
+                message: saveError.message,
+                details: saveError.details,
+                hint: saveError.hint,
+                code: saveError.code
+            });
+            throw saveError;
         }
 
-        if (!savedQuote) {
-            throw new Error('No data returned after saving quote');
-        }
+        console.log('Quote saved successfully:', savedQuote);
 
-        console.log('Quote saved to Supabase:', savedQuote);
-
-        // Submit for email processing
-        const response = await fetch('/api/submit-quote', {
+        // Send email using the API
+        const response = await fetch('/api/send-quote-email', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -304,11 +309,11 @@ async function handleQuoteSubmission(event) {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to process quote');
+            throw new Error(errorData.error || 'Failed to send quote email');
         }
 
         const emailResult = await response.json();
-        console.log('Email processing result:', emailResult);
+        console.log('Email sent successfully:', emailResult);
 
         // Show success message
         const successMessage = document.getElementById('quoteSuccessMessage');
@@ -318,7 +323,7 @@ async function handleQuoteSubmission(event) {
         }, 3000);
         
     } catch (error) {
-        console.error('Detailed error processing quote:', error);
+        console.error('Error processing quote:', error);
         alert('Error sending quote. Please try again.');
     } finally {
         // Hide spinner and restore button text
