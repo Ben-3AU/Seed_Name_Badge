@@ -183,31 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ui.updateDisplay();
 });
 
-// Function to save quote to Supabase
-async function saveQuote(quoteData) {
-    try {
-        console.log('Attempting to save quote:', quoteData);
-        
-        const { created_at, ...quoteDataWithoutTimestamp } = quoteData;
-        
-        // Use the Supabase instance from widget-calculator.js
-        const { data, error } = await window.widgetSupabase
-            .from('seed_name_badge_quotes')
-            .insert([quoteDataWithoutTimestamp]);
-
-        if (error) {
-            console.error('Supabase error:', error);
-            throw error;
-        }
-        
-        console.log('Quote saved to Supabase:', data);
-        return data;
-    } catch (error) {
-        console.error('Error saving quote:', error);
-        throw error;
-    }
-}
-
 // Function to save order to Supabase
 async function saveOrder(orderData) {
     try {
@@ -282,8 +257,8 @@ async function handleQuoteSubmission(event) {
         // Remove created_at from quoteData
         const { created_at, ...quoteDataWithoutTimestamp } = quoteData;
         
-        // Always try to insert a new quote
-        let { data: savedQuote, error: insertError } = await window.widgetSupabase
+        // Simple insert without any duplicate checking
+        const { data: savedQuote, error: insertError } = await window.widgetSupabase
             .from('seed_name_badge_quotes')
             .insert([quoteDataWithoutTimestamp])
             .select()
@@ -300,7 +275,7 @@ async function handleQuoteSubmission(event) {
 
         console.log('Quote saved to Supabase:', savedQuote);
 
-        // Send to the correct API endpoint
+        // Submit for email processing
         const response = await fetch('/api/submit-quote', {
             method: 'POST',
             headers: {
@@ -311,11 +286,11 @@ async function handleQuoteSubmission(event) {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to send quote email');
+            throw new Error(errorData.error || 'Failed to process quote');
         }
 
         const emailResult = await response.json();
-        console.log('Email sent successfully:', emailResult);
+        console.log('Email processing result:', emailResult);
 
         // Show success message
         const successMessage = document.getElementById('quoteSuccessMessage');
