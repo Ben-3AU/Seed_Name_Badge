@@ -58,7 +58,7 @@
             .terra-tag-widget .form-group {
                 display: flex;
                 flex-direction: column;
-                gap: 3px !important;
+                gap: 3px !important;  /* Standardized gap for all form groups */
                 margin-bottom: 1rem;
             }
 
@@ -668,24 +668,16 @@
                 font-size: 0.9em;
             }
 
-            /* Email quote form */
+            /* Email quote form - standardized spacing */
             #emailQuoteForm .form-group {
                 gap: 3px !important;
                 margin-bottom: 1rem;
             }
 
-            #emailQuoteForm .form-group label {
-                margin-bottom: 0 !important;
-            }
-
-            /* Order form */
+            /* Order form - standardized spacing */
             #orderForm .form-group {
                 gap: 3px !important;
                 margin-bottom: 1rem;
-            }
-
-            #orderForm .form-group label {
-                margin-bottom: 0 !important;
             }
 
             /* Ensure we don't affect payment form styles */
