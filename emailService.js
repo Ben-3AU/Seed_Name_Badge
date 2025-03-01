@@ -94,12 +94,22 @@ async function sendEmailWithTemplate(options) {
 async function sendQuoteEmail(quoteData) {
     try {
         console.log('Starting email send process for quote:', quoteData);
-        console.log('Timestamp from Supabase:', quoteData.created_at);
+        console.log('Raw timestamp from Supabase:', quoteData.created_at);
+        console.log('Parsed timestamp:', new Date(quoteData.created_at).toISOString());
+        console.log('Brisbane time:', new Date(quoteData.created_at).toLocaleString('en-AU', { timeZone: 'Australia/Brisbane' }));
         await logEmailAttempt('quote', quoteData);
 
         const templateData = {
             id: String(quoteData.id),
-            created_at: quoteData.created_at, // Use the timestamp from Supabase
+            created_at: new Date(quoteData.created_at).toLocaleString('en-AU', {
+                timeZone: 'Australia/Brisbane',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true
+            }),
             first_name: quoteData.first_name,
             quantity_with_guests: quoteData.quantity_with_guests,
             quantity_without_guests: quoteData.quantity_without_guests,
@@ -406,9 +416,20 @@ async function logEmailAttempt(type, data, error = null) {
 
 // Function to format quote data for SMTP2GO template
 function formatQuoteData(quoteData) {
+    // Format the timestamp in Brisbane time
+    const formattedTime = new Date(quoteData.created_at).toLocaleString('en-AU', {
+        timeZone: 'Australia/Brisbane',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+    });
+
     return {
         first_name: quoteData.first_name,
-        submitted: quoteData.created_at,
+        created_at: formattedTime,
         submission_id: quoteData.id || '',
         quantity_with_guests: quoteData.quantity_with_guests,
         quantity_without_guests: quoteData.quantity_without_guests,
