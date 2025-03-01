@@ -86,11 +86,11 @@ app.get('/test-stripe', async (req, res) => {
     }
 });
 
-// Handle quote email sending
-app.post('/api/send-quote-email', async (req, res) => {
+// Handle quote submission and email sending
+app.post('/api/submit-quote', async (req, res) => {
     try {
         const quoteData = req.body;
-        console.log('Received quote data for email:', quoteData);
+        console.log('Received quote data:', quoteData);
 
         // Send quote email
         try {
@@ -110,7 +110,7 @@ app.post('/api/send-quote-email', async (req, res) => {
 
             res.json({ 
                 success: true, 
-                message: 'Quote email sent successfully'
+                message: 'Quote processed and email sent successfully'
             });
         } catch (emailError) {
             console.error('Error sending email:', emailError);
@@ -121,7 +121,7 @@ app.post('/api/send-quote-email', async (req, res) => {
             });
         }
     } catch (error) {
-        console.error('Error processing quote email:', error);
+        console.error('Error processing quote:', error);
         res.status(500).json({ error: error.message });
     }
 });

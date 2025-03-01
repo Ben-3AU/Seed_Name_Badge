@@ -279,27 +279,29 @@ async function handleQuoteSubmission(event) {
     try {
         console.log('Attempting to save quote with data:', quoteData);
         
-        // Save quote to Supabase first
-        const { data: savedQuote, error: saveError } = await window.widgetSupabase
+        // Remove created_at from quoteData
+        const { created_at, ...quoteDataWithoutTimestamp } = quoteData;
+        
+        // Always try to insert a new quote
+        let { data: savedQuote, error: insertError } = await window.widgetSupabase
             .from('seed_name_badge_quotes')
-            .insert([quoteData])
+            .insert([quoteDataWithoutTimestamp])
             .select()
             .single();
 
-        if (saveError) {
-            console.error('Supabase error details:', {
-                message: saveError.message,
-                details: saveError.details,
-                hint: saveError.hint,
-                code: saveError.code
-            });
-            throw saveError;
+        if (insertError) {
+            console.error('Error saving quote:', insertError);
+            throw insertError;
         }
 
-        console.log('Quote saved successfully:', savedQuote);
+        if (!savedQuote) {
+            throw new Error('No data returned after saving quote');
+        }
 
-        // Send email using the API
-        const response = await fetch('/api/send-quote-email', {
+        console.log('Quote saved to Supabase:', savedQuote);
+
+        // Send to the correct API endpoint
+        const response = await fetch('/api/submit-quote', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
