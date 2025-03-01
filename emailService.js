@@ -405,9 +405,8 @@ async function logEmailAttempt(type, data, error = null) {
 
 // Function to format quote data for SMTP2GO template
 function formatQuoteData(quoteData) {
-    // Use the created_at timestamp from Supabase
-    const brisbaneDate = new Date(quoteData.created_at).toLocaleString('en-AU', {
-        timeZone: 'Australia/Brisbane',
+    // Use the created_at timestamp directly from Supabase
+    const formattedDate = new Date(quoteData.created_at).toLocaleString('en-AU', {
         day: 'numeric',
         month: 'long',
         year: 'numeric',
@@ -418,7 +417,7 @@ function formatQuoteData(quoteData) {
     
     return {
         first_name: quoteData.first_name,
-        submitted: brisbaneDate.replace(/\s*at\s*/, ' at '),
+        submitted: formattedDate.replace(/\s*at\s*/, ' at '),
         created_at: quoteData.created_at, // Pass through the original timestamp
         submission_id: quoteData.id || '',
         quantity_with_guests: quoteData.quantity_with_guests,
