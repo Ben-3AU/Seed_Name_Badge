@@ -99,7 +99,6 @@ async function sendQuoteEmail(quoteData) {
         const templateData = {
             id: String(quoteData.id),
             created_at: new Date(quoteData.created_at || Date.now()).toLocaleString('en-AU', {
-                timeZone: 'Australia/Brisbane',
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',

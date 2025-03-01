@@ -354,7 +354,7 @@
                 container-name: order-details;
                 width: 100%;
                 background-color: #f8f9fa;
-                padding: 24px;
+                padding: 0.5rem 24px 0.5rem 24px;
                 border-radius: 6px;
                 margin-bottom: 24px;
             }
@@ -364,7 +364,7 @@
                 font-size: 2em;
                 font-weight: 600;
                 color: #1b4c57;
-                margin: 0 0 24px 0;
+                margin: 0 0 24px 16px;
                 padding: 0;
                 line-height: 1.2;
             }
@@ -478,8 +478,8 @@
                 font-weight: bold;
                 color: #1b4c57;
                 text-align: left;
-                margin-top: 16px;
-                padding-left: 16px;
+                margin: 16px 0 0 16px;
+                padding-bottom: 0;
             }
 
             @media screen and (max-width: 600px) {
@@ -721,7 +721,7 @@
 
                 <div id="actionButtons" class="action-buttons" style="display: none;">
                     <div class="button-group">
-                        <button type="button" class="action-button" id="orderNowBtn">Order Now</button>
+                        <button type="button" class="action-button" id="orderNowBtn">Order now</button>
                         <button type="button" class="action-button" id="emailQuoteBtn">Email the quote</button>
                     </div>
                 </div>
