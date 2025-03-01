@@ -93,32 +93,12 @@ async function sendEmailWithTemplate(options) {
 // Function to send quote email
 async function sendQuoteEmail(quoteData) {
     try {
-        console.log('Starting email send process for quote:', quoteData.id);
+        console.log('Starting email send process for quote:', quoteData);
         await logEmailAttempt('quote', quoteData);
-
-        // Debug: Log raw date before timezone conversion
-        const rawDate = new Date();
-        console.log('Raw date before timezone conversion:', rawDate.toString());
-        console.log('Raw date UTC:', rawDate.toUTCString());
-        console.log('Raw date ISO:', rawDate.toISOString());
 
         const templateData = {
             id: String(quoteData.id),
-            created_at: (() => {
-                // Create date in UTC and add Brisbane offset
-                const utcDate = new Date();
-                // Format the date without timezone conversion
-                const dateString = utcDate.toLocaleString('en-AU', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: 'numeric',
-                    hour12: true
-                });
-                console.log('Generated time without timezone conversion:', dateString);
-                return dateString;
-            })(),
+            created_at: quoteData.created_at, // Use the timestamp from Supabase
             first_name: quoteData.first_name,
             quantity_with_guests: quoteData.quantity_with_guests,
             quantity_without_guests: quoteData.quantity_without_guests,
@@ -421,6 +401,38 @@ async function logEmailAttempt(type, data, error = null) {
         } : null,
         data: data
     });
+}
+
+// Function to format quote data for SMTP2GO template
+function formatQuoteData(quoteData) {
+    // Use the created_at timestamp from Supabase
+    const brisbaneDate = new Date(quoteData.created_at).toLocaleString('en-AU', {
+        timeZone: 'Australia/Brisbane',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+    });
+    
+    return {
+        first_name: quoteData.first_name,
+        submitted: brisbaneDate.replace(/\s*at\s*/, ' at '),
+        created_at: quoteData.created_at, // Pass through the original timestamp
+        submission_id: quoteData.id || '',
+        quantity_with_guests: quoteData.quantity_with_guests,
+        quantity_without_guests: quoteData.quantity_without_guests,
+        total_quantity: quoteData.total_quantity,
+        size: quoteData.size,
+        printed_sides: quoteData.printed_sides === 'double' ? 'Double sided' : 'Single sided',
+        ink_coverage: quoteData.ink_coverage === 'over40' ? 'Over 40%' : 'Up to 40%',
+        lanyards: quoteData.lanyards ? 'Yes' : 'No',
+        shipping: quoteData.shipping.charAt(0).toUpperCase() + quoteData.shipping.slice(1),
+        total_cost: quoteData.total_cost.toFixed(2),
+        gst_amount: quoteData.gst_amount.toFixed(2),
+        co2_savings: quoteData.co2_savings.toFixed(2)
+    };
 }
 
 module.exports = {

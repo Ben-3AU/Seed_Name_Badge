@@ -108,12 +108,13 @@ app.post('/api/submit-quote', async (req, res) => {
 
         let savedQuote;
         if (existingQuotes && existingQuotes.length > 0) {
-            // Update existing quote
+            // Update existing quote but preserve created_at
             console.log('Updating existing quote');
+            const { created_at, ...updateData } = quoteData;
             const { data, error: updateError } = await supabase
                 .from('seed_name_badge_quotes')
                 .update({
-                    ...quoteData,
+                    ...updateData,
                     email_sent: false
                 })
                 .eq('id', existingQuotes[0].id)
