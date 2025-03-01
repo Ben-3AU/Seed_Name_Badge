@@ -96,12 +96,19 @@ async function sendQuoteEmail(quoteData) {
         console.log('Starting email send process for quote:', quoteData.id);
         await logEmailAttempt('quote', quoteData);
 
+        // Debug: Log raw date before timezone conversion
+        const rawDate = new Date();
+        console.log('Raw date before timezone conversion:', rawDate.toString());
+        console.log('Raw date UTC:', rawDate.toUTCString());
+        console.log('Raw date ISO:', rawDate.toISOString());
+
         const templateData = {
             id: String(quoteData.id),
             created_at: (() => {
-                // Create a date in Brisbane timezone
-                const brisbaneDateString = new Date().toLocaleString('en-AU', {
-                    timeZone: 'Australia/Brisbane',
+                // Create date in UTC and add Brisbane offset
+                const utcDate = new Date();
+                // Format the date without timezone conversion
+                const dateString = utcDate.toLocaleString('en-AU', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
@@ -109,8 +116,8 @@ async function sendQuoteEmail(quoteData) {
                     minute: 'numeric',
                     hour12: true
                 });
-                console.log('Generated Brisbane time:', brisbaneDateString);
-                return brisbaneDateString;
+                console.log('Generated time without timezone conversion:', dateString);
+                return dateString;
             })(),
             first_name: quoteData.first_name,
             quantity_with_guests: quoteData.quantity_with_guests,
