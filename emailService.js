@@ -98,14 +98,22 @@ async function sendQuoteEmail(quoteData) {
 
         const templateData = {
             id: String(quoteData.id),
-            created_at: new Date(quoteData.created_at || Date.now()).toLocaleString('en-AU', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: 'numeric',
-                hour12: true
-            }),
+            created_at: (() => {
+                console.log('Original created_at from Supabase:', quoteData.created_at);
+                const date = new Date(quoteData.created_at || Date.now());
+                console.log('Date object:', date);
+                const formatted = date.toLocaleString('en-AU', {
+                    timeZone: 'Australia/Brisbane',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hour12: true
+                });
+                console.log('Formatted date:', formatted);
+                return formatted;
+            })(),
             first_name: quoteData.first_name,
             quantity_with_guests: quoteData.quantity_with_guests,
             quantity_without_guests: quoteData.quantity_without_guests,

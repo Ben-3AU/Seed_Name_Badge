@@ -6,6 +6,30 @@
     <title>Tag Calculator</title>
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 3px !important;
+        }
+
+        [data-name="paperType"].option-button {
+            flex: 1;
+            border-radius: 0;
+            margin-right: 0;
+        }
+
+        [data-name="paperType"].option-button:first-child {
+            border-top-left-radius: 6px;
+            border-bottom-left-radius: 6px;
+        }
+
+        [data-name="paperType"].option-button:last-child {
+            border-top-right-radius: 6px;
+            border-bottom-right-radius: 6px;
+            margin-right: 0;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -62,6 +86,15 @@
                 <div class="button-group">
                     <button type="button" class="option-button selected" data-name="shipping" data-value="standard">Standard</button>
                     <button type="button" class="option-button" data-name="shipping" data-value="express">Express</button>
+                </div>
+            </div>
+
+            <div class="form-group" data-type="paper-type">
+                <label>Paper type</label>
+                <div class="button-group">
+                    <button type="button" class="option-button" data-name="paperType" data-value="mixedHerb">Mixed herb</button>
+                    <button type="button" class="option-button" data-name="paperType" data-value="mixedFlower">Mixed flower</button>
+                    <button type="button" class="option-button" data-name="paperType" data-value="randomMix">Random mix</button>
                 </div>
             </div>
 

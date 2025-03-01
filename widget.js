@@ -58,7 +58,7 @@
             .terra-tag-widget .form-group {
                 display: flex;
                 flex-direction: column;
-                gap: 0.25rem;  /* Reduced gap between label and input */
+                gap: 3px;  /* Updated gap between label and input */
             }
 
             .terra-tag-widget label {
@@ -273,7 +273,7 @@
 
             .terra-tag-widget .additional-form .form-group {
                 margin-bottom: 1rem;
-                gap: 0.25rem;  /* Consistent gap for additional forms */
+                gap: 3px;  /* Updated gap for additional forms */
             }
 
             .terra-tag-widget .additional-form .form-group:last-child {
@@ -319,11 +319,18 @@
             /* Paper type button specific styles */
             .terra-tag-widget [data-name="paperType"].option-button {
                 flex: 1;
-                border-radius: 6px;
-                margin-right: 0.75rem;
+                border-radius: 0;
+                margin-right: 0;
+            }
+
+            .terra-tag-widget [data-name="paperType"].option-button:first-child {
+                border-top-left-radius: 6px;
+                border-bottom-left-radius: 6px;
             }
 
             .terra-tag-widget [data-name="paperType"].option-button:last-child {
+                border-top-right-radius: 6px;
+                border-bottom-right-radius: 6px;
                 margin-right: 0;
             }
 
@@ -395,22 +402,22 @@
             }
 
             .terra-tag-widget .summary-row .label {
-                min-width: 220px !important;
-                max-width: 220px !important;
+                min-width: 240px !important;
+                max-width: 240px !important;
                 padding-right: 24px !important;
                 white-space: nowrap !important;
                 color: #1b4c57 !important;
             }
 
             .terra-tag-widget .summary-row .value {
-                min-width: 200px !important;
+                min-width: 240px !important;
                 color: #1b4c57 !important;
                 word-wrap: break-word !important;
                 word-break: break-word !important;
             }
 
             /* Container query for small screens - stack when container can't maintain minimums */
-            @container order-details (max-width: 420px) {
+            @container order-details (max-width: 480px) {
                 .terra-tag-widget .order-summary {
                     display: block !important;
                     padding: 0 8px !important;
@@ -425,7 +432,7 @@
                 .terra-tag-widget .summary-row .value {
                     display: block !important;
                     width: 100% !important;
-                    min-width: 220px !important;
+                    min-width: 240px !important;
                     padding: 0 !important;
                 }
 
@@ -442,7 +449,7 @@
             }
 
             /* Media query fallback for browsers without container query support */
-            @media screen and (max-width: 420px) {
+            @media screen and (max-width: 480px) {
                 .terra-tag-widget .order-summary {
                     display: block !important;
                     padding: 0 8px !important;
@@ -457,7 +464,7 @@
                 .terra-tag-widget .summary-row .value {
                     display: block !important;
                     width: 100% !important;
-                    min-width: 220px !important;
+                    min-width: 240px !important;
                     padding: 0 !important;
                 }
 
