@@ -92,52 +92,21 @@ app.post('/api/submit-quote', async (req, res) => {
         const quoteData = req.body;
         console.log('Received quote data:', quoteData);
         
-        // Try to find existing quote
-        const { data: existingQuotes, error: fetchError } = await supabase
+        // Always insert a new quote
+        console.log('Creating new quote');
+        const { data: savedQuote, error: insertError } = await supabase
             .from('seed_name_badge_quotes')
-            .select('*')
-            .eq('email', quoteData.email)
-            .eq('first_name', quoteData.first_name)
-            .order('created_at', { ascending: false })
-            .limit(1);
+            .insert([{
+                ...quoteData,
+                email_sent: false,
+                created_at: new Date().toISOString()
+            }])
+            .select()
+            .single();
 
-        if (fetchError) {
-            console.error('Error fetching existing quote:', fetchError);
-            throw fetchError;
-        }
-
-        let savedQuote;
-        if (existingQuotes && existingQuotes.length > 0) {
-            // Update existing quote but preserve created_at
-            console.log('Updating existing quote');
-            const { created_at, ...updateData } = quoteData;
-            const { data, error: updateError } = await supabase
-                .from('seed_name_badge_quotes')
-                .update({
-                    ...updateData,
-                    email_sent: false
-                })
-                .eq('id', existingQuotes[0].id)
-                .select()
-                .single();
-
-            if (updateError) throw updateError;
-            savedQuote = data;
-        } else {
-            // Insert new quote
-            console.log('Creating new quote');
-            const { data, error: insertError } = await supabase
-                .from('seed_name_badge_quotes')
-                .insert([{
-                    ...quoteData,
-                    email_sent: false,
-                    created_at: new Date().toISOString()
-                }])
-                .select()
-                .single();
-
-            if (insertError) throw insertError;
-            savedQuote = data;
+        if (insertError) {
+            console.error('Error inserting quote:', insertError);
+            throw insertError;
         }
 
         console.log('Quote saved successfully:', savedQuote);

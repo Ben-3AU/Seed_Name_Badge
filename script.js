@@ -275,38 +275,15 @@ async function handleQuoteSubmission(event) {
     try {
         console.log('Attempting to save quote with data:', quoteData);
         
-        // Try to insert the quote
-        let { data: savedQuote, error: insertError } = await window.widgetSupabase
+        // Always create a new quote
+        const { data: savedQuote, error: insertError } = await window.widgetSupabase
             .from('seed_name_badge_quotes')
             .insert([quoteData])
             .select()
             .single();
 
-        // If we get a duplicate key error, try to update instead
-        if (insertError && insertError.code === '23505') {
-            console.log('Quote exists, attempting update...');
-            const { data: existingQuotes, error: fetchError } = await window.widgetSupabase
-                .from('seed_name_badge_quotes')
-                .select('id')
-                .eq('email', quoteData.email)
-                .eq('first_name', quoteData.first_name)
-                .order('created_at', { ascending: false })
-                .limit(1);
-
-            if (fetchError) throw fetchError;
-            
-            if (existingQuotes && existingQuotes.length > 0) {
-                const { data: updatedQuote, error: updateError } = await window.widgetSupabase
-                    .from('seed_name_badge_quotes')
-                    .update(quoteData)
-                    .eq('id', existingQuotes[0].id)
-                    .select()
-                    .single();
-                
-                if (updateError) throw updateError;
-                savedQuote = updatedQuote;
-            }
-        } else if (insertError) {
+        if (insertError) {
+            console.error('Error saving quote:', insertError);
             throw insertError;
         }
 
