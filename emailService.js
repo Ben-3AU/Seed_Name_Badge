@@ -94,6 +94,7 @@ async function sendEmailWithTemplate(options) {
 async function sendQuoteEmail(quoteData) {
     try {
         console.log('Starting email send process for quote:', quoteData);
+        console.log('Timestamp from Supabase:', quoteData.created_at);
         await logEmailAttempt('quote', quoteData);
 
         const templateData = {
@@ -392,7 +393,7 @@ async function sendOrderConfirmationEmail(orderData) {
 // Helper function to log email attempts
 async function logEmailAttempt(type, data, error = null) {
     console.log(`Email ${type} attempt:`, {
-        timestamp: new Date().toISOString(),
+        timestamp: data.created_at || new Date().toISOString(), // Use data timestamp if available
         success: !error,
         error: error ? {
             message: error.message,

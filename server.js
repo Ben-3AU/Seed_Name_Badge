@@ -130,7 +130,8 @@ app.post('/api/submit-quote', async (req, res) => {
                 .from('seed_name_badge_quotes')
                 .insert([{
                     ...quoteData,
-                    email_sent: false
+                    email_sent: false,
+                    created_at: new Date().toISOString()
                 }])
                 .select()
                 .single();
