@@ -58,7 +58,7 @@
             .terra-tag-widget .form-group {
                 display: flex;
                 flex-direction: column;
-                gap: 3px;  /* Updated gap between label and input */
+                gap: 3px !important;  /* Force 3px gap for all form groups */
             }
 
             .terra-tag-widget label {
@@ -273,7 +273,7 @@
 
             .terra-tag-widget .additional-form .form-group {
                 margin-bottom: 1rem;
-                gap: 3px;  /* Updated gap for additional forms */
+                gap: 3px !important;  /* Force 3px gap for additional forms */
             }
 
             .terra-tag-widget .additional-form .form-group:last-child {
@@ -291,7 +291,7 @@
                 border-radius: 6px;
                 cursor: pointer;
                 transition: all 0.2s ease;
-                margin-top: 1.5rem;
+                margin-top: 0.5rem;
                 position: relative;  /* Added for spinner positioning */
             }
 
@@ -410,14 +410,14 @@
             }
 
             .terra-tag-widget .summary-row .value {
-                min-width: 240px !important;
+                min-width: 200px !important;
                 color: #1b4c57 !important;
                 word-wrap: break-word !important;
                 word-break: break-word !important;
             }
 
             /* Container query for small screens - stack when container can't maintain minimums */
-            @container order-details (max-width: 480px) {
+            @container order-details (max-width: 440px) {
                 .terra-tag-widget .order-summary {
                     display: block !important;
                     padding: 0 8px !important;
@@ -449,7 +449,7 @@
             }
 
             /* Media query fallback for browsers without container query support */
-            @media screen and (max-width: 480px) {
+            @media screen and (max-width: 440px) {
                 .terra-tag-widget .order-summary {
                     display: block !important;
                     padding: 0 8px !important;
