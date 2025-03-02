@@ -89,16 +89,16 @@ app.post('/api/submit-quote', async (req, res) => {
         const quoteData = req.body;  // Get quote data directly
         console.log('Received quote data:', quoteData);
 
-        // First save the quote to Supabase - using onConflict('ignore') to ensure new records
+        // First save the quote to Supabase - generate a unique ID for each submission
         console.log('Saving quote to Supabase...');
+        const uniqueId = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const { data: savedQuote, error: saveError } = await supabase
             .from('seed_name_badge_quotes')
             .insert([{
+                id: uniqueId,  // Explicitly set the ID
                 ...quoteData,
-                created_at: new Date().toISOString() // Add timestamp to make each record unique
+                created_at: new Date().toISOString() // Add timestamp
             }])
-            .onConflict('id')
-            .ignore()
             .select()
             .single();
 

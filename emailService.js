@@ -430,7 +430,7 @@ function formatQuoteData(quoteData) {
     return {
         first_name: quoteData.first_name,
         created_at: formattedTime,
-        submission_id: quoteData.id || '',
+        id: quoteData.id || '',  // Use id instead of submission_id
         quantity_with_guests: quoteData.quantity_with_guests,
         quantity_without_guests: quoteData.quantity_without_guests,
         total_quantity: quoteData.total_quantity,
