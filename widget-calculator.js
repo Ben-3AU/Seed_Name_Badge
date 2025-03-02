@@ -241,11 +241,7 @@ function initializeCalculator(baseUrl) {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    name: quoteData.first_name,
-                    email: quoteData.email,
-                    quote: quoteData
-                })
+                body: JSON.stringify(quoteData)  // Send quoteData directly
             });
 
             if (!response.ok) {

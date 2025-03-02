@@ -86,7 +86,7 @@ app.get('/test-stripe', async (req, res) => {
 // Handle quote submission and email sending
 app.post('/api/submit-quote', async (req, res) => {
     try {
-        const { quote: quoteData } = req.body;
+        const quoteData = req.body;  // Get quote data directly
         console.log('Received quote data:', quoteData);
 
         // First save the quote to Supabase
