@@ -236,10 +236,16 @@ function initializeCalculator(baseUrl) {
             // Submit for email processing
             const response = await fetch(`${BASE_URL}/api/submit-quote`, {
                 method: 'POST',
+                mode: 'cors',
+                credentials: 'include',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(quoteData)
+                body: JSON.stringify({
+                    name: quoteData.first_name,
+                    email: quoteData.email,
+                    quote: quoteData
+                })
             });
 
             if (!response.ok) {
@@ -574,6 +580,8 @@ function initializeCalculator(baseUrl) {
             // Create a payment intent
             const response = await fetch(`${BASE_URL}/api/create-payment-intent`, {
                 method: 'POST',
+                mode: 'cors',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json'
                 },

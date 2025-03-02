@@ -46,15 +46,12 @@ app.use(express.json({
 }));
 app.use(cors({
     origin: [
-        'https://seed-name-badge-calculator-bens-projects-4af3578a.vercel.app',
-        'https://seed-name-badge-calculator-git-master-bens-projects-4af3578a.vercel.app',
-        'https://seed-name-badge-calculator.vercel.app',
         'https://www.terratag.com.au',
         'https://terratag.com.au',
-        process.env.CLIENT_URL
-    ].filter(Boolean).map(url => url.startsWith('http') ? url : `https://${url}`),
+        'http://localhost:3000'
+    ],
+    methods: ['GET', 'POST'],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
@@ -89,7 +86,7 @@ app.get('/test-stripe', async (req, res) => {
 // Handle quote submission and email sending
 app.post('/api/submit-quote', async (req, res) => {
     try {
-        const quoteData = req.body;
+        const { quote: quoteData } = req.body;
         console.log('Received quote data:', quoteData);
 
         // First save the quote to Supabase
