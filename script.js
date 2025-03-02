@@ -263,35 +263,23 @@ async function handleQuoteSubmission(event) {
         // Remove created_at from quoteData
         const { created_at, ...quoteDataWithoutTimestamp } = quoteData;
         
-        // Try to insert the quote without created_at
-        let { data: savedQuote, error: insertError } = await supabase
+        // Always insert a new quote, never update existing ones
+        const { data: savedQuote, error: insertError } = await supabase
             .from('seed_name_badge_quotes')
-            .insert([quoteDataWithoutTimestamp]);
+            .insert([quoteDataWithoutTimestamp])
+            .select();
 
-        // If we get a duplicate key error, try to update instead
-        if (insertError && insertError.code === '23505') {
-            console.log('Quote exists, attempting update...');
-            const { data: existingQuotes, error: fetchError } = await supabase
-                .from('seed_name_badge_quotes')
-                .select('id')
-                .eq('email', quoteData.email)
-                .eq('first_name', quoteData.first_name)
-                .order('created_at', { ascending: false })
-                .limit(1);
-
-            if (fetchError) throw fetchError;
-            
-            if (existingQuotes && existingQuotes.length > 0) {
-                const { data: updatedQuote, error: updateError } = await supabase
-                    .from('seed_name_badge_quotes')
-                    .update(quoteDataWithoutTimestamp)
-                    .eq('id', existingQuotes[0].id)
-                    .select();
-                
-                if (updateError) throw updateError;
-                savedQuote = updatedQuote;
+        if (insertError) {
+            if (insertError.code === '23505') {
+                console.error('Unique constraint violation detected:', {
+                    error: insertError,
+                    message: insertError.message,
+                    details: insertError.details,
+                    hint: insertError.hint
+                });
+                throw new Error('A unique constraint was violated. This suggests there might be a unique constraint in the database preventing duplicate entries.');
             }
-        } else if (insertError) {
+            console.error('Error inserting quote:', insertError);
             throw insertError;
         }
 

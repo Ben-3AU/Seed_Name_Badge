@@ -92,17 +92,32 @@ app.post('/api/submit-quote', async (req, res) => {
         const quoteData = req.body;
         console.log('Received quote data:', quoteData);
 
+        // First save the quote to Supabase
+        console.log('Saving quote to Supabase...');
+        const { data: savedQuote, error: saveError } = await supabase
+            .from('seed_name_badge_quotes')
+            .insert([quoteData])
+            .select()
+            .single();
+
+        if (saveError) {
+            console.error('Error saving quote:', saveError);
+            throw saveError;
+        }
+
+        console.log('Quote saved successfully:', savedQuote);
+
         // Send quote email
         try {
             console.log('Attempting to send email...');
-            await sendQuoteEmail(quoteData);
+            await sendQuoteEmail(savedQuote);
             console.log('Email sent successfully');
 
             // Update quote record to mark email as sent
             const { error: updateError } = await supabase
                 .from('seed_name_badge_quotes')
                 .update({ email_sent: true })
-                .eq('id', quoteData.id);
+                .eq('id', savedQuote.id);
 
             if (updateError) {
                 console.error('Error updating quote email status:', updateError);
@@ -110,7 +125,8 @@ app.post('/api/submit-quote', async (req, res) => {
 
             res.json({ 
                 success: true, 
-                message: 'Quote processed and email sent successfully'
+                message: 'Quote saved and email sent successfully',
+                quote: savedQuote
             });
         } catch (emailError) {
             console.error('Error sending email:', emailError);
