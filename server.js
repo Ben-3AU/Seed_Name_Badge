@@ -86,59 +86,45 @@ app.get('/test-stripe', async (req, res) => {
 // Handle quote submission and email sending
 app.post('/api/submit-quote', async (req, res) => {
     try {
-        const quoteData = req.body;  // Get quote data directly
-        console.log('Received quote data:', quoteData);
+        const quoteData = req.body;
 
-        // Save the quote to Supabase - force new record creation
-        console.log('Saving quote to Supabase...');
-        const { data: savedQuote, error: saveError } = await supabase
+        const { data: quote, error: quoteError } = await supabase
             .from('seed_name_badge_quotes')
             .insert([{
-                ...quoteData,
-                created_at: new Date().toISOString()
+                quantity_with_guests: quoteData.quantity_with_guests,
+                quantity_without_guests: quoteData.quantity_without_guests,
+                size: quoteData.size,
+                printed_sides: quoteData.printed_sides,
+                ink_coverage: quoteData.ink_coverage,
+                lanyards: quoteData.lanyards,
+                shipping: quoteData.shipping,
+                paper_type: quoteData.paper_type,
+                first_name: quoteData.first_name,
+                email: quoteData.email,
+                total_quantity: quoteData.total_quantity,
+                total_cost: quoteData.total_cost,
+                gst_amount: quoteData.gst_amount,
+                co2_savings: Number(quoteData.co2_savings.toFixed(2))
             }])
             .select()
             .single();
 
-        if (saveError) {
-            console.error('Error saving quote:', saveError);
-            throw new Error(saveError.message);
+        if (quoteError) {
+            throw quoteError;
         }
 
-        console.log('Quote saved successfully:', savedQuote);
-
-        // Send quote email
+        // Send email notification
         try {
-            console.log('Attempting to send email...');
-            await sendQuoteEmail(savedQuote);
-            console.log('Email sent successfully');
-
-            // Update quote record to mark email as sent
-            const { error: updateError } = await supabase
-                .from('seed_name_badge_quotes')
-                .update({ email_sent: true })
-                .eq('id', savedQuote.id);
-
-            if (updateError) {
-                console.error('Error updating quote email status:', updateError);
-            }
-
-            res.json({ 
-                success: true, 
-                message: 'Quote saved and email sent successfully',
-                quote: savedQuote
-            });
+            await sendQuoteEmail(quote);
         } catch (emailError) {
-            console.error('Error sending email:', emailError);
-            res.status(500).json({ 
-                success: false,
-                message: 'Failed to send quote email',
-                error: emailError.message
-            });
+            console.error('Error sending quote email:', emailError);
+            // Don't return here, as the quote was still saved successfully
         }
+
+        return res.json(quote);
     } catch (error) {
-        console.error('Error processing quote:', error);
-        res.status(500).json({ error: error.message });
+        console.error('Error in quote submission:', error);
+        return res.status(500).json({ error: error.message });
     }
 });
 
