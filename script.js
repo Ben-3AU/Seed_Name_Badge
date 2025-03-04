@@ -1,16 +1,9 @@
 console.log('Debug: script.js starting to load');
 
-// Initialize Supabase client with direct instantiation for better reliability
-const supabaseUrl = 'https://pxxqvjxmzmsqunrhegcq.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4eHF2anhtem1zcXVucmhlZ2NxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg0NDk0NTcsImV4cCI6MjA1NDAyNTQ1N30.5CUbSb2OR9H4IrGHx_vxmIPZCWN8x7TYoG5RUeYAehM';
+// Quote submissions are handled through the /api/submit-quote endpoint
+// This ensures secure database operations and proper validation on the server side
 
-// Initialize Supabase client
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey, {
-    auth: {
-        autoRefreshToken: false,
-        persistSession: false
-    }
-});
+
 console.log('Supabase client initialized successfully');
 
 // Business logic - pure calculations
@@ -267,42 +260,15 @@ async function handleQuoteSubmission(event) {
     try {
         console.log('Attempting to save quote with data:', quoteData);
         
-        // Remove created_at from quoteData
-        const { created_at, ...quoteDataWithoutTimestamp } = quoteData;
-        
-        // Always insert a new quote, never update existing ones
-        const { data: savedQuote, error: insertError } = await supabase
-            .from('seed_name_badge_quotes')
-            .insert([quoteDataWithoutTimestamp])
-            .select();
-
-        if (insertError) {
-            if (insertError.code === '23505') {
-                console.error('Unique constraint violation detected:', {
-                    error: insertError,
-                    message: insertError.message,
-                    details: insertError.details,
-                    hint: insertError.hint
-                });
-                throw new Error('A unique constraint was violated. This suggests there might be a unique constraint in the database preventing duplicate entries.');
-            }
-            console.error('Error inserting quote:', insertError);
-            throw insertError;
-        }
-
-        if (!savedQuote) {
-            throw new Error('No data returned after saving quote');
-        }
-
-        console.log('Quote saved to Supabase:', savedQuote);
-
         // Submit for email processing
         const response = await fetch('/api/submit-quote', {
             method: 'POST',
+            mode: 'cors',
+            credentials: 'include',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
-            body: JSON.stringify(savedQuote)
+            body: JSON.stringify(quoteData)
         });
 
         if (!response.ok) {
