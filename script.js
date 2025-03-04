@@ -260,8 +260,11 @@ async function handleQuoteSubmission(event) {
     try {
         console.log('Attempting to save quote with data:', quoteData);
         
+        // Get the base URL from the current window location
+        const baseUrl = window.location.origin;
+        
         // Submit for email processing
-        const response = await fetch('/api/submit-quote', {
+        const response = await fetch(`${baseUrl}/api/submit-quote`, {
             method: 'POST',
             mode: 'cors',
             credentials: 'include',
@@ -331,11 +334,16 @@ async function handleOrderSubmission(event) {
     };
 
     try {
+        // Get the base URL from the current window location
+        const baseUrl = window.location.origin;
+        
         // Create a payment intent
-        const response = await fetch('/api/create-payment-intent', {
+        const response = await fetch(`${baseUrl}/api/create-payment-intent`, {
             method: 'POST',
+            mode: 'cors',
+            credentials: 'include',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify({ orderData })
         });
