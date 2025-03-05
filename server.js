@@ -118,9 +118,7 @@ app.post('/api/submit-quote', async (req, res) => {
                 gst_amount: quoteData.gst_amount,
                 co2_savings: Number(quoteData.co2_savings.toFixed(2)),
                 email_sent: false
-            }], {
-                onConflict: 'ignore'
-            })
+            }])
             .select()
             .single();
 
