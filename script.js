@@ -3,6 +3,10 @@ console.log('Debug: script.js starting to load');
 // Quote submissions are handled through the /api/submit-quote endpoint
 // This ensures secure database operations and proper validation on the server side
 
+// Initialize Supabase client
+const supabaseUrl = 'https://pxxqvjxmzmsqunrhegcq.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4eHF2anhtem1zcXVucmhlZ2NxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg0NDk0NTcsImV4cCI6MjA1NDAyNTQ1N30.5CUbSb2OR9H4IrGHx_vxmIPZCWN8x7TYoG5RUeYAehM';
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 console.log('Supabase client initialized successfully');
 
@@ -258,17 +262,27 @@ async function handleQuoteSubmission(event) {
 
     try {
         console.log('Attempting to submit quote with data:', quoteData);
-        
-        // Submit quote to the API using POST method
+
+        // First save the quote to Supabase
+        const { data: quote, error: quoteError } = await supabase
+            .from('quotes')
+            .insert([quoteData])
+            .select();
+
+        if (quoteError) {
+            console.error('Error saving quote to Supabase:', quoteError);
+            throw new Error('Failed to save quote');
+        }
+
+        // Then submit for email processing
         const response = await fetch('/api/submit-quote', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(quoteData)
+            body: JSON.stringify({ ...quoteData, id: quote[0].id })
         });
 
-        // Handle response
         if (!response.ok) {
             let errorMessage = 'Failed to process quote';
             try {
@@ -279,10 +293,6 @@ async function handleQuoteSubmission(event) {
             }
             throw new Error(errorMessage);
         }
-
-        // Parse successful response
-        const result = await response.json();
-        console.log('Quote submitted successfully:', result);
 
         // Show success message
         const successMessage = document.getElementById('quoteSuccessMessage');
