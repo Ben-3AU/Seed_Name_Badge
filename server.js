@@ -87,6 +87,7 @@ app.get('/test-stripe', async (req, res) => {
 app.post('/api/submit-quote', async (req, res) => {
     try {
         const quoteData = req.body;
+        console.log('Received quote data:', quoteData);
 
         // Using onConflict: 'ignore' to ensure new records are always created
         const { data: quote, error: quoteError } = await supabase
@@ -115,6 +116,8 @@ app.post('/api/submit-quote', async (req, res) => {
         if (quoteError) {
             throw quoteError;
         }
+
+        console.log('Created quote:', quote);
 
         // Send email notification
         try {
