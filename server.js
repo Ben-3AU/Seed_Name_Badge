@@ -100,25 +100,33 @@ app.post('/api/submit-quote', async (req, res) => {
             throw new Error('Invalid quote data: at least one quantity field is required');
         }
 
-        // Using onConflict: 'ignore' to ensure new records are always created
+        // Add detailed logging of the data being sent to Supabase
+        const dataToInsert = {
+            quantity_with_guests: quoteData.quantity_with_guests,
+            quantity_without_guests: quoteData.quantity_without_guests,
+            size: quoteData.size,
+            printed_sides: quoteData.printed_sides,
+            ink_coverage: quoteData.ink_coverage,
+            lanyards: quoteData.lanyards,
+            shipping: quoteData.shipping,
+            first_name: quoteData.first_name,
+            email: quoteData.email,
+            total_quantity: quoteData.total_quantity,
+            total_cost: quoteData.total_cost,
+            gst_amount: quoteData.gst_amount,
+            co2_savings: Number(quoteData.co2_savings.toFixed(2)),
+            email_sent: false
+        };
+        
+        console.log('Data being sent to Supabase:', JSON.stringify(dataToInsert, null, 2));
+        console.log('Data types of fields:');
+        Object.entries(dataToInsert).forEach(([key, value]) => {
+            console.log(`${key}: ${typeof value} = ${value}`);
+        });
+
         const { data: quote, error: quoteError } = await supabase
             .from('seed_name_badge_quotes')
-            .insert([{
-                quantity_with_guests: quoteData.quantity_with_guests,
-                quantity_without_guests: quoteData.quantity_without_guests,
-                size: quoteData.size,
-                printed_sides: quoteData.printed_sides,
-                ink_coverage: quoteData.ink_coverage,
-                lanyards: quoteData.lanyards,
-                shipping: quoteData.shipping,
-                first_name: quoteData.first_name,
-                email: quoteData.email,
-                total_quantity: quoteData.total_quantity,
-                total_cost: quoteData.total_cost,
-                gst_amount: quoteData.gst_amount,
-                co2_savings: Number(quoteData.co2_savings.toFixed(2)),
-                email_sent: false
-            }])
+            .insert([dataToInsert])
             .select()
             .single();
 
