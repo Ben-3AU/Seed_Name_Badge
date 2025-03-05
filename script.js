@@ -259,15 +259,11 @@ async function handleQuoteSubmission(event) {
     try {
         console.log('Attempting to submit quote with data:', quoteData);
         
-        // Get the base URL from the widget or fallback to window location
-        const baseUrl = window.BASE_URL || window.location.origin;
-        
-        // Submit quote to the API
-        const response = await fetch(`${baseUrl}/api/submit-quote`, {
+        // Submit quote to the API using POST method
+        const response = await fetch('/api/submit-quote', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(quoteData)
         });
@@ -275,17 +271,11 @@ async function handleQuoteSubmission(event) {
         // Handle response
         if (!response.ok) {
             let errorMessage = 'Failed to process quote';
-            
-            if (response.status === 405) {
-                console.error('API endpoint not found or method not allowed');
-                errorMessage = 'Quote submission service is currently unavailable. Please try again later.';
-            } else {
-                try {
-                    const errorData = await response.json();
-                    errorMessage = errorData.error || errorMessage;
-                } catch (e) {
-                    console.error('Error parsing error response:', e);
-                }
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.error || errorMessage;
+            } catch (e) {
+                console.error('Error parsing error response:', e);
             }
             throw new Error(errorMessage);
         }
