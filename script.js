@@ -140,6 +140,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('calculatorForm');
     form.addEventListener('submit', e => e.preventDefault());
 
+    // Hide paper type section by default
+    const paperTypeSection = document.getElementById('paperTypeSection');
+    if (paperTypeSection) {
+        paperTypeSection.style.display = 'none';
+    }
+
     // Add quantity input listeners
     document.getElementById('quantityWithGuests').addEventListener('input', () => ui.updateDisplay());
     document.getElementById('quantityWithoutGuests').addEventListener('input', () => ui.updateDisplay());
@@ -172,11 +178,12 @@ document.addEventListener('DOMContentLoaded', () => {
         orderForm.style.display = 'none';
         emailQuoteBtn.classList.add('selected');
         orderNowBtn.classList.remove('selected');
-        // Hide paper type section when showing quote form
+        // Always hide paper type section in quote form
         const paperTypeSection = document.getElementById('paperTypeSection');
         if (paperTypeSection) {
             paperTypeSection.style.display = 'none';
         }
+        ui.updateDisplay();
     });
 
     orderNowBtn.addEventListener('click', () => {
@@ -184,11 +191,14 @@ document.addEventListener('DOMContentLoaded', () => {
         emailQuoteForm.style.display = 'none';
         orderNowBtn.classList.add('selected');
         emailQuoteBtn.classList.remove('selected');
-        // Show paper type section when showing order form
+        // Show paper type section only if quantity is sufficient
+        const values = ui.getFormValues();
+        const totalQuantity = calculations.getTotalQuantity(values.withGuests, values.withoutGuests);
         const paperTypeSection = document.getElementById('paperTypeSection');
         if (paperTypeSection) {
-            paperTypeSection.style.display = 'block';
+            paperTypeSection.style.display = totalQuantity >= 75 ? 'block' : 'none';
         }
+        ui.updateDisplay();
     });
 
     // Add form validation listeners
@@ -250,24 +260,13 @@ async function handleQuoteSubmission(event) {
     try {
         console.log('Attempting to save quote with data:', quoteData);
         
-        // First save the quote to Supabase
-        const { data: savedQuote, error: saveError } = await window.widgetSupabase
-            .from('quotes')
-            .insert([quoteData])
-            .select();
-
-        if (saveError) {
-            console.error('Error saving quote to Supabase:', saveError);
-            throw new Error('Failed to save quote');
-        }
-
-        // Then submit for email processing
+        // Submit for email processing
         const response = await fetch(`${window.BASE_URL}/api/submit-quote`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ ...quoteData, id: savedQuote[0].id })
+            body: JSON.stringify(quoteData)
         });
 
         let errorMessage = 'Failed to process quote';
