@@ -163,6 +163,11 @@ document.addEventListener('DOMContentLoaded', () => {
         orderForm.style.display = 'none';
         emailQuoteBtn.classList.add('selected');
         orderNowBtn.classList.remove('selected');
+        // Hide paper type section when showing quote form
+        const paperTypeSection = document.getElementById('paperTypeSection');
+        if (paperTypeSection) {
+            paperTypeSection.style.display = 'none';
+        }
     });
 
     orderNowBtn.addEventListener('click', () => {
@@ -170,6 +175,11 @@ document.addEventListener('DOMContentLoaded', () => {
         emailQuoteForm.style.display = 'none';
         orderNowBtn.classList.add('selected');
         emailQuoteBtn.classList.remove('selected');
+        // Show paper type section when showing order form
+        const paperTypeSection = document.getElementById('paperTypeSection');
+        if (paperTypeSection) {
+            paperTypeSection.style.display = 'block';
+        }
     });
 
     // Add form validation listeners
@@ -266,7 +276,7 @@ async function handleQuoteSubmission(event) {
         console.log('Attempting to save quote with data:', quoteData);
         
         // Submit for email processing
-        const response = await fetch('/api/submit-quote', {
+        const response = await fetch(`${window.BASE_URL}/api/submit-quote`, {
             method: 'POST',
             mode: 'cors',
             credentials: 'include',
@@ -337,7 +347,7 @@ async function handleOrderSubmission(event) {
 
     try {
         // Create a payment intent
-        const response = await fetch('/api/create-payment-intent', {
+        const response = await fetch(`${window.BASE_URL}/api/create-payment-intent`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
