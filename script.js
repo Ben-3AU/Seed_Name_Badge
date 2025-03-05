@@ -263,24 +263,13 @@ async function handleQuoteSubmission(event) {
     try {
         console.log('Attempting to submit quote with data:', quoteData);
 
-        // First save the quote to Supabase
-        const { data: quote, error: quoteError } = await supabase
-            .from('quotes')
-            .insert([quoteData])
-            .select();
-
-        if (quoteError) {
-            console.error('Error saving quote to Supabase:', quoteError);
-            throw new Error('Failed to save quote');
-        }
-
-        // Then submit for email processing
+        // Submit quote data to API endpoint for processing
         const response = await fetch('/api/submit-quote', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ ...quoteData, id: quote[0].id })
+            body: JSON.stringify(quoteData)
         });
 
         if (!response.ok) {
