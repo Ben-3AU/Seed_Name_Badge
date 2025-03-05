@@ -1,5 +1,7 @@
 {
+  // Configuration for Terra Tag Calculator deployment
   "version": 2,
+  "description": "Terra Tag Calculator - Production Configuration",
   "builds": [
     {
       "src": "server.js",
