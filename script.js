@@ -189,11 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
         orderForm.style.display = 'none';
         emailQuoteBtn.classList.add('selected');
         orderNowBtn.classList.remove('selected');
-        // Always hide paper type section in quote form
-        const paperTypeSection = document.getElementById('paperTypeSection');
-        if (paperTypeSection) {
-            paperTypeSection.style.display = 'none';
-        }
         ui.updateDisplay();
     });
 
@@ -202,13 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
         emailQuoteForm.style.display = 'none';
         orderNowBtn.classList.add('selected');
         emailQuoteBtn.classList.remove('selected');
-        // Show paper type section only if quantity is sufficient
-        const values = ui.getFormValues();
-        const totalQuantity = calculations.getTotalQuantity(values.withGuests, values.withoutGuests);
-        const paperTypeSection = document.getElementById('paperTypeSection');
-        if (paperTypeSection) {
-            paperTypeSection.style.display = totalQuantity >= 75 ? 'block' : 'none';
-        }
         ui.updateDisplay();
     });
 
