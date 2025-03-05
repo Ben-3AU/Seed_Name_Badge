@@ -81,6 +81,14 @@ const ui = {
         const orderForm = document.getElementById('orderForm');
         const paperTypeSection = document.getElementById('paperTypeSection');
 
+        // Always ensure paper type section is after total price div
+        if (paperTypeSection && totalPriceDiv) {
+            const parent = paperTypeSection.parentElement;
+            if (parent) {
+                parent.insertBefore(totalPriceDiv, paperTypeSection);
+            }
+        }
+
         if (totalQuantity < 75) {
             warningDiv.style.display = 'none';
             totalPriceDiv.style.display = 'none';
@@ -106,9 +114,12 @@ const ui = {
             `;
             actionButtons.style.display = 'block';
             
-            // Only show paper type section if order form is visible
+            // Only show paper type section if order form is visible and quantity is sufficient
             if (paperTypeSection) {
-                paperTypeSection.style.display = orderForm.style.display === 'block' ? 'block' : 'none';
+                paperTypeSection.style.display = 
+                    orderForm.style.display === 'block' && totalQuantity >= 75 
+                    ? 'block' 
+                    : 'none';
             }
         }
     },
@@ -258,21 +269,28 @@ async function handleQuoteSubmission(event) {
     };
 
     try {
-        console.log('Attempting to save quote with data:', quoteData);
+        console.log('Attempting to submit quote with data:', quoteData);
         
-        // Submit for email processing
-        const response = await fetch(`${window.BASE_URL}/api/submit-quote`, {
+        // Get the base URL from the widget or fallback to window location
+        const baseUrl = window.BASE_URL || window.location.origin;
+        
+        // Submit quote to the API
+        const response = await fetch(`${baseUrl}/api/submit-quote`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json'
             },
             body: JSON.stringify(quoteData)
         });
 
-        let errorMessage = 'Failed to process quote';
+        // Handle response
         if (!response.ok) {
+            let errorMessage = 'Failed to process quote';
+            
             if (response.status === 405) {
-                errorMessage = 'Quote submission method not allowed';
+                console.error('API endpoint not found or method not allowed');
+                errorMessage = 'Quote submission service is currently unavailable. Please try again later.';
             } else {
                 try {
                     const errorData = await response.json();
@@ -283,6 +301,10 @@ async function handleQuoteSubmission(event) {
             }
             throw new Error(errorMessage);
         }
+
+        // Parse successful response
+        const result = await response.json();
+        console.log('Quote submitted successfully:', result);
 
         // Show success message
         const successMessage = document.getElementById('quoteSuccessMessage');
