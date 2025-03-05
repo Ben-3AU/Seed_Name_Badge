@@ -88,6 +88,7 @@ app.post('/api/submit-quote', async (req, res) => {
     try {
         const quoteData = req.body;
 
+        // Using onConflict: 'ignore' to ensure new records are always created
         const { data: quote, error: quoteError } = await supabase
             .from('seed_name_badge_quotes')
             .insert([{
@@ -105,7 +106,9 @@ app.post('/api/submit-quote', async (req, res) => {
                 total_cost: quoteData.total_cost,
                 gst_amount: quoteData.gst_amount,
                 co2_savings: Number(quoteData.co2_savings.toFixed(2))
-            }])
+            }], {
+                onConflict: 'ignore'
+            })
             .select()
             .single();
 
