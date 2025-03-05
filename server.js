@@ -111,7 +111,6 @@ app.post('/api/submit-quote', async (req, res) => {
                 ink_coverage: quoteData.ink_coverage,
                 lanyards: quoteData.lanyards,
                 shipping: quoteData.shipping,
-                paper_type: quoteData.paper_type,
                 first_name: quoteData.first_name,
                 email: quoteData.email,
                 total_quantity: quoteData.total_quantity,
