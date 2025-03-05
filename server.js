@@ -89,6 +89,17 @@ app.post('/api/submit-quote', async (req, res) => {
         const quoteData = req.body;
         console.log('Received quote data:', quoteData);
 
+        // Validate required fields
+        if (!quoteData || !quoteData.total_cost) {
+            throw new Error('Invalid quote data: missing total_cost');
+        }
+        if (!quoteData.first_name || !quoteData.email) {
+            throw new Error('Invalid quote data: missing first_name or email');
+        }
+        if (!quoteData.quantity_with_guests && !quoteData.quantity_without_guests) {
+            throw new Error('Invalid quote data: at least one quantity field is required');
+        }
+
         // Using onConflict: 'ignore' to ensure new records are always created
         const { data: quote, error: quoteError } = await supabase
             .from('seed_name_badge_quotes')
