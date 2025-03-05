@@ -79,6 +79,7 @@ const ui = {
         const actionButtons = document.getElementById('actionButtons');
         const emailQuoteForm = document.getElementById('emailQuoteForm');
         const orderForm = document.getElementById('orderForm');
+        const paperTypeSection = document.getElementById('paperTypeSection');
 
         if (totalQuantity < 75) {
             warningDiv.style.display = 'none';
@@ -86,6 +87,9 @@ const ui = {
             actionButtons.style.display = 'none';
             emailQuoteForm.style.display = 'none';
             orderForm.style.display = 'none';
+            if (paperTypeSection) {
+                paperTypeSection.style.display = 'none';
+            }
         } else {
             warningDiv.style.display = 'none';
             totalPriceDiv.style.display = 'block';
@@ -101,6 +105,11 @@ const ui = {
                 </div>
             `;
             actionButtons.style.display = 'block';
+            
+            // Only show paper type section if order form is visible
+            if (paperTypeSection) {
+                paperTypeSection.style.display = orderForm.style.display === 'block' ? 'block' : 'none';
+            }
         }
     },
 
@@ -199,40 +208,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ui.updateDisplay();
 });
 
-// Function to save order to Supabase
-async function saveOrder(orderData) {
-    try {
-        console.log('Attempting to save order to Supabase:', orderData);
-        
-        // Use the Supabase instance from widget-calculator.js
-        const { data, error } = await window.widgetSupabase
-            .from('orders')
-            .insert([orderData])
-            .select();
-
-        if (error) {
-            console.error('Supabase error details:', {
-                message: error.message,
-                details: error.details,
-                hint: error.hint,
-                code: error.code
-            });
-            throw error;
-        }
-        
-        console.log('Order saved successfully:', data);
-        return { data, error };
-    } catch (error) {
-        console.error('Detailed error saving order:', {
-            message: error.message,
-            name: error.name,
-            code: error.code,
-            details: error.details
-        });
-        throw error;
-    }
-}
-
 // Function to handle quote submission
 // Handles the entire quote submission process:
 // 1. Shows loading spinner during submission
@@ -275,24 +250,40 @@ async function handleQuoteSubmission(event) {
     try {
         console.log('Attempting to save quote with data:', quoteData);
         
-        // Submit for email processing
+        // First save the quote to Supabase
+        const { data: savedQuote, error: saveError } = await window.widgetSupabase
+            .from('quotes')
+            .insert([quoteData])
+            .select();
+
+        if (saveError) {
+            console.error('Error saving quote to Supabase:', saveError);
+            throw new Error('Failed to save quote');
+        }
+
+        // Then submit for email processing
         const response = await fetch(`${window.BASE_URL}/api/submit-quote`, {
             method: 'POST',
-            mode: 'cors',
-            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(quoteData)
+            body: JSON.stringify({ ...quoteData, id: savedQuote[0].id })
         });
 
+        let errorMessage = 'Failed to process quote';
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to process quote');
+            if (response.status === 405) {
+                errorMessage = 'Quote submission method not allowed';
+            } else {
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.error || errorMessage;
+                } catch (e) {
+                    console.error('Error parsing error response:', e);
+                }
+            }
+            throw new Error(errorMessage);
         }
-
-        const emailResult = await response.json();
-        console.log('Email processing result:', emailResult);
 
         // Show success message
         const successMessage = document.getElementById('quoteSuccessMessage');
@@ -303,7 +294,7 @@ async function handleQuoteSubmission(event) {
         
     } catch (error) {
         console.error('Error processing quote:', error);
-        alert('Error sending quote. Please try again.');
+        alert(error.message || 'Error sending quote. Please try again.');
     } finally {
         // Hide spinner and restore button text
         submitButton.innerHTML = originalButtonText;
