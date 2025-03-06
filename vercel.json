@@ -4,15 +4,22 @@
     "enabled": true,
     "silent": false
   },
+  "functions": {
+    "api/*.js": {
+      "memory": 1536,
+      "maxDuration": 20
+    },
+    "server.js": {
+      "memory": 1536,
+      "maxDuration": 20
+    }
+  },
   "builds": [
     {
       "src": "server.js",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["**"],
-        "maxLambdaSize": "60mb",
-        "memory": 1536,
-        "maxDuration": 19
+        "includeFiles": ["**"]
       }
     },
     {
