@@ -85,115 +85,45 @@ app.get('/test-stripe', async (req, res) => {
 
 // Handle quote submission and email sending
 app.post('/api/submit-quote', async (req, res) => {
-    const requestId = Math.random().toString(36).substring(7);
-    console.log(JSON.stringify({
-        timestamp: new Date().toISOString(),
-        requestId,
-        level: 'info',
-        message: 'Quote submission started',
-        path: '/api/submit-quote'
-    }));
-
     try {
         const quoteData = req.body;
-        console.log(JSON.stringify({
-            timestamp: new Date().toISOString(),
-            requestId,
-            level: 'info',
-            message: 'Quote data received',
-            data: quoteData
-        }));
 
-        // Validate required fields
-        console.log(JSON.stringify({
-            timestamp: new Date().toISOString(),
-            requestId,
-            level: 'info',
-            message: 'Validating required fields'
-        }));
-        if (!quoteData || !quoteData.total_cost) {
-            console.log(JSON.stringify({
-                timestamp: new Date().toISOString(),
-                requestId,
-                level: 'error',
-                message: 'Validation failed: missing total_cost'
-            }));
-            throw new Error('Invalid quote data: missing total_cost');
-        }
-        if (!quoteData.first_name || !quoteData.email) {
-            console.log('Validation failed: missing first_name or email');
-            throw new Error('Invalid quote data: missing first_name or email');
-        }
-        if (!quoteData.quantity_with_guests && !quoteData.quantity_without_guests) {
-            console.log('Validation failed: no quantities provided');
-            throw new Error('Invalid quote data: at least one quantity field is required');
-        }
-        console.log('Validation passed successfully');
-
-        // Add detailed logging of the data being sent to Supabase
-        const dataToInsert = {
-            quantity_with_guests: quoteData.quantity_with_guests,
-            quantity_without_guests: quoteData.quantity_without_guests,
-            size: quoteData.size,
-            printed_sides: quoteData.printed_sides,
-            ink_coverage: quoteData.ink_coverage,
-            lanyards: quoteData.lanyards,
-            shipping: quoteData.shipping,
-            first_name: quoteData.first_name,
-            email: quoteData.email,
-            total_quantity: quoteData.total_quantity,
-            total_cost: quoteData.total_cost,
-            gst_amount: quoteData.gst_amount,
-            co2_savings: Number(quoteData.co2_savings.toFixed(2)),
-            email_sent: false
-        };
-        
-        console.log('Preparing data for Supabase insertion:', JSON.stringify(dataToInsert, null, 2));
-        console.log('Data types of fields:');
-        Object.entries(dataToInsert).forEach(([key, value]) => {
-            console.log(`${key}: ${typeof value} = ${value}`);
-        });
-
-        console.log('Attempting to insert data into Supabase...');
         const { data: quote, error: quoteError } = await supabase
             .from('seed_name_badge_quotes')
-            .insert([dataToInsert])
+            .insert([{
+                quantity_with_guests: quoteData.quantity_with_guests,
+                quantity_without_guests: quoteData.quantity_without_guests,
+                size: quoteData.size,
+                printed_sides: quoteData.printed_sides,
+                ink_coverage: quoteData.ink_coverage,
+                lanyards: quoteData.lanyards,
+                shipping: quoteData.shipping,
+                first_name: quoteData.first_name,
+                email: quoteData.email,
+                total_quantity: quoteData.total_quantity,
+                total_cost: quoteData.total_cost,
+                gst_amount: quoteData.gst_amount,
+                co2_savings: Number(quoteData.co2_savings.toFixed(2)),
+                email_sent: false
+            }])
             .select()
             .single();
 
         if (quoteError) {
-            console.error('Supabase insertion error:', quoteError);
             throw quoteError;
         }
 
-        console.log(JSON.stringify({
-            timestamp: new Date().toISOString(),
-            requestId,
-            level: 'info',
-            message: 'Quote created successfully',
-            quoteId: quote.id
-        }));
-
         // Send email notification
-        console.log(JSON.stringify({
-            timestamp: new Date().toISOString(),
-            requestId,
-            level: 'info',
-            message: 'Attempting to send email notification'
-        }));
         try {
             await sendQuoteEmail(quote);
-            console.log('Email sent successfully');
         } catch (emailError) {
             console.error('Error sending quote email:', emailError);
             // Don't return here, as the quote was still saved successfully
         }
 
-        console.log('=== Quote submission process completed successfully ===');
         return res.json(quote);
     } catch (error) {
-        console.error('=== Error in quote submission process ===');
-        console.error('Error details:', error);
+        console.error('Error in quote submission:', error);
         return res.status(500).json({ error: error.message });
     }
 });
