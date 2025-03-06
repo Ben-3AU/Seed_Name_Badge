@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "_comment": "Configuration updated for deployment testing",
   "builds": [
     {
       "src": "server.js",
