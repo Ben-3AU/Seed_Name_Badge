@@ -85,20 +85,26 @@ app.get('/test-stripe', async (req, res) => {
 
 // Handle quote submission and email sending
 app.post('/api/submit-quote', async (req, res) => {
+    console.log('=== Starting quote submission process ===');
     try {
         const quoteData = req.body;
-        console.log('Received quote data:', quoteData);
+        console.log('Received quote data:', JSON.stringify(quoteData, null, 2));
 
         // Validate required fields
+        console.log('Validating required fields...');
         if (!quoteData || !quoteData.total_cost) {
+            console.log('Validation failed: missing total_cost');
             throw new Error('Invalid quote data: missing total_cost');
         }
         if (!quoteData.first_name || !quoteData.email) {
+            console.log('Validation failed: missing first_name or email');
             throw new Error('Invalid quote data: missing first_name or email');
         }
         if (!quoteData.quantity_with_guests && !quoteData.quantity_without_guests) {
+            console.log('Validation failed: no quantities provided');
             throw new Error('Invalid quote data: at least one quantity field is required');
         }
+        console.log('Validation passed successfully');
 
         // Add detailed logging of the data being sent to Supabase
         const dataToInsert = {
@@ -118,12 +124,13 @@ app.post('/api/submit-quote', async (req, res) => {
             email_sent: false
         };
         
-        console.log('Data being sent to Supabase:', JSON.stringify(dataToInsert, null, 2));
+        console.log('Preparing data for Supabase insertion:', JSON.stringify(dataToInsert, null, 2));
         console.log('Data types of fields:');
         Object.entries(dataToInsert).forEach(([key, value]) => {
             console.log(`${key}: ${typeof value} = ${value}`);
         });
 
+        console.log('Attempting to insert data into Supabase...');
         const { data: quote, error: quoteError } = await supabase
             .from('seed_name_badge_quotes')
             .insert([dataToInsert])
@@ -131,22 +138,27 @@ app.post('/api/submit-quote', async (req, res) => {
             .single();
 
         if (quoteError) {
+            console.error('Supabase insertion error:', quoteError);
             throw quoteError;
         }
 
-        console.log('Created quote:', quote);
+        console.log('Successfully created quote in Supabase:', JSON.stringify(quote, null, 2));
 
         // Send email notification
+        console.log('Attempting to send email notification...');
         try {
             await sendQuoteEmail(quote);
+            console.log('Email sent successfully');
         } catch (emailError) {
             console.error('Error sending quote email:', emailError);
             // Don't return here, as the quote was still saved successfully
         }
 
+        console.log('=== Quote submission process completed successfully ===');
         return res.json(quote);
     } catch (error) {
-        console.error('Error in quote submission:', error);
+        console.error('=== Error in quote submission process ===');
+        console.error('Error details:', error);
         return res.status(500).json({ error: error.message });
     }
 });
