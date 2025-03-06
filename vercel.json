@@ -10,7 +10,9 @@
       "use": "@vercel/node",
       "config": {
         "includeFiles": ["**"],
-        "maxLambdaSize": "60mb"
+        "maxLambdaSize": "60mb",
+        "memory": 1536,
+        "maxDuration": 19
       }
     },
     {
@@ -103,12 +105,6 @@
       "dest": "/index.html"
     }
   ],
-  "functions": {
-    "server.js": {
-      "memory": 1536,
-      "maxDuration": 19
-    }
-  },
   "env": {
     "NODE_ENV": "production"
   }
