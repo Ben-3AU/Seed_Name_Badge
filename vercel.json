@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "_comment": "Configuration updated for deployment testing",
   "builds": [
     {
       "src": "server.js",
@@ -103,7 +102,7 @@
   "functions": {
     "server.js": {
       "memory": 1536,
-      "maxDuration": 20
+      "maxDuration": 21
     }
   },
   "env": {
