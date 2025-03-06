@@ -85,15 +85,39 @@ app.get('/test-stripe', async (req, res) => {
 
 // Handle quote submission and email sending
 app.post('/api/submit-quote', async (req, res) => {
-    console.log('=== Starting quote submission process ===');
+    const requestId = Math.random().toString(36).substring(7);
+    console.log(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        requestId,
+        level: 'info',
+        message: 'Quote submission started',
+        path: '/api/submit-quote'
+    }));
+
     try {
         const quoteData = req.body;
-        console.log('Received quote data:', JSON.stringify(quoteData, null, 2));
+        console.log(JSON.stringify({
+            timestamp: new Date().toISOString(),
+            requestId,
+            level: 'info',
+            message: 'Quote data received',
+            data: quoteData
+        }));
 
         // Validate required fields
-        console.log('Validating required fields...');
+        console.log(JSON.stringify({
+            timestamp: new Date().toISOString(),
+            requestId,
+            level: 'info',
+            message: 'Validating required fields'
+        }));
         if (!quoteData || !quoteData.total_cost) {
-            console.log('Validation failed: missing total_cost');
+            console.log(JSON.stringify({
+                timestamp: new Date().toISOString(),
+                requestId,
+                level: 'error',
+                message: 'Validation failed: missing total_cost'
+            }));
             throw new Error('Invalid quote data: missing total_cost');
         }
         if (!quoteData.first_name || !quoteData.email) {
@@ -142,10 +166,21 @@ app.post('/api/submit-quote', async (req, res) => {
             throw quoteError;
         }
 
-        console.log('Successfully created quote in Supabase:', JSON.stringify(quote, null, 2));
+        console.log(JSON.stringify({
+            timestamp: new Date().toISOString(),
+            requestId,
+            level: 'info',
+            message: 'Quote created successfully',
+            quoteId: quote.id
+        }));
 
         // Send email notification
-        console.log('Attempting to send email notification...');
+        console.log(JSON.stringify({
+            timestamp: new Date().toISOString(),
+            requestId,
+            level: 'info',
+            message: 'Attempting to send email notification'
+        }));
         try {
             await sendQuoteEmail(quote);
             console.log('Email sent successfully');
