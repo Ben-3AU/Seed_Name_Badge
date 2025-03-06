@@ -1,5 +1,4 @@
 {
- 
   "version": 2,
   "builds": [
     {
@@ -103,7 +102,7 @@
   "functions": {
     "server.js": {
       "memory": 1536,
-      "maxDuration": 15
+      "maxDuration": 20
     }
   },
   "env": {
