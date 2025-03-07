@@ -4,35 +4,16 @@
     "enabled": true,
     "silent": false
   },
-  "builds": [
-    {
-      "src": "server.js",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["**"]
-      }
+  "functions": {
+    "server.js": {
+      "memory": 1536,
+      "maxDuration": 20
     },
-    {
-      "src": "*.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "*.css",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "*.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "widget*.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "assets/**",
-      "use": "@vercel/static"
+    "*.js": {
+      "memory": 1024,
+      "maxDuration": 10
     }
-  ],
+  },
   "routes": [
     {
       "src": "/webhook",
