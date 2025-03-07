@@ -6,11 +6,11 @@
   },
   "functions": {
     "server.js": {
-      "memory": 1536,
-      "maxDuration": 20
+      "memory": 1024,
+      "maxDuration": 10
     },
     "*.js": {
-      "memory": 1024,
+      "memory": 512,
       "maxDuration": 10
     }
   },
