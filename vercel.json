@@ -5,12 +5,8 @@
     "silent": false
   },
   "functions": {
-    "server.js": {
+    "api/server.js": {
       "memory": 1024,
-      "maxDuration": 10
-    },
-    "*.js": {
-      "memory": 512,
       "maxDuration": 10
     }
   },
@@ -18,15 +14,15 @@
     {
       "src": "/webhook",
       "methods": ["POST"],
-      "dest": "server.js"
+      "dest": "/api/server.js"
     },
     {
       "src": "/api/(.*)",
-      "dest": "server.js"
+      "dest": "/api/server.js"
     },
     {
       "src": "/config",
-      "dest": "server.js"
+      "dest": "/api/server.js"
     },
     {
       "src": "/payment",

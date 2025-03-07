@@ -1,0 +1,5 @@
+[33mcommit 04413693e5acdb0c1e68562d0208cfcb9a612da2[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: Ben Sweet <hello@terratag.com.au>
+Date:   Tue Mar 4 20:19:43 2025 +1000
+
+    fix: Update Supabase initialization and script loading - Update Supabase to v2.39.3 - Load script.js as module - Improve Supabase client initialization with proper config
