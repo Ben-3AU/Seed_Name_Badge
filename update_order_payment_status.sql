@@ -28,12 +28,11 @@ RETURNS BOOLEAN AS $$
 DECLARE
     rows_affected INTEGER;
 BEGIN
-    -- Update the quote's email status
+    -- Update the quote's email status with minimal conditions
     UPDATE "seed_name_badge_quotes"
     SET 
         email_sent = true
-    WHERE id = quote_id
-    AND email_sent = false;  -- Only update if email hasn't been sent
+    WHERE id = quote_id;
     
     GET DIAGNOSTICS rows_affected = ROW_COUNT;
     
