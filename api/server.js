@@ -86,7 +86,7 @@ app.get('/test-stripe', async (req, res) => {
 // Handle quote submission and email sending
 app.post('/api/submit-quote', async (req, res) => {
     try {
-        const quoteData = req.body;
+        const { quoteData } = req.body;  // Destructure like orders
 
         const { data: quote, error: quoteError } = await supabase
             .from('seed_name_badge_quotes')
@@ -123,13 +123,13 @@ app.post('/api/submit-quote', async (req, res) => {
             console.log('Updating email status...');
             const { data: updateResult, error: updateError } = await supabase
                 .from('seed_name_badge_quotes')
-                .update({ email_sent: true })
-                .eq('id', quote.id)
-                .select();
+                .update({
+                    email_sent: true
+                })
+                .match({ id: quote.id });
 
             if (updateError) {
                 console.error('Error updating quote email status:', updateError);
-                // Don't throw here as the quote and email were still processed successfully
             } else {
                 console.log('Quote email status updated successfully');
             }
