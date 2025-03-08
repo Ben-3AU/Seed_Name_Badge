@@ -115,7 +115,24 @@ app.post('/api/submit-quote', async (req, res) => {
 
         // Send email notification
         try {
+            console.log('Sending quote email...');
             await sendQuoteEmail(quote);
+            console.log('Quote email sent successfully');
+
+            // Update email status
+            console.log('Updating email status...');
+            const { data: updateResult, error: updateError } = await supabase
+                .from('seed_name_badge_quotes')
+                .update({ email_sent: true })
+                .eq('id', quote.id)
+                .select();
+
+            if (updateError) {
+                console.error('Error updating quote email status:', updateError);
+                // Don't throw here as the quote and email were still processed successfully
+            } else {
+                console.log('Quote email status updated successfully');
+            }
         } catch (emailError) {
             console.error('Error sending quote email:', emailError);
             // Don't return here, as the quote was still saved successfully

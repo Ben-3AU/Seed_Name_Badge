@@ -20,4 +20,24 @@ BEGIN
     -- Return true if any rows were affected
     RETURN rows_affected > 0;
 END;
+$$ LANGUAGE plpgsql;
+
+-- Function to update quote email status
+CREATE OR REPLACE FUNCTION update_quote_email_status(quote_id UUID)
+RETURNS BOOLEAN AS $$
+DECLARE
+    rows_affected INTEGER;
+BEGIN
+    -- Update the quote's email status
+    UPDATE "seed_name_badge_quotes"
+    SET 
+        email_sent = true
+    WHERE id = quote_id
+    AND email_sent = false;  -- Only update if email hasn't been sent
+    
+    GET DIAGNOSTICS rows_affected = ROW_COUNT;
+    
+    -- Return true if any rows were affected
+    RETURN rows_affected > 0;
+END;
 $$ LANGUAGE plpgsql; 
