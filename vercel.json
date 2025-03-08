@@ -81,5 +81,9 @@
   ],
   "env": {
     "NODE_ENV": "production"
+  },
+  "log": {
+    "access": true,
+    "debug": true
   }
 } 
