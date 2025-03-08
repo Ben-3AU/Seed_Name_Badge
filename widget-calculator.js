@@ -222,7 +222,6 @@ function initializeCalculator(baseUrl) {
             ink_coverage: getSelectedValue('inkCoverage'),
             lanyards: getSelectedValue('lanyards') === 'yes',
             shipping: getSelectedValue('shipping'),
-            paper_type: getSelectedValue('paperType'),
             first_name: document.querySelector('.terra-tag-widget #quoteFirstName').value.trim(),
             email: document.querySelector('.terra-tag-widget #quoteEmail').value.trim(),
             total_quantity: calculateTotalQuantity(),
@@ -242,7 +241,7 @@ function initializeCalculator(baseUrl) {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(quoteData)  // Send quoteData directly
+                body: JSON.stringify({ quoteData })  // Wrap in object like orders
             });
 
             if (!response.ok) {
