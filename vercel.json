@@ -104,6 +104,7 @@
     }
   ],
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "DEPLOY_TIMESTAMP": "2024-03-19T13:00:00Z"
   }
 } 
