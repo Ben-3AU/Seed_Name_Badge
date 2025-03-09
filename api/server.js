@@ -54,7 +54,12 @@ process.on('unhandledRejection', (reason, promise) => {
 // Express error handler
 app.use((err, req, res, next) => {
     console.error('Express Error Handler:', err);
-    res.status(500).json({ error: err.message });
+    // Ensure we're sending JSON
+    res.status(500).json({ 
+        error: 'Internal Server Error',
+        message: err.message,
+        code: 'INTERNAL_SERVER_ERROR'
+    });
 });
 
 // Add logging middleware
@@ -109,7 +114,7 @@ app.use((req, res, next) => {
 
     // Handle preflight requests
     if (req.method === 'OPTIONS') {
-        return res.status(204).end();
+        return res.status(204).json({}); // Send empty JSON instead of .end()
     }
 
     next();
