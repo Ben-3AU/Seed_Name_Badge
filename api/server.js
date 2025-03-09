@@ -95,31 +95,25 @@ app.use(express.json({
     limit: '10mb'
 }));
 
-// Update CORS configuration
-app.use(cors({
-    origin: function(origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        
-        // Check if the origin matches *.terratag.com.au
-        if (/^https:\/\/([a-zA-Z0-9-]+\.)?terratag\.com\.au$/.test(origin)) {
-            return callback(null, true);
-        }
-        
-        // Allow the Vercel preview deployment
-        if (origin === 'https://seednamebadge.vercel.app') {
-            return callback(null, true);
-        }
-        
-        callback(new Error('Not allowed by CORS'));
-    },
-    methods: ['GET', 'POST', 'OPTIONS'],
-    credentials: false,
-    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept']
-}));
+// CORS middleware
+app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    
+    // Allow any page under www.terratag.com.au
+    if (origin && origin.startsWith('https://www.terratag.com.au')) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+    }
 
-// Add OPTIONS handler for preflight requests
-app.options('*', cors());
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+        return res.status(204).end();
+    }
+
+    next();
+});
 
 // Serve static files
 app.use(express.static(path.join(__dirname)));
