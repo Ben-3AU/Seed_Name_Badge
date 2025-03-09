@@ -5,10 +5,8 @@
     "silent": false
   },
   "functions": {
-    "api/server.js": {
-      "runtime": "@vercel/node@2.0.0",
-      "memory": 1024,
-      "maxDuration": 10
+    "api/**/*.js": {
+      "runtime": "@vercel/node@2.0.0"
     }
   },
   "routes": [
@@ -16,6 +14,10 @@
       "src": "/webhook",
       "methods": ["POST"],
       "dest": "/api/server.js"
+    },
+    {
+      "src": "/api/test-logs",
+      "dest": "/api/test-logs"
     },
     {
       "src": "/api/(.*)",
