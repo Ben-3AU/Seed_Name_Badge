@@ -86,8 +86,15 @@ app.get('/test-stripe', async (req, res) => {
 // Handle quote submission and email sending
 app.post('/api/submit-quote', async (req, res) => {
     try {
-        const { quoteData } = req.body;  // Destructure like orders
+        const { quoteData } = req.body;
+        console.log('Received quote data:', JSON.stringify(quoteData, null, 2));
 
+        if (!quoteData) {
+            console.error('No quote data received in request body');
+            return res.status(400).json({ error: 'No quote data provided' });
+        }
+
+        console.log('Attempting to insert quote into Supabase');
         const { data: quote, error: quoteError } = await supabase
             .from('seed_name_badge_quotes')
             .insert([{
@@ -110,8 +117,11 @@ app.post('/api/submit-quote', async (req, res) => {
             .single();
 
         if (quoteError) {
+            console.error('Supabase insert error:', quoteError);
             throw quoteError;
         }
+
+        console.log('Quote inserted successfully:', JSON.stringify(quote, null, 2));
 
         // Send email notification
         try {
