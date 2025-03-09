@@ -6,18 +6,21 @@
   },
   "functions": {
     "api/**/*.js": {
-      "runtime": "@vercel/node@2.0.0"
+      "runtime": "@vercel/node@2.0.0",
+      "memory": 1024,
+      "maxDuration": 10
     }
   },
   "routes": [
     {
+      "src": "/api/test-logs",
+      "methods": ["GET"],
+      "dest": "/api/test-logs.js"
+    },
+    {
       "src": "/webhook",
       "methods": ["POST"],
       "dest": "/api/server.js"
-    },
-    {
-      "src": "/api/test-logs",
-      "dest": "/api/test-logs"
     },
     {
       "src": "/api/(.*)",
