@@ -637,10 +637,11 @@ app.post('/webhook', async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+// Instead of starting the server, export the request handler
+module.exports = app;
 
-// Export the Express API
-module.exports = app; 
+// Remove the listen call since Vercel will handle this
+// const PORT = process.env.PORT || 3000;
+// app.listen(PORT, () => {
+//     console.log(`Server running on port ${PORT}`);
+// }); 
