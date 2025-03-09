@@ -91,18 +91,26 @@ app.use(express.json({
         if (req.originalUrl === '/webhook') {
             req.rawBody = buf.toString();
         }
-    }
+    },
+    limit: '10mb'
 }));
+
+// Update CORS configuration
 app.use(cors({
     origin: [
         'https://www.terratag.com.au',
         'https://terratag.com.au',
-        'http://localhost:3000'
+        'http://www.terratag.com.au',
+        'http://terratag.com.au',
+        'https://seednamebadge.vercel.app'
     ],
-    methods: ['GET', 'POST'],
-    credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization']
+    methods: ['GET', 'POST', 'OPTIONS'],
+    credentials: false,  // Disable credentials since we don't need them
+    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept']
 }));
+
+// Add OPTIONS handler for preflight requests
+app.options('*', cors());
 
 // Serve static files
 app.use(express.static(path.join(__dirname)));
