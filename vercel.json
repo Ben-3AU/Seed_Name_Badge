@@ -17,7 +17,7 @@
       "methods": ["OPTIONS"],
       "status": 204,
       "headers": {
-        "Access-Control-Allow-Origin": "https://www.terratag.com.au",
+        "Access-Control-Allow-Origin": "https://*.terratag.com.au",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Access-Control-Allow-Credentials": "true",
@@ -40,7 +40,7 @@
       "src": "/api/(.*)",
       "dest": "/api/server.js",
       "headers": {
-        "Access-Control-Allow-Origin": "https://www.terratag.com.au",
+        "Access-Control-Allow-Origin": "https://*.terratag.com.au",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Access-Control-Allow-Credentials": "true",
@@ -72,7 +72,7 @@
       "src": "/widget.js",
       "dest": "/widget.js",
       "headers": {
-        "Access-Control-Allow-Origin": "https://www.terratag.com.au",
+        "Access-Control-Allow-Origin": "https://*.terratag.com.au",
         "Access-Control-Allow-Methods": "GET",
         "Access-Control-Max-Age": "86400",
         "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
@@ -86,7 +86,7 @@
       "src": "/widget-calculator.js",
       "dest": "/widget-calculator.js",
       "headers": {
-        "Access-Control-Allow-Origin": "https://www.terratag.com.au",
+        "Access-Control-Allow-Origin": "https://*.terratag.com.au",
         "Access-Control-Allow-Methods": "GET",
         "Access-Control-Max-Age": "86400",
         "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",

@@ -51,16 +51,20 @@ process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
-// Express error handler
-app.use((err, req, res, next) => {
+// Express error handler - must be after all other middleware
+const errorHandler = (err, req, res, next) => {
     console.error('Express Error Handler:', err);
+    
+    // Set JSON content type
+    res.setHeader('Content-Type', 'application/json');
+    
     // Ensure we're sending JSON
     res.status(500).json({ 
         error: 'Internal Server Error',
-        message: err.message,
+        message: err.message || 'An unexpected error occurred',
         code: 'INTERNAL_SERVER_ERROR'
     });
-});
+};
 
 // Add logging middleware
 app.use((req, res, next) => {
@@ -110,11 +114,13 @@ app.use((req, res, next) => {
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
         res.setHeader('Access-Control-Allow-Credentials', 'true');
+        res.setHeader('Content-Type', 'application/json');
     }
 
     // Handle preflight requests
     if (req.method === 'OPTIONS') {
-        return res.status(204).json({}); // Send empty JSON instead of .end()
+        res.setHeader('Content-Type', 'application/json');
+        return res.status(204).json({});
     }
 
     next();
@@ -674,6 +680,9 @@ app.post('/webhook', async (req, res) => {
         res.status(400).send(`Webhook Error: ${err.message}`);
     }
 });
+
+// Error handler must be last
+app.use(errorHandler);
 
 // Instead of starting the server, export the request handler
 module.exports = app;
