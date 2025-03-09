@@ -236,21 +236,25 @@ function initializeCalculator(baseUrl) {
             // Submit for email processing
             const response = await fetch(`${BASE_URL}/api/submit-quote`, {
                 method: 'POST',
-                mode: 'cors',
-                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ quoteData })  // Wrap in object like orders
+                body: JSON.stringify({ quoteData })
             });
 
+            let errorMessage = 'Failed to process quote';
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to process quote');
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.error || errorMessage;
+                } catch (e) {
+                    console.error('Error parsing error response:', e);
+                }
+                throw new Error(errorMessage);
             }
 
-            const emailResult = await response.json();
-            console.log('Email processing result:', emailResult);
+            const result = await response.json();
+            console.log('Quote submission result:', result);
 
             // Show success message
             const successMessage = document.querySelector('.terra-tag-widget #quoteSuccessMessage');
@@ -261,7 +265,7 @@ function initializeCalculator(baseUrl) {
             
         } catch (error) {
             console.error('Error sending quote:', error);
-            alert('Error sending quote. Please try again.');
+            alert('Error sending quote. Please try again. ' + error.message);
         } finally {
             // Remove loading state and restore button text
             submitQuoteBtn.classList.remove('loading');
