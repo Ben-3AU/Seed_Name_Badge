@@ -167,7 +167,10 @@ app.post('/api/submit-quote', async (req, res) => {
 
         if (quoteError) {
             console.error('Supabase insert error:', quoteError);
-            throw quoteError;
+            return res.status(500).json({ 
+                error: quoteError.message || 'Failed to save quote',
+                details: quoteError.details || {}
+            });
         }
 
         console.log('Quote inserted successfully:', JSON.stringify(quote, null, 2));
