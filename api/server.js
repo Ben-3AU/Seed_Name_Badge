@@ -1,3 +1,7 @@
+// Force dynamic to ensure logs are captured
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 const path = require('path');
 require('dotenv').config();
 require('dotenv').config({ path: path.resolve(process.cwd(), '.env.local') });
@@ -8,6 +12,8 @@ const { createClient } = require('@supabase/supabase-js');
 const { sendQuoteEmail, sendOrderConfirmationEmail, generateOrderPDF } = require('./emailService');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const fs = require('fs');
+const nodemailer = require('nodemailer');
+const Stripe = require('stripe');
 
 // Initialize Supabase client
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -35,6 +41,21 @@ console.log('Environment variables loaded:', {
 });
 
 const app = express();
+
+// Global error handlers
+process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+// Express error handler
+app.use((err, req, res, next) => {
+    console.error('Express Error Handler:', err);
+    res.status(500).json({ error: err.message });
+});
 
 // Middleware
 app.use(express.json({
