@@ -1,7 +1,7 @@
 // Terra Tag Calculator Widget
 (function() {
     // Base URL for loading resources and making API calls
-    const BASE_URL = 'https://seed-name-badge-calculator.vercel.app';
+    const BASE_URL = 'https://seednamebadge.vercel.app';
     
     // Create and inject widget styles
     function injectStyles() {
