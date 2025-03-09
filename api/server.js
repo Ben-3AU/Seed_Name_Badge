@@ -97,15 +97,24 @@ app.use(express.json({
 
 // Update CORS configuration
 app.use(cors({
-    origin: [
-        'https://www.terratag.com.au',
-        'https://terratag.com.au',
-        'http://www.terratag.com.au',
-        'http://terratag.com.au',
-        'https://seednamebadge.vercel.app'
-    ],
+    origin: function(origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        // Check if the origin matches *.terratag.com.au
+        if (/^https:\/\/([a-zA-Z0-9-]+\.)?terratag\.com\.au$/.test(origin)) {
+            return callback(null, true);
+        }
+        
+        // Allow the Vercel preview deployment
+        if (origin === 'https://seednamebadge.vercel.app') {
+            return callback(null, true);
+        }
+        
+        callback(new Error('Not allowed by CORS'));
+    },
     methods: ['GET', 'POST', 'OPTIONS'],
-    credentials: false,  // Disable credentials since we don't need them
+    credentials: false,
     allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept']
 }));
 
@@ -148,7 +157,10 @@ app.post('/api/submit-quote', async (req, res) => {
 
         if (!quoteData) {
             console.error('No quote data received in request body');
-            return res.status(400).json({ error: 'No quote data provided' });
+            return res.status(400).json({ 
+                error: 'No quote data provided',
+                details: 'Request body must include quoteData object'
+            });
         }
 
         console.log('Attempting to insert quote into Supabase');
@@ -176,8 +188,9 @@ app.post('/api/submit-quote', async (req, res) => {
         if (quoteError) {
             console.error('Supabase insert error:', quoteError);
             return res.status(500).json({ 
-                error: quoteError.message || 'Failed to save quote',
-                details: quoteError.details || {}
+                error: 'Failed to save quote to database',
+                details: quoteError.message || 'Unknown database error',
+                code: 'DB_ERROR'
             });
         }
 
@@ -200,18 +213,33 @@ app.post('/api/submit-quote', async (req, res) => {
 
             if (updateError) {
                 console.error('Error updating quote email status:', updateError);
-            } else {
-                console.log('Quote email status updated successfully');
+                // Continue execution but log the error
             }
+
+            return res.json({
+                success: true,
+                message: 'Quote processed successfully',
+                data: quote
+            });
+
         } catch (emailError) {
             console.error('Error sending quote email:', emailError);
-            // Don't return here, as the quote was still saved successfully
+            // Return success but indicate email failed
+            return res.status(207).json({
+                success: true,
+                message: 'Quote saved but email notification failed',
+                data: quote,
+                warning: 'Email notification failed to send',
+                details: emailError.message || 'Unknown email error'
+            });
         }
-
-        return res.json(quote);
     } catch (error) {
         console.error('Error in quote submission:', error);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({ 
+            error: 'Failed to process quote',
+            details: error.message || 'An unexpected error occurred',
+            code: 'INTERNAL_ERROR'
+        });
     }
 });
 

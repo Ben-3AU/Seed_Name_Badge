@@ -21,43 +21,57 @@ const transporter = nodemailer.createTransport({
 
 // Function to send email using SMTP2GO REST API
 async function sendEmailWithTemplate(options) {
-    const apiUrl = 'https://api.smtp2go.com/v3/email/send';
-    
-    // Ensure recipients is an array and not empty
-    const recipients = Array.isArray(options.recipients) ? options.recipients : [options.recipients];
-    if (recipients.length === 0) {
-        throw new Error('No recipients specified');
-    }
-
-    const payload = {
-        api_key: process.env.SMTP2GO_API_KEY,
-        template_id: options.template_id,
-        template_data: options.template_data,
-        to: recipients.map(email => email),
-        sender: `${process.env.SMTP2GO_FROM_NAME} <${process.env.SMTP2GO_FROM_EMAIL}>`,
-        subject: options.template_id.includes('QUOTE') ? 'Your Terra Tag Quote' : 'Your Terra Tag Order Confirmation'
-    };
-
-    // Log the full payload for debugging
-    console.log('Full SMTP2GO payload:', JSON.stringify(payload, null, 2));
-
-    if (options.bcc && options.bcc.length > 0) {
-        payload.bcc = options.bcc;
-    }
-
-    if (options.attachments && options.attachments.length > 0) {
-        payload.attachments = options.attachments;
-    }
-
-    console.log('SMTP2GO Request payload:', {
-        template_id: payload.template_id,
-        sender: payload.sender,
-        to: payload.to,
-        template_data_keys: Object.keys(payload.template_data),
-        has_attachments: payload.attachments ? payload.attachments.length > 0 : false
-    });
-
     try {
+        const apiUrl = 'https://api.smtp2go.com/v3/email/send';
+        
+        // Ensure recipients is an array and not empty
+        const recipients = Array.isArray(options.recipients) ? options.recipients : [options.recipients];
+        if (recipients.length === 0) {
+            throw {
+                code: 'INVALID_RECIPIENTS',
+                message: 'No recipients specified',
+                details: 'Email recipients array is empty',
+                statusCode: 400
+            };
+        }
+
+        const payload = {
+            api_key: process.env.SMTP2GO_API_KEY,
+            template_id: options.template_id,
+            template_data: options.template_data,
+            to: recipients.map(email => email),
+            sender: `${process.env.SMTP2GO_FROM_NAME} <${process.env.SMTP2GO_FROM_EMAIL}>`,
+            subject: options.template_id.includes('QUOTE') ? 'Your Terra Tag Quote' : 'Your Terra Tag Order Confirmation'
+        };
+
+        if (!process.env.SMTP2GO_API_KEY) {
+            throw {
+                code: 'MISSING_API_KEY',
+                message: 'SMTP2GO API key is missing',
+                details: 'Environment variable SMTP2GO_API_KEY is not set',
+                statusCode: 500
+            };
+        }
+
+        // Log the full payload for debugging
+        console.log('Full SMTP2GO payload:', JSON.stringify(payload, null, 2));
+
+        if (options.bcc && options.bcc.length > 0) {
+            payload.bcc = options.bcc;
+        }
+
+        if (options.attachments && options.attachments.length > 0) {
+            payload.attachments = options.attachments;
+        }
+
+        console.log('SMTP2GO Request payload:', {
+            template_id: payload.template_id,
+            sender: payload.sender,
+            to: payload.to,
+            template_data_keys: Object.keys(payload.template_data),
+            has_attachments: payload.attachments ? payload.attachments.length > 0 : false
+        });
+
         const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
@@ -72,37 +86,44 @@ async function sendEmailWithTemplate(options) {
 
         if (!response.ok) {
             console.error('SMTP2GO API Response:', responseData);
-            console.error('Environment variables:', {
-                SMTP2GO_API_KEY: process.env.SMTP2GO_API_KEY ? 'Present' : 'Missing',
-                SMTP2GO_ORDER_TEMPLATE_ID: process.env.SMTP2GO_ORDER_TEMPLATE_ID,
-                SMTP2GO_QUOTE_TEMPLATE_ID: process.env.SMTP2GO_QUOTE_TEMPLATE_ID,
-                SMTP2GO_FROM_NAME: process.env.SMTP2GO_FROM_NAME,
-                SMTP2GO_FROM_EMAIL: process.env.SMTP2GO_FROM_EMAIL
-            });
-            throw new Error(`SMTP2GO API error: ${JSON.stringify(responseData)}`);
+            throw {
+                code: 'EMAIL_API_ERROR',
+                message: 'Failed to send email via SMTP2GO',
+                details: responseData.error || responseData.message || 'Unknown API error',
+                statusCode: response.status
+            };
         }
 
-        console.log('SMTP2GO API Success Response:', responseData);
         return responseData;
     } catch (error) {
         console.error('Error sending email via SMTP2GO API:', error);
-        throw error;
+        throw {
+            code: error.code || 'EMAIL_SERVICE_ERROR',
+            message: error.message || 'Failed to send email',
+            details: error.details || error.toString(),
+            statusCode: error.statusCode || 500
+        };
     }
 }
 
 // Function to send quote email
 async function sendQuoteEmail(quoteData) {
     try {
+        if (!quoteData) {
+            throw {
+                code: 'INVALID_QUOTE_DATA',
+                message: 'Quote data is required',
+                details: 'No quote data provided to email service',
+                statusCode: 400
+            };
+        }
+
         console.log('Starting email send process for quote:', quoteData);
         console.log('Raw timestamp from Supabase:', quoteData.created_at);
-        console.log('Parsed timestamp:', new Date(quoteData.created_at).toISOString());
-        console.log('Brisbane time:', new Date(quoteData.created_at).toLocaleString('en-AU', { timeZone: 'Australia/Brisbane' }));
-        await logEmailAttempt('quote', quoteData);
-
+        
         const templateData = {
             id: String(quoteData.id),
             created_at: new Date(quoteData.created_at).toLocaleString('en-AU', {
-                timeZone: 'Australia/Brisbane',
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
@@ -124,20 +145,20 @@ async function sendQuoteEmail(quoteData) {
             co2_savings: quoteData.co2_savings.toFixed(2)
         };
 
-        const response = await sendEmailWithTemplate({
+        return await sendEmailWithTemplate({
             template_id: process.env.SMTP2GO_QUOTE_TEMPLATE_ID,
             template_data: templateData,
             recipients: [quoteData.email],
             bcc: ['hello@terratag.com.au']
         });
-
-        console.log('Email sent successfully via SMTP2GO API:', response);
-        await logEmailAttempt('quote', quoteData, null);
-        return response;
     } catch (error) {
         console.error('Error sending quote email:', error);
-        await logEmailAttempt('quote', quoteData, error);
-        throw error;
+        throw {
+            code: error.code || 'QUOTE_EMAIL_ERROR',
+            message: error.message || 'Failed to send quote email',
+            details: error.details || error.toString(),
+            statusCode: error.statusCode || 500
+        };
     }
 }
 
@@ -207,17 +228,6 @@ async function generateOrderPDF(orderData) {
             // Customer Details Section
             doc.font('Helvetica').fontSize(10);
             
-            // Format date without time
-            const formattedDate = new Date().toLocaleDateString('en-AU', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-            
-            // Date with bold label
-            doc.font('Helvetica-Bold').text('Date: ', {continued: true})
-               .font('Helvetica').text(formattedDate);
-
             // Name with bold label
             doc.font('Helvetica-Bold').text('Name: ', {continued: true})
                .font('Helvetica').text(`${orderData.first_name} ${orderData.last_name}`);
@@ -267,6 +277,15 @@ async function generateOrderPDF(orderData) {
             const formattedPaperType = paperType.charAt(0).toUpperCase() + paperType.slice(1);
 
             // Add all order details rows
+            addTableRow('Date', new Date(orderData.created_at).toLocaleString('en-AU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            }));
+            addTableRow('Receipt ID', orderData.id);
             addTableRow('Quantity with guest details printed', orderData.quantity_with_guests.toString());
             addTableRow('Quantity without guest details printed', orderData.quantity_without_guests.toString());
             addTableRow('Total number of name badges', orderData.total_quantity.toString());
@@ -276,7 +295,6 @@ async function generateOrderPDF(orderData) {
             addTableRow('Lanyards included', orderData.lanyards ? 'Yes' : 'No');
             addTableRow('Shipping', orderData.shipping.charAt(0).toUpperCase() + orderData.shipping.slice(1));
             addTableRow('Paper type', formattedPaperType);
-            addTableRow('Receipt ID', orderData.id);
 
             // Cost Summary - Left aligned with table and more spacing
             doc.moveDown(2);
@@ -323,20 +341,33 @@ async function generateOrderPDF(orderData) {
 // Function to send order confirmation email
 async function sendOrderConfirmationEmail(orderData) {
     try {
-        console.log('Starting email send process for order:', orderData.id);
-        console.log('Order data:', JSON.stringify(orderData, null, 2));
-        
-        // Generate PDF
-        console.log('Generating PDF...');
-        const pdfPath = await generateOrderPDF(orderData);
-        console.log('PDF generated successfully at:', pdfPath);
+        if (!orderData) {
+            throw {
+                code: 'INVALID_ORDER_DATA',
+                message: 'Order data is required',
+                details: 'No order data provided to email service',
+                statusCode: 400
+            };
+        }
 
-        console.log('Preparing email template data...');
+        // Generate PDF first
+        const pdfPath = await generateOrderPDF(orderData);
+        const pdfBuffer = fs.readFileSync(pdfPath);
+        const pdfBase64 = pdfBuffer.toString('base64');
+
         const templateData = {
             id: String(orderData.id),
+            created_at: new Date(orderData.created_at).toLocaleString('en-AU', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true
+            }),
             first_name: orderData.first_name,
             last_name: orderData.last_name,
-            company: orderData.company,
+            company: orderData.company || 'N/A',
             quantity_with_guests: orderData.quantity_with_guests,
             quantity_without_guests: orderData.quantity_without_guests,
             total_quantity: orderData.total_quantity,
@@ -345,58 +376,40 @@ async function sendOrderConfirmationEmail(orderData) {
             ink_coverage: orderData.ink_coverage === 'over40' ? 'Over 40%' : 'Up to 40%',
             lanyards: orderData.lanyards ? 'Yes' : 'No',
             shipping: orderData.shipping,
-            paper_type: orderData.paper_type.replace(/([A-Z])/g, ' $1').toLowerCase(),
-            total_cost: orderData.total_cost.toFixed(2),
-            gst_amount: orderData.gst_amount.toFixed(2),
-            co2_savings: orderData.co2_savings.toFixed(2),
-            created_at: new Date().toLocaleString('en-AU', {
-                timeZone: 'Australia/Brisbane',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: 'numeric',
-                hour12: true
-            })
+            paper_type: orderData.paper_type,
+            total_cost: new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(orderData.total_cost),
+            gst_amount: new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(orderData.gst_amount),
+            co2_savings: orderData.co2_savings.toFixed(2)
         };
-        console.log('Template data prepared:', JSON.stringify(templateData, null, 2));
 
-        // Read the PDF file and convert to base64
-        console.log('Reading PDF file...');
-        const pdfContent = fs.readFileSync(pdfPath);
-        const base64Content = pdfContent.toString('base64');
-        console.log('PDF file read and converted to base64');
-
-        console.log('Sending email via SMTP2GO...');
-        const response = await sendEmailWithTemplate({
+        const result = await sendEmailWithTemplate({
             template_id: process.env.SMTP2GO_ORDER_TEMPLATE_ID,
             template_data: templateData,
             recipients: [orderData.email],
             bcc: ['hello@terratag.com.au'],
             attachments: [{
-                filename: 'order-confirmation.pdf',
-                fileblob: base64Content,
-                mimetype: 'application/pdf'
+                filename: `TerraTags-Order-${orderData.id}.pdf`,
+                content: pdfBase64,
+                content_type: 'application/pdf'
             }]
         });
 
-        console.log('Order confirmation email sent successfully via SMTP2GO API:', response);
+        // Clean up the PDF file
+        try {
+            fs.unlinkSync(pdfPath);
+        } catch (cleanupError) {
+            console.error('Error cleaning up PDF file:', cleanupError);
+        }
 
-        // Clean up: delete the temporary PDF file
-        console.log('Cleaning up temporary PDF file...');
-        fs.unlinkSync(pdfPath);
-        console.log('Temporary PDF file deleted');
-
-        return response;
+        return result;
     } catch (error) {
         console.error('Error sending order confirmation email:', error);
-        console.error('Error details:', {
-            message: error.message,
-            stack: error.stack,
-            code: error.code,
-            details: error.details || null
-        });
-        throw error;
+        throw {
+            code: error.code || 'ORDER_EMAIL_ERROR',
+            message: error.message || 'Failed to send order confirmation email',
+            details: error.details || error.toString(),
+            statusCode: error.statusCode || 500
+        };
     }
 }
 
@@ -416,9 +429,8 @@ async function logEmailAttempt(type, data, error = null) {
 
 // Function to format quote data for SMTP2GO template
 function formatQuoteData(quoteData) {
-    // Format the timestamp in Brisbane time
+    // Format the timestamp without timezone adjustment since it's already from Supabase
     const formattedTime = new Date(quoteData.created_at).toLocaleString('en-AU', {
-        timeZone: 'Australia/Brisbane',
         year: 'numeric',
         month: 'long',
         day: 'numeric',

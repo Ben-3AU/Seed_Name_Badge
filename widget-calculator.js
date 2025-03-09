@@ -242,30 +242,56 @@ function initializeCalculator(baseUrl) {
                 body: JSON.stringify({ quoteData })
             });
 
-            let errorMessage = 'Failed to process quote';
+            const responseData = await response.json();
+            console.log('Server response:', responseData);
+
             if (!response.ok) {
-                try {
-                    const errorData = await response.json();
-                    errorMessage = errorData.error || errorMessage;
-                } catch (e) {
-                    console.error('Error parsing error response:', e);
+                let errorMessage = 'Failed to process quote';
+                
+                if (responseData.error) {
+                    errorMessage = responseData.error;
+                    if (responseData.details) {
+                        console.error('Error details:', responseData.details);
+                        // Only add details to user message if it's meaningful
+                        if (responseData.details !== 'Unknown error' && 
+                            !responseData.details.includes('undefined') &&
+                            !responseData.details.includes('[object Object]')) {
+                            errorMessage += `: ${responseData.details}`;
+                        }
+                    }
+                    if (responseData.code) {
+                        console.error('Error code:', responseData.code);
+                    }
                 }
                 throw new Error(errorMessage);
             }
 
-            const result = await response.json();
-            console.log('Quote submission result:', result);
-
-            // Show success message
+            // Show appropriate success message
             const successMessage = document.querySelector('.terra-tag-widget #quoteSuccessMessage');
+            if (response.status === 207) {
+                // Quote saved but email failed
+                successMessage.textContent = 'Your quote has been saved, but we encountered an issue sending the confirmation email. Our team has been notified and will contact you shortly.';
+            } else {
+                successMessage.textContent = 'Quote submitted successfully! Please check your email for the confirmation.';
+            }
+            
             successMessage.classList.add('visible');
             setTimeout(() => {
                 successMessage.classList.remove('visible');
-            }, 3000);
+                // Reset to default message
+                successMessage.textContent = 'Quote submitted successfully! Please check your email for the confirmation.';
+            }, 5000);
             
         } catch (error) {
             console.error('Error sending quote:', error);
-            alert('Error sending quote. Please try again. ' + error.message);
+            let userMessage = 'Error sending quote: ' + error.message;
+            
+            // Handle network errors specially
+            if (error instanceof TypeError && error.message.includes('fetch')) {
+                userMessage = 'Unable to connect to the server. Please check your internet connection and try again.';
+            }
+            
+            alert(userMessage);
         } finally {
             // Remove loading state and restore button text
             submitQuoteBtn.classList.remove('loading');
