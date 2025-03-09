@@ -57,6 +57,34 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: err.message });
 });
 
+// Add logging middleware
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    next();
+});
+
+// Test endpoint for verifying logs
+app.get('/api/test-logs', (req, res) => {
+    console.log('Standard log message');
+    console.info('Info level message');
+    console.warn('Warning level message');
+    console.error('Error level message');
+    
+    // Test error handling
+    try {
+        throw new Error('Test error for logging');
+    } catch (error) {
+        console.error('Caught test error:', error);
+    }
+    
+    res.json({ 
+        message: 'Test logs generated',
+        timestamp: new Date().toISOString(),
+        path: req.path,
+        method: req.method
+    });
+});
+
 // Middleware
 app.use(express.json({
     verify: (req, res, buf) => {
