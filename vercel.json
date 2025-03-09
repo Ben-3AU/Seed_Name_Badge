@@ -24,7 +24,13 @@
     },
     {
       "src": "/api/(.*)",
-      "dest": "/api/server.js"
+      "dest": "/api/server.js",
+      "headers": {
+        "Access-Control-Allow-Origin": "https://www.terratag.com.au",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Allow-Credentials": "true"
+      }
     },
     {
       "src": "/config",
