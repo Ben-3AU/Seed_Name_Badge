@@ -40,7 +40,7 @@ async function sendEmailWithTemplate(options) {
     // Log environment variables for debugging
     console.log('Environment variables check:', {
         SMTP2GO_API_KEY: process.env.SMTP2GO_API_KEY,
-        SMTP2GO_QUOTE_TEMPLATE_I: process.env.SMTP2GO_QUOTE_TEMPLATE_I,
+        SMTP2GO_QUOTE_TEMPLATE: process.env.SMTP2GO_QUOTE_TEMPLATE_I,
         SMTP2GO_FROM_NAME: process.env.SMTP2GO_FROM_NAME,
         SMTP2GO_FROM_EMAIL: process.env.SMTP2GO_FROM_EMAIL
     });
@@ -80,9 +80,9 @@ async function sendEmailWithTemplate(options) {
         if (!response.ok) {
             console.error('SMTP2GO API Response:', responseData);
             console.error('Environment variables:', {
-                SMTP2GO_API_KEY: process.env.SMTP2GO_API_KEY ? 'Present' : 'Missing',
-                SMTP2GO_ORDER_TEMPLATE_I: process.env.SMTP2GO_ORDER_TEMPLATE_I,
-                SMTP2GO_QUOTE_TEMPLATE_I: process.env.SMTP2GO_QUOTE_TEMPLATE_I,
+                SMTP2GO_API_KEY: process.env.SMTP2GO_API_KEY ? 'Present' : undefined,
+                SMTP2GO_ORDER_TEMPLATE: process.env.SMTP2GO_ORDER_TEMPLATE_I,
+                SMTP2GO_QUOTE_TEMPLATE: process.env.SMTP2GO_QUOTE_TEMPLATE_I,
                 SMTP2GO_FROM_NAME: process.env.SMTP2GO_FROM_NAME,
                 SMTP2GO_FROM_EMAIL: process.env.SMTP2GO_FROM_EMAIL
             });
