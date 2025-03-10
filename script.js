@@ -4,11 +4,11 @@ console.log('Debug: script.js starting to load');
 // This ensures secure database operations and proper validation on the server side
 
 // Initialize Supabase client
-const supabaseUrl = 'https://pxxqvjxmzmsqunrhegcq.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4eHF2anhtem1zcXVucmhlZ2NxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg0NDk0NTcsImV4cCI6MjA1NDAyNTQ1N30.5CUbSb2OR9H4IrGHx_vxmIPZCWN8x7TYoG5RUeYAehM';
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+// const supabaseUrl = 'https://pxxqvjxmzmsqunrhegcq.supabase.co';
+// const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4eHF2anhtem1zcXVucmhlZ2NxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg0NDk0NTcsImV4cCI6MjA1NDAyNTQ1N30.5CUbSb2OR9H4IrGHx_vxmIPZCWN8x7TYoG5RUeYAehM';
+// const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-console.log('Supabase client initialized successfully');
+console.log('Script initialized successfully');
 
 // Business logic - pure calculations
 const calculations = {
@@ -265,7 +265,7 @@ async function handleQuoteSubmission(event) {
 
         // First save the quote to Supabase
         const { data: quote, error: quoteError } = await supabase
-            .from('quotes')
+            .from('seed_name_badge_quotes')
             .insert([quoteData])
             .select();
 
@@ -275,35 +275,65 @@ async function handleQuoteSubmission(event) {
         }
 
         // Then submit for email processing
-        const response = await fetch('/api/submit-quote', {
+        const response = await fetch(`${window.BASE_URL}/api/submit-quote`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ ...quoteData, id: quote[0].id })
+            credentials: 'include',
+            body: JSON.stringify({ quoteData: { ...quoteData, id: quote[0].id } })
         });
+
+        let responseData;
+        try {
+            responseData = await response.json();
+        } catch (parseError) {
+            console.error('Error parsing response:', parseError);
+            throw new Error('Invalid response from server');
+        }
 
         if (!response.ok) {
             let errorMessage = 'Failed to process quote';
-            try {
-                const errorData = await response.json();
-                errorMessage = errorData.error || errorMessage;
-            } catch (e) {
-                console.error('Error parsing error response:', e);
+            if (responseData.error) {
+                errorMessage = responseData.error;
+                if (responseData.details) {
+                    console.error('Error details:', responseData.details);
+                    if (responseData.details !== 'Unknown error' && 
+                        !responseData.details.includes('undefined') &&
+                        !responseData.details.includes('[object Object]')) {
+                        errorMessage += `: ${responseData.details}`;
+                    }
+                }
             }
             throw new Error(errorMessage);
         }
 
         // Show success message
         const successMessage = document.getElementById('quoteSuccessMessage');
+        if (response.status === 207) {
+            // Quote saved but email failed
+            successMessage.textContent = 'Your quote has been saved, but we encountered an issue sending the confirmation email. Our team has been notified and will contact you shortly.';
+        } else {
+            successMessage.textContent = 'Quote submitted successfully! Please check your email for the confirmation.';
+        }
+        
         successMessage.classList.add('visible');
         setTimeout(() => {
             successMessage.classList.remove('visible');
-        }, 3000);
+            // Reset to default message
+            successMessage.textContent = 'Quote submitted successfully! Please check your email for the confirmation.';
+        }, 5000);
         
     } catch (error) {
-        console.error('Error processing quote:', error);
-        alert(error.message || 'Error sending quote. Please try again.');
+        console.error('Error sending quote:', error);
+        let userMessage = 'Error sending quote: ' + error.message;
+        
+        // Handle network errors specially
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+            userMessage = 'Unable to connect to the server. Please check your internet connection and try again.';
+        }
+        
+        alert(userMessage);
     } finally {
         // Hide spinner and restore button text
         submitButton.innerHTML = originalButtonText;
@@ -352,29 +382,43 @@ async function handleOrderSubmission(event) {
             headers: {
                 'Content-Type': 'application/json'
             },
+            credentials: 'include',
             body: JSON.stringify({ orderData })
         });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to create payment intent');
+        let result;
+        try {
+            result = await response.json();
+        } catch (parseError) {
+            console.error('Error parsing response:', parseError);
+            throw new Error('Invalid response from server');
         }
 
-        const result = await response.json();
+        if (!response.ok) {
+            const errorMessage = result.error || 'Failed to create payment intent';
+            throw new Error(errorMessage);
+        }
+
         console.log('Payment intent created:', result);
 
-        // Redirect to payment page
-        window.location.href = result.url;
+        // Initialize payment element with the client secret
+        await initializePaymentElement(result.clientSecret, orderData);
+        
+        // Reset button state after successful initialization
+        payNowBtn.classList.remove('loading');
+        payNowBtn.innerHTML = `
+            <div class="button-content">
+                <div class="spinner"></div>
+                <span>Checkout</span>
+            </div>
+        `;
+        
     } catch (error) {
         console.error('Error processing order:', error);
         alert('Error processing order: ' + (error.message || 'Unknown error'));
-    } finally {
-        // Hide spinner and restore button text if there's an error
-        // (If successful, the page will redirect)
-        if (error) {
-            payNowBtn.innerHTML = originalButtonText;
-            payNowBtn.classList.remove('loading');
-        }
+        // Hide spinner and restore button text
+        payNowBtn.innerHTML = originalButtonText;
+        payNowBtn.classList.remove('loading');
     }
 }
 

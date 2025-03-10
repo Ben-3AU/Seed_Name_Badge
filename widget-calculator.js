@@ -239,10 +239,18 @@ function initializeCalculator(baseUrl) {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify({ quoteData })
             });
 
-            const responseData = await response.json();
+            let responseData;
+            try {
+                responseData = await response.json();
+            } catch (parseError) {
+                console.error('Error parsing response:', parseError);
+                throw new Error('Invalid response from server');
+            }
+
             console.log('Server response:', responseData);
 
             if (!response.ok) {
@@ -606,20 +614,26 @@ function initializeCalculator(baseUrl) {
             // Create a payment intent
             const response = await fetch(`${BASE_URL}/api/create-payment-intent`, {
                 method: 'POST',
-                mode: 'cors',
-                credentials: 'include',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify({ orderData })
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to create payment intent');
+            let result;
+            try {
+                result = await response.json();
+            } catch (parseError) {
+                console.error('Error parsing response:', parseError);
+                throw new Error('Invalid response from server');
             }
 
-            const result = await response.json();
+            if (!response.ok) {
+                const errorMessage = result.error || 'Failed to create payment intent';
+                throw new Error(errorMessage);
+            }
+
             console.log('Payment intent created:', result);
 
             // Initialize payment element with the client secret
