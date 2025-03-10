@@ -259,12 +259,12 @@ function initializeCalculator(baseUrl) {
 
             // Show success message
             const successMessage = document.querySelector('.terra-tag-widget #quoteSuccessMessage');
-            successMessage.textContent = 'Quote sent successfully! Please check your email.';
-            successMessage.style.display = 'block';
+            successMessage.textContent = 'Quote sent! Please check your inbox';
+            successMessage.classList.add('visible');
             
             // Hide success message after 3 seconds
             setTimeout(() => {
-                successMessage.style.display = 'none';
+                successMessage.classList.remove('visible');
             }, 3000);
             
         } catch (error) {
