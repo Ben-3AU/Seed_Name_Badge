@@ -34,9 +34,16 @@ async function sendEmailWithTemplate(options) {
         template_id: options.template_id,
         template_data: options.template_data,
         to: recipients.map(email => email),
-        sender: `${process.env.SMTP2GO_FROM_NAME} <${process.env.SMTP2GO_FROM_EMAIL}>`,
-        subject: options.template_id.includes('QUOTE') ? 'Your Terra Tag Quote' : 'Your Terra Tag Order Confirmation'
+        sender: `${process.env.SMTP2GO_FROM_NAME} <${process.env.SMTP2GO_FROM_EMAIL}>`
     };
+
+    // Log environment variables for debugging
+    console.log('Environment variables check:', {
+        SMTP2GO_API_KEY: process.env.SMTP2GO_API_KEY,
+        SMTP2GO_QUOTE_TEMPLATE_I: process.env.SMTP2GO_QUOTE_TEMPLATE_I,
+        SMTP2GO_FROM_NAME: process.env.SMTP2GO_FROM_NAME,
+        SMTP2GO_FROM_EMAIL: process.env.SMTP2GO_FROM_EMAIL
+    });
 
     // Log the full payload for debugging
     console.log('Full SMTP2GO payload:', JSON.stringify(payload, null, 2));
