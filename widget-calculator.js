@@ -237,7 +237,7 @@ function initializeCalculator(baseUrl) {
             const response = await fetch(`${BASE_URL}/api/submit-quote`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
                 credentials: 'include',
                 body: JSON.stringify({ quoteData })
@@ -248,60 +248,30 @@ function initializeCalculator(baseUrl) {
                 responseData = await response.json();
             } catch (parseError) {
                 console.error('Error parsing response:', parseError);
-                throw new Error('Invalid response from server');
+                throw new Error('Server error occurred. Please try again.');
             }
-
-            console.log('Server response:', responseData);
 
             if (!response.ok) {
-                let errorMessage = 'Failed to process quote';
-                
-                if (responseData.error) {
-                    errorMessage = responseData.error;
-                    if (responseData.details) {
-                        console.error('Error details:', responseData.details);
-                        // Only add details to user message if it's meaningful
-                        if (responseData.details !== 'Unknown error' && 
-                            !responseData.details.includes('undefined') &&
-                            !responseData.details.includes('[object Object]')) {
-                            errorMessage += `: ${responseData.details}`;
-                        }
-                    }
-                    if (responseData.code) {
-                        console.error('Error code:', responseData.code);
-                    }
-                }
-                throw new Error(errorMessage);
+                throw new Error(responseData.error || 'Failed to process quote. Please try again.');
             }
 
-            // Show appropriate success message
+            console.log('Quote submission result:', responseData);
+
+            // Show success message
             const successMessage = document.querySelector('.terra-tag-widget #quoteSuccessMessage');
-            if (response.status === 207) {
-                // Quote saved but email failed
-                successMessage.textContent = 'Your quote has been saved, but we encountered an issue sending the confirmation email. Our team has been notified and will contact you shortly.';
-            } else {
-                successMessage.textContent = 'Quote submitted successfully! Please check your email for the confirmation.';
-            }
+            successMessage.textContent = 'Quote sent successfully! Please check your email.';
+            successMessage.style.display = 'block';
             
-            successMessage.classList.add('visible');
+            // Hide success message after 3 seconds
             setTimeout(() => {
-                successMessage.classList.remove('visible');
-                // Reset to default message
-                successMessage.textContent = 'Quote submitted successfully! Please check your email for the confirmation.';
-            }, 5000);
+                successMessage.style.display = 'none';
+            }, 3000);
             
         } catch (error) {
-            console.error('Error sending quote:', error);
-            let userMessage = 'Error sending quote: ' + error.message;
-            
-            // Handle network errors specially
-            if (error instanceof TypeError && error.message.includes('fetch')) {
-                userMessage = 'Unable to connect to the server. Please check your internet connection and try again.';
-            }
-            
-            alert(userMessage);
+            console.error('Error submitting quote:', error);
+            alert(error.message || 'Failed to send quote. Please try again.');
         } finally {
-            // Remove loading state and restore button text
+            // Restore button state
             submitQuoteBtn.classList.remove('loading');
             submitQuoteBtn.querySelector('span').textContent = 'Submit';
         }
@@ -580,11 +550,9 @@ function initializeCalculator(baseUrl) {
     async function handleOrderSubmission(event) {
         event.preventDefault();
         
-        // Show spinner
-        const payNowBtn = document.querySelector('.terra-tag-widget #payNowBtn');
-        const originalButtonText = payNowBtn.innerHTML;
-        payNowBtn.innerHTML = '<div class="button-content"><div class="spinner"></div><span>Processing...</span></div>';
+        // Show spinner and change text
         payNowBtn.classList.add('loading');
+        payNowBtn.querySelector('span').textContent = 'Processing';
         
         const totalCost = calculateTotalPrice();
         const gstAmount = calculateGST(totalCost);
@@ -615,7 +583,7 @@ function initializeCalculator(baseUrl) {
             const response = await fetch(`${BASE_URL}/api/create-payment-intent`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
                 credentials: 'include',
                 body: JSON.stringify({ orderData })
@@ -626,12 +594,11 @@ function initializeCalculator(baseUrl) {
                 result = await response.json();
             } catch (parseError) {
                 console.error('Error parsing response:', parseError);
-                throw new Error('Invalid response from server');
+                throw new Error('Server error occurred. Please try again.');
             }
 
             if (!response.ok) {
-                const errorMessage = result.error || 'Failed to create payment intent';
-                throw new Error(errorMessage);
+                throw new Error(result.error || 'Failed to process order. Please try again.');
             }
 
             console.log('Payment intent created:', result);
@@ -650,10 +617,10 @@ function initializeCalculator(baseUrl) {
             
         } catch (error) {
             console.error('Error processing order:', error);
-            alert('Error processing order: ' + (error.message || 'Unknown error'));
+            alert(error.message || 'Failed to process order. Please try again.');
             // Hide spinner and restore button text
-            payNowBtn.innerHTML = originalButtonText;
             payNowBtn.classList.remove('loading');
+            payNowBtn.querySelector('span').textContent = 'Checkout';
         }
     }
 

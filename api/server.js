@@ -4,7 +4,6 @@ export const runtime = 'nodejs';
 
 const path = require('path');
 require('dotenv').config();
-require('dotenv').config({ path: path.resolve(process.cwd(), '.env.local') });
 
 const express = require('express');
 const cors = require('cors');
@@ -90,24 +89,33 @@ app.use(express.json({
 }));
 
 // CORS middleware
-app.use((req, res, next) => {
-    const origin = req.headers.origin;
-    
-    // Allow any page under www.terratag.com.au
-    if (origin && origin.startsWith('https://www.terratag.com.au')) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-        res.setHeader('Access-Control-Allow-Credentials', 'true');
-    }
+app.use(cors({
+    origin: [
+        'https://seed-name-badge-calculator-bens-projects-4af3578a.vercel.app',
+        'https://seed-name-badge-calculator-git-master-bens-projects-4af3578a.vercel.app',
+        'https://seed-name-badge-calculator.vercel.app',
+        'https://www.terratag.com.au',
+        'https://terratag.com.au',
+        process.env.CLIENT_URL
+    ].filter(Boolean).map(url => url.startsWith('http') ? url : `https://${url}`),
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
+// Add CORS headers to all responses
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', req.headers.origin);
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.header('Access-Control-Allow-Credentials', true);
+    
     // Handle preflight requests
     if (req.method === 'OPTIONS') {
-        res.status(204).end();
-        return;
+        res.sendStatus(200);
+    } else {
+        next();
     }
-
-    next();
 });
 
 // Serve static files
@@ -138,22 +146,15 @@ app.get('/test-stripe', async (req, res) => {
     }
 });
 
-// Handle quote submission and email sending
+// Handle quote email submission
 app.post('/api/submit-quote', async (req, res) => {
     try {
-        const { quoteData } = req.body;
-        console.log('Received quote data:', JSON.stringify(quoteData, null, 2));
-
-        if (!quoteData) {
-            console.error('No quote data received in request body');
-            return res.status(400).json({ 
-                error: 'No quote data provided',
-                details: 'Request body must include quoteData object'
-            });
-        }
-
-        console.log('Attempting to insert quote into Supabase');
-        const { data: quote, error: quoteError } = await supabase
+        const quoteData = req.body;
+        console.log('Received quote data:', quoteData);
+        
+        // Insert new quote
+        console.log('Creating new quote');
+        const { data: savedQuote, error: insertError } = await supabase
             .from('seed_name_badge_quotes')
             .insert([{
                 quantity_with_guests: quoteData.quantity_with_guests,
@@ -174,60 +175,45 @@ app.post('/api/submit-quote', async (req, res) => {
             .select()
             .single();
 
-        if (quoteError) {
-            console.error('Supabase insert error:', quoteError);
-            return res.status(500).json({ 
-                error: 'Failed to save quote to database',
-                details: quoteError.message || 'Unknown database error',
-                code: 'DB_ERROR'
-            });
-        }
+        if (insertError) throw insertError;
+        console.log('Quote saved successfully:', savedQuote);
 
-        console.log('Quote inserted successfully:', JSON.stringify(quote, null, 2));
-
-        // Send email notification
+        // Send quote email
         try {
-            console.log('Sending quote email...');
-            await sendQuoteEmail(quote);
-            console.log('Quote email sent successfully');
+            console.log('Attempting to send email...');
+            await sendQuoteEmail(savedQuote);
+            console.log('Email sent successfully');
 
-            // Update email status
-            console.log('Updating email status...');
-            const { data: updateResult, error: updateError } = await supabase
+            // Update quote record to mark email as sent
+            const { error: updateError } = await supabase
                 .from('seed_name_badge_quotes')
-                .update({
-                    email_sent: true
-                })
-                .match({ id: quote.id });
+                .update({ email_sent: true })
+                .eq('id', savedQuote.id);
 
             if (updateError) {
                 console.error('Error updating quote email status:', updateError);
-                // Continue execution but log the error
             }
 
-            return res.json({
-                success: true,
-                message: 'Quote processed successfully',
-                data: quote
+            res.json({ 
+                success: true, 
+                message: 'Quote submitted and email sent',
+                quote: savedQuote
             });
-
         } catch (emailError) {
-            console.error('Error sending quote email:', emailError);
-            // Return success but indicate email failed
-            return res.status(207).json({
-                success: true,
-                message: 'Quote saved but email notification failed',
-                data: quote,
-                warning: 'Email notification failed to send',
-                details: emailError.message || 'Unknown email error'
+            console.error('Error sending email:', emailError);
+            // Even if email fails, we still return success for the quote submission
+            res.json({ 
+                success: true, 
+                message: 'Quote submitted but email failed to send',
+                quote: savedQuote,
+                emailError: emailError.message
             });
         }
     } catch (error) {
-        console.error('Error in quote submission:', error);
-        return res.status(500).json({ 
-            error: 'Failed to process quote',
-            details: error.message || 'An unexpected error occurred',
-            code: 'INTERNAL_ERROR'
+        console.error('Error processing quote:', error);
+        res.status(500).json({ 
+            error: error.message,
+            details: error.details || null
         });
     }
 });

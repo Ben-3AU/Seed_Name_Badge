@@ -222,167 +222,125 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Function to handle quote submission
-// Handles the entire quote submission process:
-// 1. Shows loading spinner during submission
-// 2. Collects and validates form data
-// 3. Sends data to server API endpoint
-// 4. Displays success/error messages to user
 async function handleQuoteSubmission(event) {
     event.preventDefault();
     
     // Show spinner
     const submitButton = document.getElementById('submitQuoteBtn');
     const originalButtonText = submitButton.innerHTML;
-    submitButton.innerHTML = '<div class="button-content"><div class="spinner"></div><span>Sending...</span></div>';
-    submitButton.classList.add('loading');
+    submitButton.innerHTML = '<div class="spinner"></div>';
+    submitButton.disabled = true;
     
-    const totalCost = calculations.getTotalPrice(ui.getFormValues());
+    const values = ui.getFormValues();
+    const totalQuantity = calculations.getTotalQuantity(values.withGuests, values.withoutGuests);
+    const totalCost = calculations.getTotalPrice(values);
     const gstAmount = calculations.getGST(totalCost);
-    const totalQuantity = calculations.getTotalQuantity(
-        parseInt(document.getElementById('quantityWithGuests').value) || 0,
-        parseInt(document.getElementById('quantityWithoutGuests').value) || 0
-    );
+    const co2Savings = calculations.getCO2Savings(totalQuantity);
     
     const quoteData = {
-        quantity_with_guests: parseInt(document.getElementById('quantityWithGuests').value) || 0,
-        quantity_without_guests: parseInt(document.getElementById('quantityWithoutGuests').value) || 0,
-        size: ui.getSelectedValue('size'),
-        printed_sides: ui.getSelectedValue('printedSides'),
-        ink_coverage: ui.getSelectedValue('inkCoverage'),
-        lanyards: ui.getSelectedValue('lanyards') === 'yes',
-        shipping: ui.getSelectedValue('shipping'),
+        quantity_with_guests: values.withGuests,
+        quantity_without_guests: values.withoutGuests,
+        size: values.size,
+        printed_sides: values.printedSides,
+        ink_coverage: values.inkCoverage,
+        lanyards: values.lanyards === 'yes',
+        shipping: values.shipping,
         first_name: document.getElementById('quoteFirstName').value.trim(),
         email: document.getElementById('quoteEmail').value.trim(),
         total_quantity: totalQuantity,
         total_cost: Number(totalCost.toFixed(2)),
         gst_amount: Number(gstAmount.toFixed(2)),
-        co2_savings: Number(calculations.getCO2Savings(totalQuantity).toFixed(2)),
-        email_sent: false
+        co2_savings: Number(co2Savings.toFixed(2))
     };
 
     try {
-        console.log('Attempting to submit quote with data:', quoteData);
-
-        // First save the quote to Supabase
-        const { data: quote, error: quoteError } = await supabase
-            .from('seed_name_badge_quotes')
-            .insert([quoteData])
-            .select();
-
-        if (quoteError) {
-            console.error('Error saving quote to Supabase:', quoteError);
-            throw new Error('Failed to save quote');
-        }
-
-        // Then submit for email processing
-        const response = await fetch(`${window.BASE_URL}/api/submit-quote`, {
+        console.log('Submitting quote:', quoteData);
+        
+        const response = await fetch('/api/submit-quote', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            credentials: 'include',
-            body: JSON.stringify({ quoteData: { ...quoteData, id: quote[0].id } })
+            body: JSON.stringify(quoteData)
         });
 
-        let responseData;
+        let result;
         try {
-            responseData = await response.json();
+            result = await response.json();
         } catch (parseError) {
             console.error('Error parsing response:', parseError);
-            throw new Error('Invalid response from server');
+            throw new Error('Server error occurred. Please try again.');
         }
 
         if (!response.ok) {
-            let errorMessage = 'Failed to process quote';
-            if (responseData.error) {
-                errorMessage = responseData.error;
-                if (responseData.details) {
-                    console.error('Error details:', responseData.details);
-                    if (responseData.details !== 'Unknown error' && 
-                        !responseData.details.includes('undefined') &&
-                        !responseData.details.includes('[object Object]')) {
-                        errorMessage += `: ${responseData.details}`;
-                    }
-                }
-            }
-            throw new Error(errorMessage);
+            throw new Error(result.error || 'Failed to process quote. Please try again.');
         }
+
+        console.log('Quote submission result:', result);
 
         // Show success message
         const successMessage = document.getElementById('quoteSuccessMessage');
-        if (response.status === 207) {
-            // Quote saved but email failed
-            successMessage.textContent = 'Your quote has been saved, but we encountered an issue sending the confirmation email. Our team has been notified and will contact you shortly.';
-        } else {
-            successMessage.textContent = 'Quote submitted successfully! Please check your email for the confirmation.';
-        }
+        successMessage.textContent = 'Quote sent successfully! Please check your email.';
+        successMessage.style.display = 'block';
         
-        successMessage.classList.add('visible');
+        // Hide success message after 3 seconds
         setTimeout(() => {
-            successMessage.classList.remove('visible');
-            // Reset to default message
-            successMessage.textContent = 'Quote submitted successfully! Please check your email for the confirmation.';
-        }, 5000);
+            successMessage.style.display = 'none';
+        }, 3000);
         
     } catch (error) {
-        console.error('Error sending quote:', error);
-        let userMessage = 'Error sending quote: ' + error.message;
-        
-        // Handle network errors specially
-        if (error instanceof TypeError && error.message.includes('fetch')) {
-            userMessage = 'Unable to connect to the server. Please check your internet connection and try again.';
-        }
-        
-        alert(userMessage);
+        console.error('Error submitting quote:', error);
+        alert(error.message || 'Failed to send quote. Please try again.');
     } finally {
-        // Hide spinner and restore button text
+        // Restore button state
         submitButton.innerHTML = originalButtonText;
-        submitButton.classList.remove('loading');
+        submitButton.disabled = false;
     }
 }
 
-// Function to handle order submission
+// Modify the handleOrderSubmission function back to its original form while keeping error handling
 async function handleOrderSubmission(event) {
     event.preventDefault();
     
     // Show spinner
     const payNowBtn = document.getElementById('payNowBtn');
     const originalButtonText = payNowBtn.innerHTML;
-    payNowBtn.innerHTML = '<div class="button-content"><div class="spinner"></div><span>Processing...</span></div>';
-    payNowBtn.classList.add('loading');
+    payNowBtn.innerHTML = '<div class="spinner"></div>';
+    payNowBtn.disabled = true;
     
-    const totalCost = calculations.getTotalPrice(ui.getFormValues());
+    const values = ui.getFormValues();
+    const totalQuantity = calculations.getTotalQuantity(values.withGuests, values.withoutGuests);
+    const totalCost = calculations.getTotalPrice(values);
     const gstAmount = calculations.getGST(totalCost);
+    const co2Savings = calculations.getCO2Savings(totalQuantity);
     
     const orderData = {
-        quantity_with_guests: parseInt(document.getElementById('quantityWithGuests').value) || 0,
-        quantity_without_guests: parseInt(document.getElementById('quantityWithoutGuests').value) || 0,
-        size: ui.getSelectedValue('size'),
-        printed_sides: ui.getSelectedValue('printedSides'),
-        ink_coverage: ui.getSelectedValue('inkCoverage'),
-        lanyards: ui.getSelectedValue('lanyards') === 'yes',
-        shipping: ui.getSelectedValue('shipping'),
+        quantity_with_guests: values.withGuests,
+        quantity_without_guests: values.withoutGuests,
+        size: values.size,
+        printed_sides: values.printedSides,
+        ink_coverage: values.inkCoverage,
+        lanyards: values.lanyards === 'yes',
+        shipping: values.shipping,
         paper_type: ui.getSelectedValue('paperType'),
         first_name: document.getElementById('orderFirstName').value.trim(),
         last_name: document.getElementById('orderLastName').value.trim(),
         company: document.getElementById('orderCompany').value.trim(),
         email: document.getElementById('orderEmail').value.trim(),
-        total_quantity: calculations.getTotalQuantity(parseInt(document.getElementById('quantityWithGuests').value) || 0, parseInt(document.getElementById('quantityWithoutGuests').value) || 0),
+        total_quantity: totalQuantity,
         total_cost: Number(totalCost.toFixed(2)),
         gst_amount: Number(gstAmount.toFixed(2)),
-        co2_savings: calculations.getCO2Savings(calculations.getTotalQuantity(parseInt(document.getElementById('quantityWithGuests').value) || 0, parseInt(document.getElementById('quantityWithoutGuests').value) || 0)),
-        payment_status: 'pending',
-        email_sent: false
+        co2_savings: Number(co2Savings.toFixed(2))
     };
 
     try {
-        // Create a payment intent
-        const response = await fetch(`${window.BASE_URL}/api/create-payment-intent`, {
+        console.log('Creating payment intent for order:', orderData);
+        
+        const response = await fetch('/api/create-payment-intent', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            credentials: 'include',
             body: JSON.stringify({ orderData })
         });
 
@@ -391,34 +349,35 @@ async function handleOrderSubmission(event) {
             result = await response.json();
         } catch (parseError) {
             console.error('Error parsing response:', parseError);
-            throw new Error('Invalid response from server');
+            throw new Error('Server error occurred. Please try again.');
         }
 
         if (!response.ok) {
-            const errorMessage = result.error || 'Failed to create payment intent';
-            throw new Error(errorMessage);
+            throw new Error(result.error || 'Failed to process order. Please try again.');
         }
 
-        console.log('Payment intent created:', result);
+        const { clientSecret, orderId } = result;
+        console.log('Payment intent created, proceeding to payment');
 
-        // Initialize payment element with the client secret
-        await initializePaymentElement(result.clientSecret, orderData);
-        
-        // Reset button state after successful initialization
-        payNowBtn.classList.remove('loading');
-        payNowBtn.innerHTML = `
-            <div class="button-content">
-                <div class="spinner"></div>
-                <span>Checkout</span>
-            </div>
-        `;
-        
+        // Initialize payment element and handle payment
+        const { error: stripeError } = await stripe.confirmPayment({
+            elements,
+            clientSecret,
+            confirmParams: {
+                return_url: `${window.location.origin}/payment-confirmation?order_id=${orderId}`,
+            },
+        });
+
+        if (stripeError) {
+            throw new Error(stripeError.message);
+        }
     } catch (error) {
         console.error('Error processing order:', error);
-        alert('Error processing order: ' + (error.message || 'Unknown error'));
-        // Hide spinner and restore button text
+        alert(error.message || 'Failed to process order. Please try again.');
+        
+        // Restore button state
         payNowBtn.innerHTML = originalButtonText;
-        payNowBtn.classList.remove('loading');
+        payNowBtn.disabled = false;
     }
 }
 
