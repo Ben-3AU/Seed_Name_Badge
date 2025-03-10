@@ -8,7 +8,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
-const { sendQuoteEmail, sendOrderConfirmationEmail, generateOrderPDF } = require('./emailService');
+const { sendQuoteEmail, sendOrderConfirmationEmail, generateOrderPDF } = require('./emailService.js');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const fs = require('fs');
 const nodemailer = require('nodemailer');
@@ -149,8 +149,9 @@ app.get('/test-stripe', async (req, res) => {
 // Handle quote email submission
 app.post('/api/submit-quote', async (req, res) => {
     try {
-        const quoteData = req.body;
-        console.log('Received quote data:', quoteData);
+        // Handle both nested and non-nested structures
+        const quoteData = req.body.quoteData || req.body;
+        console.log('Received quote data:', { quoteData });
         
         // Insert new quote
         console.log('Creating new quote');
@@ -169,7 +170,7 @@ app.post('/api/submit-quote', async (req, res) => {
                 total_quantity: quoteData.total_quantity,
                 total_cost: quoteData.total_cost,
                 gst_amount: quoteData.gst_amount,
-                co2_savings: Number(quoteData.co2_savings.toFixed(2)),
+                co2_savings: parseFloat(Number(quoteData.co2_savings).toFixed(2)),  // Ensure 2 decimal places
                 email_sent: false
             }])
             .select()
@@ -251,7 +252,7 @@ app.post('/api/create-payment-intent', async (req, res) => {
                 total_quantity: orderData.total_quantity,
                 total_cost: orderData.total_cost,
                 gst_amount: orderData.gst_amount,
-                co2_savings: Number(orderData.co2_savings.toFixed(2)),
+                co2_savings: parseFloat(Number(orderData.co2_savings).toFixed(2)),
                 payment_status: 'pending',
                 email_sent: false,
                 stripe_payment_id: null,
