@@ -121,7 +121,7 @@ async function sendQuoteEmail(quoteData) {
             printed_sides: quoteData.printed_sides === 'double' ? 'Double sided' : 'Single sided',
             ink_coverage: quoteData.ink_coverage === 'over40' ? 'Over 40%' : 'Up to 40%',
             lanyards: quoteData.lanyards ? 'Yes' : 'No',
-            shipping: quoteData.shipping,
+            shipping: quoteData.shipping === 'express' ? 'Express' : 'Standard',
             total_cost: new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(quoteData.total_cost),
             gst_amount: new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(quoteData.gst_amount),
             co2_savings: quoteData.co2_savings.toFixed(2)
