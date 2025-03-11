@@ -281,18 +281,32 @@ async function generateOrderPDF(orderData) {
             addTableRow('Paper type', formattedPaperType);
             addTableRow('Receipt ID', orderData.id);
 
+            // Format currency values with thousands separators
+            const formattedTotalCost = orderData.total_cost.toLocaleString('en-US', {
+                style: 'decimal',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+                useGrouping: true
+            });
+            const formattedGSTAmount = orderData.gst_amount.toLocaleString('en-US', {
+                style: 'decimal',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+                useGrouping: true
+            });
+
             // Cost Summary - Left aligned with table and more spacing
             doc.moveDown(2);
             doc.fontSize(10)
                .font('Helvetica-Bold')
                .text('Total Cost: ', tableLeft, doc.y, {continued: true})
                .font('Helvetica')
-               .text(`$${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(orderData.total_cost)}`, {
+               .text(`$${formattedTotalCost}`, {
                    continued: false
                });
             
             doc.moveDown(0.5);
-            doc.text(`Includes $${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(orderData.gst_amount)} GST`, tableLeft);
+            doc.text(`Includes $${formattedGSTAmount} GST`, tableLeft);
 
             // Footer - positioned closer to the content
             doc.moveDown(3);
