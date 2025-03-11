@@ -349,8 +349,8 @@ async function sendOrderConfirmationEmail(orderData) {
             lanyards: orderData.lanyards ? 'Yes' : 'No',
             shipping: orderData.shipping,
             paper_type: orderData.paper_type.replace(/([A-Z])/g, ' $1').toLowerCase(),
-            total_cost: orderData.total_cost.toFixed(2),
-            gst_amount: orderData.gst_amount.toFixed(2),
+            total_cost: new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(orderData.total_cost),
+            gst_amount: new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(orderData.gst_amount),
             co2_savings: orderData.co2_savings.toFixed(2),
             created_at: new Date(orderData.created_at).toLocaleString(undefined, {
                 year: 'numeric',
