@@ -660,18 +660,24 @@ function createWidgetStructure() {
 function injectStyles() {
     const styles = `
         /* Base form group styles */
-        .terra-tag-widget .calculator-form .form-group {
+        .terra-tag-widget .form-group,
+        .terra-tag-widget .calculator-form .form-group,
+        .terra-tag-widget #calculatorForm .form-group {
             display: flex !important;
             flex-direction: column !important;
             gap: 0.2rem !important;
             margin-bottom: 1rem !important;
         }
 
-        .terra-tag-widget .calculator-form .form-group label {
+        .terra-tag-widget .form-group label,
+        .terra-tag-widget .calculator-form .form-group label,
+        .terra-tag-widget #calculatorForm .form-group label {
             margin-bottom: 0.2rem !important;
         }
 
-        .terra-tag-widget .calculator-form .form-group input {
+        .terra-tag-widget .form-group input,
+        .terra-tag-widget .calculator-form .form-group input,
+        .terra-tag-widget #calculatorForm .form-group input {
             margin-top: 0 !important;
         }
 
