@@ -287,12 +287,12 @@ async function generateOrderPDF(orderData) {
                .font('Helvetica-Bold')
                .text('Total Cost: ', tableLeft, doc.y, {continued: true})
                .font('Helvetica')
-               .text(`$${orderData.total_cost.toFixed(2)}`, {
+               .text(`$${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(orderData.total_cost)}`, {
                    continued: false
                });
             
             doc.moveDown(0.5);
-            doc.text(`Includes $${orderData.gst_amount.toFixed(2)} GST`, tableLeft);
+            doc.text(`Includes $${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(orderData.gst_amount)} GST`, tableLeft);
 
             // Footer - positioned closer to the content
             doc.moveDown(3);
