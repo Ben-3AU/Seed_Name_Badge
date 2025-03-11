@@ -82,13 +82,13 @@
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.25rem;
     margin-bottom: 1.5rem;
 }
 
 /* Special handling for paper type form group */
 .form-group[data-type="paper-type"] {
-    gap: 0.75rem;
+    gap: 0.25rem;
     margin-bottom: 2rem;
 }
 
@@ -297,8 +297,8 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .additional-form .form-group {
-    margin-bottom: 1.5rem !important;
-    gap: 0.1rem !important;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
 }
 
 .additional-form .form-group:last-child {
@@ -418,7 +418,8 @@ input[type="number"]::-webkit-outer-spin-button {
 
 /* Form elements */
 .terra-tag-widget .form-group {
-    gap: 3px !important;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
 }
 
 .terra-tag-widget label {
@@ -682,5 +683,6 @@ input[type="number"]::-webkit-outer-spin-button {
 /* Remove any competing gap styles for calculator forms */
 #emailQuoteForm .form-group,
 #orderForm .form-group {
-    gap: 3px !important;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
 }
