@@ -284,22 +284,27 @@ async function generateOrderPDF(orderData) {
             // Format currency values with thousands separators
             console.log('Debug - Total Cost Type:', typeof orderData.total_cost, 'Value:', orderData.total_cost);
             
-            const totalCostNumber = parseFloat(orderData.total_cost);
-            const gstAmountNumber = parseFloat(orderData.gst_amount);
+            // Ensure we're working with numbers by explicitly parsing and handling potential string inputs
+            const totalCostNumber = typeof orderData.total_cost === 'string' ? parseFloat(orderData.total_cost.replace(/,/g, '')) : parseFloat(orderData.total_cost);
+            const gstAmountNumber = typeof orderData.gst_amount === 'string' ? parseFloat(orderData.gst_amount.replace(/,/g, '')) : parseFloat(orderData.gst_amount);
             
             console.log('Debug - Parsed Numbers:', {
                 totalCost: totalCostNumber,
                 gstAmount: gstAmountNumber
             });
 
-            const formattedTotalCost = totalCostNumber.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-            const formattedGSTAmount = gstAmountNumber.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
+            const formattedTotalCost = isNaN(totalCostNumber) ? 
+                (typeof orderData.total_cost === 'string' ? orderData.total_cost.replace(/,/g, '') : orderData.total_cost) : 
+                totalCostNumber.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            const formattedGSTAmount = isNaN(gstAmountNumber) ? 
+                (typeof orderData.gst_amount === 'string' ? orderData.gst_amount.replace(/,/g, '') : orderData.gst_amount) : 
+                gstAmountNumber.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
 
             console.log('Debug - Formatted Numbers:', {
                 totalCost: formattedTotalCost,
@@ -374,8 +379,12 @@ async function sendOrderConfirmationEmail(orderData) {
             lanyards: orderData.lanyards ? 'Yes' : 'No',
             shipping: orderData.shipping,
             paper_type: orderData.paper_type.replace(/([A-Z])/g, ' $1').toLowerCase(),
-            total_cost: new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(orderData.total_cost),
-            gst_amount: new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(orderData.gst_amount),
+            total_cost: isNaN(totalCostNumber) ? 
+                (typeof orderData.total_cost === 'string' ? orderData.total_cost.replace(/,/g, '') : orderData.total_cost) :
+                new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(totalCostNumber),
+            gst_amount: isNaN(gstAmountNumber) ? 
+                (typeof orderData.gst_amount === 'string' ? orderData.gst_amount.replace(/,/g, '') : orderData.gst_amount) :
+                new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(gstAmountNumber),
             co2_savings: orderData.co2_savings.toFixed(2),
             created_at: new Date(orderData.created_at).toLocaleString(undefined, {
                 year: 'numeric',

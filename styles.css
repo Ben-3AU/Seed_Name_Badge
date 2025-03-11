@@ -213,11 +213,11 @@ input[type="number"]::placeholder {
     opacity: 1;
 }
 
-input[type="number"]:-ms-input-placeholder {
+input[type="number"]::placeholder {
     color: #a0aec0;
 }
 
-input[type="number"]::-ms-input-placeholder {
+input[type="number"]::placeholder {
     color: #a0aec0;
 }
 
@@ -371,5 +371,20 @@ button {
 
 #orderForm .form-group {
     gap: 0.25rem;
+    margin-bottom: 1rem;
+}
+
+.calculator-form .form-group,
+.calculator-form #emailQuoteForm .form-group,
+.calculator-form #orderForm .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem !important;
+    margin-bottom: 1rem;
+}
+
+/* Special handling for paper type form group */
+.calculator-form .form-group[data-type="paper-type"] {
+    gap: 0.25rem !important;
     margin-bottom: 1rem;
 }

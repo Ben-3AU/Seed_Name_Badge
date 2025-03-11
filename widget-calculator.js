@@ -659,6 +659,22 @@ function createWidgetStructure() {
 
 function injectStyles() {
     const styles = `
+        /* Base form group styles */
+        .terra-tag-widget .form-group {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 0.25rem !important;
+            margin-bottom: 1rem !important;
+        }
+
+        .terra-tag-widget #emailQuoteForm .form-group,
+        .terra-tag-widget #orderForm .form-group {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 0.25rem !important;
+            margin-bottom: 1rem !important;
+        }
+
         /* Payment view styles */
         .terra-tag-widget .payment-container {
             max-width: 500px;
