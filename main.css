@@ -27,7 +27,7 @@
     --spacing-xlarge: 32px;
 }
 
-/* Base styles for widget */
+/* Base styles for main application */
 #terra-tag-calculator {
     font-size: 16px;
     font-family: Verdana, sans-serif;
@@ -73,13 +73,14 @@
     box-shadow: none;
 }
 
-.calculator-form {
+/* Calculator form styles */
+#terra-tag-calculator .calculator-form {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
 }
 
-.form-group {
+#terra-tag-calculator .form-group {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
@@ -87,18 +88,18 @@
 }
 
 /* Special handling for paper type form group */
-.form-group[data-type="paper-type"] {
+#terra-tag-calculator .form-group[data-type="paper-type"] {
     gap: 0.25rem;
     margin-bottom: 2rem;
 }
 
-label {
+#terra-tag-calculator label {
     font-size: 0.9375rem;
     font-weight: 500;
     color: #1b4c57;
 }
 
-.required {
+#terra-tag-calculator .required {
     color: #e53e3e;
     margin-left: 2px;
 }
@@ -106,10 +107,7 @@ label {
 /* Input field base styles */
 #terra-tag-calculator input[type="number"],
 #terra-tag-calculator input[type="text"],
-#terra-tag-calculator input[type="email"],
-.terra-tag-widget input[type="number"],
-.terra-tag-widget input[type="text"],
-.terra-tag-widget input[type="email"] {
+#terra-tag-calculator input[type="email"] {
     text-indent: 1rem !important;
     height: 48px !important;
     font-size: 16px !important;
@@ -124,8 +122,7 @@ label {
 }
 
 /* Placeholder styling */
-#terra-tag-calculator input::placeholder,
-.terra-tag-widget input::placeholder {
+#terra-tag-calculator input::placeholder {
     color: #a0aec0;
     opacity: 1;
     text-indent: 1rem !important;
@@ -133,23 +130,24 @@ label {
 }
 
 /* Remove any redundant input styling */
-input[type="number"] {
+#terra-tag-calculator input[type="number"] {
     -webkit-appearance: textfield;
     appearance: textfield;
 }
 
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
+#terra-tag-calculator input[type="number"]::-webkit-inner-spin-button,
+#terra-tag-calculator input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
 
-.button-group {
+/* Button group styles */
+#terra-tag-calculator .button-group {
     display: flex;
     gap: 0;
 }
 
-.option-button {
+#terra-tag-calculator .option-button {
     flex: 1;
     padding: 0.75rem 1rem;
     font-family: Verdana, sans-serif;
@@ -167,49 +165,50 @@ input[type="number"]::-webkit-outer-spin-button {
     outline: none;
 }
 
-.option-button:hover {
+#terra-tag-calculator .option-button:hover {
     background-color: #e2e8f0;
 }
 
-.option-button:active {
+#terra-tag-calculator .option-button:active {
     background-color: #cbd5e0;
 }
 
-.option-button.selected {
+#terra-tag-calculator .option-button.selected {
     background-color: #1b4c57;
     border-color: #1b4c57;
     color: white;
 }
 
-.option-button:first-child {
+#terra-tag-calculator .option-button:first-child {
     border-top-left-radius: 6px;
     border-bottom-left-radius: 6px;
 }
 
-.option-button:last-child {
+#terra-tag-calculator .option-button:last-child {
     border-top-right-radius: 6px;
     border-bottom-right-radius: 6px;
 }
 
 /* Special handling for paper type buttons */
-[data-name="paperType"].option-button {
+#terra-tag-calculator [data-name="paperType"].option-button {
     flex: 1;
     border-radius: 0;
     margin-right: 0;
 }
 
-[data-name="paperType"].option-button:first-child {
+#terra-tag-calculator [data-name="paperType"].option-button:first-child {
     border-top-left-radius: 6px;
     border-bottom-left-radius: 6px;
 }
 
-[data-name="paperType"].option-button:last-child {
+#terra-tag-calculator [data-name="paperType"].option-button:last-child {
     border-top-right-radius: 6px;
     border-bottom-right-radius: 6px;
     margin-right: 0;
 }
 
-.total-price {
+/* Total price styles */
+#terra-tag-calculator .total-price {
     padding: 1rem;
     background-color: #f7fafc;
     border-radius: 6px;
@@ -217,45 +216,45 @@ input[type="number"]::-webkit-outer-spin-button {
     text-align: center;
 }
 
-.total-price-content {
+#terra-tag-calculator .total-price-content {
     display: flex;
     flex-direction: column;
     align-items: center;
     margin: 1rem 0;
 }
 
-.total-cost {
+#terra-tag-calculator .total-cost {
     font-size: 2em;
     font-weight: 600;
     margin-bottom: 0.5rem;
 }
 
-.price-details {
+#terra-tag-calculator .price-details {
     display: flex;
     flex-direction: column;
     width: 100%;
     text-align: center;
 }
 
-.price-details div:first-child {
+#terra-tag-calculator .price-details div:first-child {
     margin-bottom: 0.125rem !important;
 }
 
-.price-details div:last-child {
+#terra-tag-calculator .price-details div:last-child {
     margin-bottom: 1rem !important;
 }
 
 /* Action buttons */
-.action-buttons {
+#terra-tag-calculator .action-buttons {
     margin-top: 0;
 }
 
-.action-buttons .button-group {
+#terra-tag-calculator .action-buttons .button-group {
     gap: 0;
     margin-top: 0.5rem;
 }
 
-.action-button {
+#terra-tag-calculator .action-button {
     flex: 1;
     padding: 0.75rem 1rem;
     font-family: Verdana, sans-serif;
@@ -271,22 +270,22 @@ input[type="number"]::-webkit-outer-spin-button {
     line-height: normal;
 }
 
-.action-button:hover {
+#terra-tag-calculator .action-button:hover {
     background-color: #e2e8f0;
 }
 
-.action-button.selected {
+#terra-tag-calculator .action-button.selected {
     background-color: #1b4c57;
     border-color: #1b4c57;
     color: white;
 }
 
-.action-button:first-child {
+#terra-tag-calculator .action-button:first-child {
     border-top-left-radius: 6px;
     border-bottom-left-radius: 6px;
 }
 
-.action-button:last-child {
+#terra-tag-calculator .action-button:last-child {
     border-top-right-radius: 6px;
     border-bottom-right-radius: 6px;
 }
@@ -334,19 +333,6 @@ input[type="number"]::-webkit-outer-spin-button {
     cursor: not-allowed;
 }
 
-/* Success message */
-.quote-success-message {
-    color: #83A764;
-    text-align: center;
-    margin-top: 1rem;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.quote-success-message.visible {
-    opacity: 1;
-}
-
 /* Loading spinner */
 .spinner {
     display: none;
@@ -370,121 +356,27 @@ input[type="number"]::-webkit-outer-spin-button {
     display: inline-block;
 }
 
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+/* Success message */
+#terra-tag-calculator .success-message {
+    color: #83A764;
+    text-align: center;
+    margin-top: 1rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-/* Responsive design */
-@media (max-width: 640px) {
-    #terra-tag-calculator .container {
-        margin: 1rem;
-        padding: 1.5rem;
-    }
-
-    #terra-tag-calculator .button-group {
-        flex-direction: column;
-    }
-
-    #terra-tag-calculator .option-button {
-        width: 100%;
-    }
+#terra-tag-calculator .success-message.visible {
+    opacity: 1;
 }
 
-/* Update button styles to maintain consistent height during loading */
-#terra-tag-calculator button {
-    min-height: 40px;
-}
-
-/* Base widget styles */
-.terra-tag-widget {
-    font-family: Verdana, sans-serif;
-    max-width: 600px;
-    margin: 0 auto;
-    background-color: #ffffff;
-    padding: 0;
-    font-size: 16px;
-}
-
-/* View management */
-.terra-tag-widget .widget-view {
-    display: none;
-}
-
-.terra-tag-widget .widget-view.active {
-    display: block;
-}
-
-/* Form elements */
-.terra-tag-widget .form-group {
-    gap: 0.25rem;
-    margin-bottom: 1rem;
-}
-
-.terra-tag-widget label {
-    font-size: 0.9em;
-    font-weight: 500;
-    color: #1b4c57;
-}
-
-.terra-tag-widget input[type="text"],
-.terra-tag-widget input[type="email"],
-.terra-tag-widget input[type="number"] {
-    padding: 0.75rem 2.5rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    font-size: 16px !important;
-    width: 100%;
-    transition: border-color 0.2s ease;
-    color: #1b4c57;
-    background-color: #ffffff;
-    height: 48px;
-    line-height: normal;
-    text-indent: 0;
-}
-
-/* Button styles */
-.terra-tag-widget .button {
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
-    font-weight: 600;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: none;
-}
-
-.terra-tag-widget .button-primary {
-    background-color: #1b4c57;
-    color: white;
-}
-
-.terra-tag-widget .button-primary:hover {
-    background-color: #163f48;
-}
-
-/* Loading states */
-.terra-tag-widget .spinner {
-    display: none;
-    width: 20px;
-    height: 20px;
-    border: 2px solid #ffffff;
-    border-radius: 50%;
-    border-top-color: transparent;
-    animation: spin 1s linear infinite;
-}
-
-.terra-tag-widget .loading .spinner {
-    display: inline-block;
-}
-
+/* Payment container */
 #payment-container {
     max-width: 600px;
     margin: 0 auto;
     padding: 2rem;
 }
 
+/* Payment form */
 .payment-form {
     background: #ffffff;
     border-radius: 8px;
@@ -492,6 +384,7 @@ input[type="number"]::-webkit-outer-spin-button {
     font-family: Verdana, sans-serif;
 }
 
+/* Back button */
 .back-button {
     background: none;
     border: none;
@@ -511,6 +404,7 @@ input[type="number"]::-webkit-outer-spin-button {
     text-decoration: underline;
 }
 
+/* Payment form heading */
 .payment-form h2 {
     color: #1b4c57;
     font-size: 1.5rem;
@@ -518,6 +412,7 @@ input[type="number"]::-webkit-outer-spin-button {
     margin-bottom: 2rem;
 }
 
+/* Order summary */
 .order-summary {
     background: #f7fafc !important;
     border-radius: 6px !important;
@@ -526,7 +421,8 @@ input[type="number"]::-webkit-outer-spin-button {
     font-family: Verdana, sans-serif !important;
 }
 
-.order-summary h2, .order-summary h3 {
+.order-summary h2,
+.order-summary h3 {
     color: #1b4c57 !important;
     font-size: 2rem !important;
     font-family: Verdana, sans-serif !important;
@@ -655,10 +551,38 @@ input[type="number"]::-webkit-outer-spin-button {
     font-family: Verdana, sans-serif;
 }
 
+/* Responsive design */
+@media (max-width: 640px) {
+    #terra-tag-calculator .container {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+
+    #terra-tag-calculator .button-group {
+        flex-direction: column;
+    }
+
+    #terra-tag-calculator .option-button {
+        width: 100%;
+    }
+}
+
+/* Update button styles to maintain consistent height during loading */
+#terra-tag-calculator button {
+    min-height: 40px;
+}
+
 @keyframes spin {
     to {
         transform: rotate(360deg);
     }
+}
+
+/* Remove any competing gap styles for calculator forms */
+#emailQuoteForm .form-group,
+#orderForm .form-group {
+    gap: 0.25rem;
+    margin-bottom: 1rem;
 }
 
 /* Responsive styles for payment form */
@@ -680,9 +604,3 @@ input[type="number"]::-webkit-outer-spin-button {
     }
 }
 
-/* Remove any competing gap styles for calculator forms */
-#emailQuoteForm .form-group,
-#orderForm .form-group {
-    gap: 0.25rem;
-    margin-bottom: 1rem;
-}
