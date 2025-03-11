@@ -660,37 +660,26 @@ function createWidgetStructure() {
 function injectStyles() {
     const styles = `
         /* Base form group styles */
-        .terra-tag-widget .form-group,
-        .terra-tag-widget .calculator-form .form-group,
-        .terra-tag-widget #calculatorForm .form-group,
-        .terra-tag-widget #emailQuoteForm .form-group,
-        .terra-tag-widget #orderForm .form-group,
-        body .terra-tag-widget .form-group,
-        body .terra-tag-widget .calculator-form .form-group,
-        body .terra-tag-widget #calculatorForm .form-group,
-        body .terra-tag-widget #emailQuoteForm .form-group,
-        body .terra-tag-widget #orderForm .form-group {
+        html body .terra-tag-widget .form-group,
+        html body .terra-tag-widget .calculator-form .form-group,
+        html body .terra-tag-widget #calculatorForm .form-group,
+        html body .terra-tag-widget #emailQuoteForm .form-group,
+        html body .terra-tag-widget #orderForm .form-group {
             display: flex !important;
             flex-direction: column !important;
             gap: 0.2rem !important;
             margin-bottom: 1rem !important;
         }
 
-        .terra-tag-widget .form-group label,
-        .terra-tag-widget .calculator-form .form-group label,
-        .terra-tag-widget #calculatorForm .form-group label,
-        body .terra-tag-widget .form-group label,
-        body .terra-tag-widget .calculator-form .form-group label,
-        body .terra-tag-widget #calculatorForm .form-group label {
+        html body .terra-tag-widget .form-group label,
+        html body .terra-tag-widget .calculator-form .form-group label,
+        html body .terra-tag-widget #calculatorForm .form-group label {
             margin-bottom: 0.2rem !important;
         }
 
-        .terra-tag-widget .form-group input,
-        .terra-tag-widget .calculator-form .form-group input,
-        .terra-tag-widget #calculatorForm .form-group input,
-        body .terra-tag-widget .form-group input,
-        body .terra-tag-widget .calculator-form .form-group input,
-        body .terra-tag-widget #calculatorForm .form-group input {
+        html body .terra-tag-widget .form-group input,
+        html body .terra-tag-widget .calculator-form .form-group input,
+        html body .terra-tag-widget #calculatorForm .form-group input {
             margin-top: 0 !important;
         }
 
