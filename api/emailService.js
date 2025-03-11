@@ -282,17 +282,28 @@ async function generateOrderPDF(orderData) {
             addTableRow('Receipt ID', orderData.id);
 
             // Format currency values with thousands separators
-            const formattedTotalCost = orderData.total_cost.toLocaleString('en-US', {
-                style: 'decimal',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-                useGrouping: true
+            console.log('Debug - Total Cost Type:', typeof orderData.total_cost, 'Value:', orderData.total_cost);
+            
+            const totalCostNumber = parseFloat(orderData.total_cost);
+            const gstAmountNumber = parseFloat(orderData.gst_amount);
+            
+            console.log('Debug - Parsed Numbers:', {
+                totalCost: totalCostNumber,
+                gstAmount: gstAmountNumber
             });
-            const formattedGSTAmount = orderData.gst_amount.toLocaleString('en-US', {
-                style: 'decimal',
+
+            const formattedTotalCost = totalCostNumber.toLocaleString('en-US', {
                 minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-                useGrouping: true
+                maximumFractionDigits: 2
+            });
+            const formattedGSTAmount = gstAmountNumber.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            console.log('Debug - Formatted Numbers:', {
+                totalCost: formattedTotalCost,
+                gstAmount: formattedGSTAmount
             });
 
             // Cost Summary - Left aligned with table and more spacing
