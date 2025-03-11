@@ -364,8 +364,12 @@ button {
     min-height: 40px;
 }
 
-#emailQuoteForm .form-group,
+#emailQuoteForm .form-group {
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+}
+
 #orderForm .form-group {
     gap: 0.25rem;
     margin-bottom: 1rem;
-} 
+}
