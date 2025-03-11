@@ -99,8 +99,8 @@ function initializeCalculator(baseUrl) {
 
             totalPriceDiv.innerHTML = `
                 <div class="total-price-container">
-                    <div class="total-cost">Total Cost: $${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                    <div class="gst-amount">GST Included: $${gst.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                    <div class="total-cost">Total Cost: $${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: true }).format(totalPrice)}</div>
+                    <div class="gst-amount">GST Included: $${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: true }).format(gst)}</div>
                     <div class="co2-savings">CO2 emissions saved: ${co2Savings.toFixed(2)} kg</div>
                 </div>
             `;
@@ -416,7 +416,7 @@ function initializeCalculator(baseUrl) {
                             <div class="value">${orderData.paper_type.replace(/([A-Z])/g, ' $1').toLowerCase().replace(/^./, str => str.toUpperCase())}</div>
                         </div>
                     </div>
-                    <div class="total-amount">Total: $${orderData.total_cost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                    <div class="total-amount">Total: $${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: true }).format(orderData.total_cost)}</div>
                 </div>
 
                 <form id="payment-form">
@@ -571,8 +571,8 @@ function initializeCalculator(baseUrl) {
             company: document.querySelector('.terra-tag-widget #orderCompany').value.trim(),
             email: document.querySelector('.terra-tag-widget #orderEmail').value.trim(),
             total_quantity: calculateTotalQuantity(),
-            total_cost: Number(totalCost.toFixed(2)),
-            gst_amount: Number(gstAmount.toFixed(2)),
+            total_cost: totalCost,
+            gst_amount: gstAmount,
             co2_savings: calculateCO2Savings(),
             payment_status: 'pending',
             email_sent: false

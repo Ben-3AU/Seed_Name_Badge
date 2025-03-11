@@ -293,18 +293,18 @@ async function generateOrderPDF(orderData) {
                 gstAmount: gstAmountNumber
             });
 
-            const formattedTotalCost = isNaN(totalCostNumber) ? 
-                (typeof orderData.total_cost === 'string' ? orderData.total_cost.replace(/,/g, '') : orderData.total_cost) : 
-                totalCostNumber.toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                });
-            const formattedGSTAmount = isNaN(gstAmountNumber) ? 
-                (typeof orderData.gst_amount === 'string' ? orderData.gst_amount.replace(/,/g, '') : orderData.gst_amount) : 
-                gstAmountNumber.toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                });
+            // Format numbers with thousands separators using Intl.NumberFormat
+            const formattedTotalCost = new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+                useGrouping: true
+            }).format(totalCostNumber);
+
+            const formattedGSTAmount = new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+                useGrouping: true
+            }).format(gstAmountNumber);
 
             console.log('Debug - Formatted Numbers:', {
                 totalCost: formattedTotalCost,

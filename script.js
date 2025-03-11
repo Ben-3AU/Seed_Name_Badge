@@ -111,8 +111,8 @@ const ui = {
 
             totalPriceDiv.innerHTML = `
                 <div style="background-color: #f7fafc; border-radius: 6px; color: #1b4c57; text-align: center;">
-                    <div style="font-size: 2em; font-weight: 600;">Total Cost: $${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                    <div style="font-size: 0.9em; margin-top: 0.5rem;">GST Included: $${gst.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                    <div style="font-size: 2em; font-weight: 600;">Total Cost: $${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: true }).format(totalPrice)}</div>
+                    <div style="font-size: 0.9em; margin-top: 0.5rem;">GST Included: $${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: true }).format(gst)}</div>
                     <div style="font-size: 0.9em;">CO2 emissions saved: ${co2Savings.toFixed(2)} kg</div>
                 </div>
             `;
@@ -248,9 +248,9 @@ async function handleQuoteSubmission(event) {
         first_name: document.getElementById('quoteFirstName').value.trim(),
         email: document.getElementById('quoteEmail').value.trim(),
         total_quantity: totalQuantity,
-        total_cost: Number(totalCost.toFixed(2)),
-        gst_amount: Number(gstAmount.toFixed(2)),
-        co2_savings: Number(co2Savings.toFixed(2))
+        total_cost: totalCost,
+        gst_amount: gstAmount,
+        co2_savings: co2Savings
     };
 
     try {
@@ -328,9 +328,9 @@ async function handleOrderSubmission(event) {
         company: document.getElementById('orderCompany').value.trim(),
         email: document.getElementById('orderEmail').value.trim(),
         total_quantity: totalQuantity,
-        total_cost: Number(totalCost.toFixed(2)),
-        gst_amount: Number(gstAmount.toFixed(2)),
-        co2_savings: Number(co2Savings.toFixed(2))
+        total_cost: totalCost,
+        gst_amount: gstAmount,
+        co2_savings: co2Savings
     };
 
     try {
