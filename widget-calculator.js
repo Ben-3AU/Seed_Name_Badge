@@ -662,7 +662,14 @@ function injectStyles() {
         /* Base form group styles */
         .terra-tag-widget .form-group,
         .terra-tag-widget .calculator-form .form-group,
-        .terra-tag-widget #calculatorForm .form-group {
+        .terra-tag-widget #calculatorForm .form-group,
+        .terra-tag-widget #emailQuoteForm .form-group,
+        .terra-tag-widget #orderForm .form-group,
+        body .terra-tag-widget .form-group,
+        body .terra-tag-widget .calculator-form .form-group,
+        body .terra-tag-widget #calculatorForm .form-group,
+        body .terra-tag-widget #emailQuoteForm .form-group,
+        body .terra-tag-widget #orderForm .form-group {
             display: flex !important;
             flex-direction: column !important;
             gap: 0.2rem !important;
@@ -671,31 +678,19 @@ function injectStyles() {
 
         .terra-tag-widget .form-group label,
         .terra-tag-widget .calculator-form .form-group label,
-        .terra-tag-widget #calculatorForm .form-group label {
+        .terra-tag-widget #calculatorForm .form-group label,
+        body .terra-tag-widget .form-group label,
+        body .terra-tag-widget .calculator-form .form-group label,
+        body .terra-tag-widget #calculatorForm .form-group label {
             margin-bottom: 0.2rem !important;
         }
 
         .terra-tag-widget .form-group input,
         .terra-tag-widget .calculator-form .form-group input,
-        .terra-tag-widget #calculatorForm .form-group input {
-            margin-top: 0 !important;
-        }
-
-        .terra-tag-widget #emailQuoteForm .form-group,
-        .terra-tag-widget #orderForm .form-group {
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 0.2rem !important;
-            margin-bottom: 1rem !important;
-        }
-
-        .terra-tag-widget #emailQuoteForm .form-group label,
-        .terra-tag-widget #orderForm .form-group label {
-            margin-bottom: 0.2rem !important;
-        }
-
-        .terra-tag-widget #emailQuoteForm .form-group input,
-        .terra-tag-widget #orderForm .form-group input {
+        .terra-tag-widget #calculatorForm .form-group input,
+        body .terra-tag-widget .form-group input,
+        body .terra-tag-widget .calculator-form .form-group input,
+        body .terra-tag-widget #calculatorForm .form-group input {
             margin-top: 0 !important;
         }
 
