@@ -673,18 +673,22 @@ function injectStyles() {
 
         html body .terra-tag-widget .form-group label,
         html body .terra-tag-widget .calculator-form .form-group label,
-        html body .terra-tag-widget #calculatorForm .form-group label {
+        html body .terra-tag-widget #calculatorForm .form-group label,
+        html body .terra-tag-widget #emailQuoteForm .form-group label,
+        html body .terra-tag-widget #orderForm .form-group label {
             margin-bottom: 0.2rem !important;
         }
 
         html body .terra-tag-widget .form-group input,
         html body .terra-tag-widget .calculator-form .form-group input,
-        html body .terra-tag-widget #calculatorForm .form-group input {
+        html body .terra-tag-widget #calculatorForm .form-group input,
+        html body .terra-tag-widget #emailQuoteForm .form-group input,
+        html body .terra-tag-widget #orderForm .form-group input {
             margin-top: 0 !important;
         }
 
-        /* Payment view styles */
-        .terra-tag-widget .payment-container {
+        /* Payment form styles */
+        html body .terra-tag-widget .payment-container {
             max-width: 500px;
             margin: 0 auto;
             padding: 20px;
@@ -693,13 +697,15 @@ function injectStyles() {
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .terra-tag-widget .card-name-group {
+        html body .terra-tag-widget .card-name-group {
             margin-bottom: 24px;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 3px !important;
         }
 
-        .terra-tag-widget .card-name-group label {
+        html body .terra-tag-widget .card-name-group label {
             display: block !important;
-            margin-bottom: 3px !important;
             color: #30313d !important;
             font-family: "Ideal Sans", system-ui, sans-serif !important;
             font-size: 0.9em !important;
@@ -707,7 +713,7 @@ function injectStyles() {
             line-height: 1.2 !important;
         }
 
-        .terra-tag-widget .card-name-group input {
+        html body .terra-tag-widget .card-name-group input {
             width: 100% !important;
             padding: 12px !important;
             border: 1px solid #e2e8f0 !important;
@@ -719,18 +725,12 @@ function injectStyles() {
             box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.03), 0px 3px 6px rgba(0, 0, 0, 0.02) !important;
         }
 
-        .terra-tag-widget .card-name-group input:focus {
-            outline: none !important;
-            border-color: #1b4c57 !important;
-            box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1), 0 0 0 4px rgba(27, 76, 87, 0.1) !important;
-        }
-
-        /* Remove any conflicting styles */
-        .terra-tag-widget .card-name-field,
-        .terra-tag-widget .card-name-label-wrapper,
-        .terra-tag-widget .card-name-input-wrapper,
-        .terra-tag-widget #card-name-container,
-        .terra-tag-widget .stripe-label {
+        /* Hide any duplicate or conflicting elements */
+        html body .terra-tag-widget #card-name-container,
+        html body .terra-tag-widget .card-name-field,
+        html body .terra-tag-widget .card-name-label-wrapper,
+        html body .terra-tag-widget .card-name-input-wrapper,
+        html body .terra-tag-widget .stripe-label {
             display: none !important;
         }
 
