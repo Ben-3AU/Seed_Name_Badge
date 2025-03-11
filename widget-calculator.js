@@ -659,35 +659,15 @@ function createWidgetStructure() {
 
 function injectStyles() {
     const styles = `
-        /* Base form group styles */
-        html body .terra-tag-widget .form-group,
-        html body .terra-tag-widget .calculator-form .form-group,
-        html body .terra-tag-widget #calculatorForm .form-group,
-        html body .terra-tag-widget #emailQuoteForm .form-group,
-        html body .terra-tag-widget #orderForm .form-group {
+        /* Base form group styles for all calculator forms */
+        html body .terra-tag-widget .form-group {
             display: flex !important;
             flex-direction: column !important;
             gap: 0.2rem !important;
-            margin-bottom: 1rem !important;
+            margin-bottom: 1.5rem !important;
         }
 
-        html body .terra-tag-widget .form-group label,
-        html body .terra-tag-widget .calculator-form .form-group label,
-        html body .terra-tag-widget #calculatorForm .form-group label,
-        html body .terra-tag-widget #emailQuoteForm .form-group label,
-        html body .terra-tag-widget #orderForm .form-group label {
-            margin-bottom: 0.2rem !important;
-        }
-
-        html body .terra-tag-widget .form-group input,
-        html body .terra-tag-widget .calculator-form .form-group input,
-        html body .terra-tag-widget #calculatorForm .form-group input,
-        html body .terra-tag-widget #emailQuoteForm .form-group input,
-        html body .terra-tag-widget #orderForm .form-group input {
-            margin-top: 0 !important;
-        }
-
-        /* Payment form styles */
+        /* Payment Form Styles - Kept separate as they're specific to payment */
         html body .terra-tag-widget .payment-container {
             max-width: 500px;
             margin: 0 auto;
@@ -886,9 +866,4 @@ function injectStyles() {
             justify-content: center;
         }
     `;
-
-    // ... rest of the existing code ...
 }
-
-// ... rest of the existing code ... 
-
