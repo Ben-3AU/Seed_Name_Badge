@@ -225,9 +225,10 @@ async function generateOrderPDF(orderData) {
             doc.font('Helvetica-Bold').text('Name: ', {continued: true})
                .font('Helvetica').text(`${orderData.first_name} ${orderData.last_name}`);
 
-            // Company with bold label
+            // Company with bold label - ensure line break after empty company field
             doc.font('Helvetica-Bold').text('Company: ', {continued: true})
-               .font('Helvetica').text(orderData.company);
+               .font('Helvetica').text(orderData.company || ' ');  // Use space if company is empty
+            doc.moveDown(0.5);  // Add explicit line break
 
             // Email with bold label
             doc.font('Helvetica-Bold').text('Email: ', {continued: true})
