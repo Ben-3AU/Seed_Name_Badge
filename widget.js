@@ -589,27 +589,27 @@
                 }
             }
 
-            /* Autofill style overrides */
-            html body .terra-tag-widget input:-webkit-autofill,
-            html body .terra-tag-widget input:-webkit-autofill:hover,
-            html body .terra-tag-widget input:-webkit-autofill:focus {
+            /* Edge autofill override */
+            html body .terra-tag-widget input:-ms-input-placeholder {
+                color: #1b4c57 !important;
+            }
+
+            /* Autofill style overrides - excluding payment form and card name */
+            html body .terra-tag-widget input:not(#payment-form input):not(#card-name):-webkit-autofill,
+            html body .terra-tag-widget input:not(#payment-form input):not(#card-name):-webkit-autofill:hover,
+            html body .terra-tag-widget input:not(#payment-form input):not(#card-name):-webkit-autofill:focus {
                 -webkit-box-shadow: 0 0 0 30px white inset !important;
                 -webkit-text-fill-color: #1b4c57 !important;
                 color: #1b4c57 !important;
                 transition: background-color 5000s ease-in-out 0s !important;
             }
 
-            /* Firefox autofill override */
-            html body .terra-tag-widget input:autofill,
-            html body .terra-tag-widget input:-internal-autofill-selected {
+            /* Firefox autofill override - excluding payment form and card name */
+            html body .terra-tag-widget input:not(#payment-form input):not(#card-name):autofill,
+            html body .terra-tag-widget input:not(#payment-form input):not(#card-name):-internal-autofill-selected {
                 background: white !important;
                 color: #1b4c57 !important;
                 -webkit-text-fill-color: #1b4c57 !important;
-            }
-
-            /* Edge autofill override */
-            html body .terra-tag-widget input:-ms-input-placeholder {
-                color: #1b4c57 !important;
             }
 
             /* Success view styles */
@@ -660,23 +660,6 @@
                 margin: 0 !important;
                 padding: 0 !important;
                 font-weight: normal !important;
-            }
-
-            .terra-tag-widget #card-name-container label {
-                display: block;
-                margin-bottom: 3px;
-                color: #30313d;
-                font-family: "Ideal Sans", system-ui, sans-serif;
-                font-size: 0.9em;
-            }
-
-            /* Ensure we don't affect payment form styles */
-            #payment-form .form-group {
-                /* Preserve existing payment form styles */
-            }
-
-            #payment-form .card-name-group {
-                /* Preserve existing payment form styles */
             }
 
             .terra-tag-widget .button {

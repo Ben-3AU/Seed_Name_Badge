@@ -7,6 +7,11 @@ const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
 
+// Log the current directory and available files for debugging
+console.log('Current directory:', __dirname);
+console.log('Parent directory contents:', fs.readdirSync(path.join(__dirname, '..')));
+console.log('Current directory contents:', fs.readdirSync(__dirname));
+
 // Create a transporter using SMTP2GO credentials
 const transporter = nodemailer.createTransport({
     host: 'mail.smtp2go.com',
@@ -153,6 +158,7 @@ async function generateOrderPDF(orderData) {
     return new Promise((resolve, reject) => {
         try {
             console.log('Starting PDF generation...');
+            console.log('Current directory:', __dirname);
             
             const doc = new PDFDocument({
                 size: 'A4',
@@ -164,7 +170,7 @@ async function generateOrderPDF(orderData) {
             
             // Create temp directory path using OS temp directory
             const tempDir = require('os').tmpdir();
-            const pdfPath = path.join(tempDir, `order-${orderData.id}.pdf`);
+            const pdfPath = path.join(tempDir, `terra-tag-order-${orderData.id}.pdf`);
             
             console.log('Using OS temp directory:', tempDir);
             console.log('PDF path:', pdfPath);
@@ -182,8 +188,8 @@ async function generateOrderPDF(orderData) {
             doc.pipe(writeStream);
 
             // Add logo centered at the top
-            const logoPath = path.join(__dirname, 'assets', 'terra-tag-logo.png');
-            console.log('Logo path:', logoPath);
+            const logoPath = path.join(__dirname, 'terra-tag-assets', 'terra-tag-logo.png');
+            console.log('Looking for logo at:', logoPath);
             
             if (fs.existsSync(logoPath)) {
                 console.log('Logo file exists, adding to PDF...');
@@ -196,7 +202,8 @@ async function generateOrderPDF(orderData) {
                 // Move cursor to bottom of logo
                 doc.y = doc.y + 150;
             } else {
-                console.log('Logo file not found');
+                console.log('Logo file not found at:', logoPath);
+                console.log('Directory contents:', fs.readdirSync(path.dirname(logoPath)));
             }
 
             // Add extra space after logo (reduced by 2)
@@ -241,85 +248,35 @@ async function generateOrderPDF(orderData) {
             addTextLine('Company: ', orderData.company || ' ');  // Space to maintain line
             addTextLine('Email: ', orderData.email);
 
-            // Add extra space before order section
-            currentY += 10;
+            // Add order details
+            doc.moveDown();
+            addTextLine('Order ID: ', String(orderData.id));
+            addTextLine('Quantity with guest details: ', String(orderData.quantity_with_guests));
+            addTextLine('Quantity without guest details: ', String(orderData.quantity_without_guests));
+            addTextLine('Total quantity: ', String(orderData.total_quantity));
+            addTextLine('Size: ', orderData.size);
+            addTextLine('Printed sides: ', orderData.printed_sides === 'double' ? 'Double sided' : 'Single sided');
+            addTextLine('Ink coverage: ', orderData.ink_coverage === 'over40' ? 'Over 40%' : 'Up to 40%');
+            addTextLine('Lanyards: ', orderData.lanyards ? 'Yes' : 'No');
+            addTextLine('Shipping: ', orderData.shipping === 'express' ? 'Express' : 'Standard');
+            addTextLine('Paper type: ', orderData.paper_type === 'mixedHerb' ? 'Mixed herb' : 
+                                      orderData.paper_type === 'mixedFlower' ? 'Mixed flower' : 'Random mix');
+
+            // Format currency values with thousands separator
+            const formattedTotalCost = new Intl.NumberFormat('en-AU', { 
+                minimumFractionDigits: 2, 
+                maximumFractionDigits: 2 
+            }).format(orderData.total_cost);
             
-            // Order label
-            doc.font('Helvetica-Bold')
-               .text('Order:', leftMargin, currentY);
-            currentY += lineHeight;
+            const formattedGstAmount = new Intl.NumberFormat('en-AU', { 
+                minimumFractionDigits: 2, 
+                maximumFractionDigits: 2 
+            }).format(orderData.gst_amount);
 
-            // Create order details table
-            const tableLeft = leftMargin;
-            const colWidth = (doc.page.width - 100) / 2;
-            const rowHeight = 25;
-
-            // Function to format currency
-            function formatCurrency(amount) {
-                // Ensure we're working with a number
-                const num = typeof amount === 'string' ? parseFloat(amount.replace(/[^0-9.-]+/g, '')) : amount;
-                return new Intl.NumberFormat('en-AU', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                    useGrouping: true
-                }).format(num);
-            }
-
-            // Function to add a table row with vertical line
-            function addTableRow(label, value) {
-                doc.rect(tableLeft, currentY, doc.page.width - 100, rowHeight)
-                   .stroke('#E5E5E5');
-                
-                doc.moveTo(tableLeft + colWidth, currentY)
-                   .lineTo(tableLeft + colWidth, currentY + rowHeight)
-                   .stroke('#E5E5E5');
-                
-                doc.font('Helvetica')
-                   .fontSize(10);
-                
-                // Format value if it's a number
-                const displayValue = typeof value === 'number' ? 
-                    value.toLocaleString('en-AU') : 
-                    value.toString();
-                
-                doc.text(label, tableLeft + 5, currentY + 7, { width: colWidth - 10 });
-                doc.text(displayValue, tableLeft + colWidth + 5, currentY + 7, { width: colWidth - 10 });
-                
-                currentY += rowHeight;
-            }
-
-            // Capitalize first letter of paper type
-            const paperType = orderData.paper_type.replace(/([A-Z])/g, ' $1').toLowerCase();
-            const formattedPaperType = paperType.charAt(0).toUpperCase() + paperType.slice(1);
-
-            // Add all order details rows
-            addTableRow('Quantity with guest details printed', orderData.quantity_with_guests);
-            addTableRow('Quantity without guest details printed', orderData.quantity_without_guests);
-            addTableRow('Total number of name badges', orderData.total_quantity);
-            addTableRow('Size', orderData.size);
-            addTableRow('Printed sides', orderData.printed_sides === 'double' ? 'Double sided' : 'Single sided');
-            addTableRow('Ink coverage', orderData.ink_coverage === 'over40' ? 'Over 40%' : 'Up to 40%');
-            addTableRow('Lanyards included', orderData.lanyards ? 'Yes' : 'No');
-            addTableRow('Shipping', orderData.shipping.charAt(0).toUpperCase() + orderData.shipping.slice(1));
-            addTableRow('Paper type', formattedPaperType);
-            addTableRow('Receipt ID', orderData.id);
-
-            // Format currency values
-            const totalCost = formatCurrency(orderData.total_cost);
-            const gstAmount = formatCurrency(orderData.gst_amount);
-
-            // Add spacing before total
-            currentY += 20;
-
-            // Add total cost with explicit positioning
-            doc.fontSize(10)
-               .font('Helvetica-Bold')
-               .text('Total Cost: ', tableLeft, currentY, { continued: true })
-               .font('Helvetica')
-               .text(`$${totalCost}`);
-            
-            currentY += lineHeight;
-            doc.text(`Includes $${gstAmount} GST`, tableLeft);
+            // Add total cost and GST with proper formatting
+            addTextLine('Total cost (inc. GST): ', `$${formattedTotalCost}`);
+            addTextLine('GST amount: ', `$${formattedGstAmount}`);
+            addTextLine('CO2 savings: ', `${orderData.co2_savings.toFixed(2)}kg`);
 
             // Footer
             currentY += 40;

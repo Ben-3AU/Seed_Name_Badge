@@ -29,6 +29,15 @@
       }
     },
     {
+      "src": "/api/terra-tag-assets/(.*)",
+      "dest": "/api/terra-tag-assets/$1",
+      "headers": {
+        "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+        "Expires": "0"
+      }
+    },
+    {
       "src": "/api/test-logs",
       "methods": ["GET"],
       "dest": "/api/test-logs.js",
@@ -125,6 +134,6 @@
   ],
   "env": {
     "NODE_ENV": "production",
-    "DEPLOY_TIMESTAMP": "2024-03-19T13:00:00Z"
+    "DEPLOY_TIMESTAMP": "2025-03-12T13:00:00Z"
   }
 } 
