@@ -49,23 +49,12 @@
                 margin-bottom: 2rem;
             }
 
-            .terra-tag-widget .calculator-form {
-                display: flex;
-                flex-direction: column;
-                gap: 1.5rem;
-            }
-
+            /* Base form group styles for all calculator forms */
             .terra-tag-widget .form-group {
-                display: flex;
-                flex-direction: column;
-                gap: 3px !important;  /* Standardized gap for all form groups */
-                margin-bottom: 1rem;
-            }
-
-            .terra-tag-widget .form-group label {
-                color: #1b4c57;
-                font-weight: 500;
-                margin-bottom: 0 !important;  /* Remove margin since we're using gap */
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 0.2rem !important;
+                margin-bottom: 1.5rem !important;
             }
 
             .terra-tag-widget label {
@@ -276,15 +265,6 @@
             .terra-tag-widget .additional-form {
                 margin-top: 1rem;
                 padding-top: 0;
-            }
-
-            .terra-tag-widget .additional-form .form-group {
-                margin-bottom: 1rem;
-                gap: 3px !important;  /* Force 3px gap for additional forms */
-            }
-
-            .terra-tag-widget .additional-form .form-group:last-child {
-                margin-bottom: 0;
             }
 
             .terra-tag-widget .submit-button {
@@ -668,18 +648,6 @@
                 font-size: 0.9em;
             }
 
-            /* Email quote form - standardized spacing */
-            #emailQuoteForm .form-group {
-                gap: 3px !important;
-                margin-bottom: 1rem;
-            }
-
-            /* Order form - standardized spacing */
-            #orderForm .form-group {
-                gap: 3px !important;
-                margin-bottom: 1rem;
-            }
-
             /* Ensure we don't affect payment form styles */
             #payment-form .form-group {
                 /* Preserve existing payment form styles */
@@ -687,6 +655,39 @@
 
             #payment-form .card-name-group {
                 /* Preserve existing payment form styles */
+            }
+
+            .terra-tag-widget .button {
+                padding: 0.75rem 1rem;
+                font-size: 1rem;
+                font-weight: 600;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                border: none;
+            }
+
+            .terra-tag-widget .button-primary {
+                background-color: #1b4c57;
+                color: white;
+            }
+
+            .terra-tag-widget .button-primary:hover {
+                background-color: #163f48;
+            }
+
+            .terra-tag-widget .spinner {
+                display: none;
+                width: 20px;
+                height: 20px;
+                border: 2px solid #ffffff;
+                border-radius: 50%;
+                border-top-color: transparent;
+                animation: spin 1s linear infinite;
+            }
+
+            .terra-tag-widget .loading .spinner {
+                display: inline-block;
             }
         `;
 
