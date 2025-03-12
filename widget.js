@@ -251,6 +251,11 @@
                 border-bottom-right-radius: 6px;
             }
 
+            .terra-tag-widget .additional-form {
+                margin-top: 1rem;
+                padding-top: 0;
+            }
+
             .terra-tag-widget .submit-button {
                 width: 100%;
                 padding: 1rem;
