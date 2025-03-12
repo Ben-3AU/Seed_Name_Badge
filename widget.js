@@ -212,6 +212,10 @@
                 display: block;
             }
 
+           .terra-tag-widget .action-buttons {
+                margin-top: 1rem;
+            }
+           
             .terra-tag-widget .action-buttons .button-group {
                 display: flex;
                 gap: 0;
@@ -249,11 +253,6 @@
             .terra-tag-widget .action-button:last-child {
                 border-top-right-radius: 6px;
                 border-bottom-right-radius: 6px;
-            }
-
-            .terra-tag-widget .additional-form {
-                margin-top: 1rem;
-                padding-top: 0;
             }
 
             .terra-tag-widget .submit-button {
