@@ -1,3 +1,7 @@
+// Force dynamic behavior and prevent caching
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 const nodemailer = require('nodemailer');
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
@@ -210,6 +214,11 @@ async function generateOrderPDF(orderData) {
             // Customer Details Section
             doc.font('Helvetica').fontSize(10);
             
+            // Calculate positions
+            const leftMargin = 50;
+            const lineHeight = 20;
+            let currentY = doc.y;
+            
             // Format date from Supabase data
             const formattedDate = new Date(orderData.created_at).toLocaleDateString(undefined, {
                 day: '2-digit',
@@ -217,66 +226,66 @@ async function generateOrderPDF(orderData) {
                 year: 'numeric'
             });
             
-            // Date with bold label
-            doc.font('Helvetica-Bold').text('Date: ', 50, doc.y, {continued: true})
-               .font('Helvetica').text(formattedDate);
-            doc.moveDown(1);
-
-            // Name with bold label
-            doc.font('Helvetica-Bold').text('Name: ', 50, doc.y, {continued: true})
-               .font('Helvetica').text(`${orderData.first_name} ${orderData.last_name}`);
-            doc.moveDown(1);
-
-            // Company with bold label - force new line after company
-            doc.font('Helvetica-Bold').text('Company: ', 50, doc.y, {continued: true})
-               .font('Helvetica').text(orderData.company || '');
-            doc.moveDown(1);
-
-            // Email with bold label
-            doc.font('Helvetica-Bold').text('Email: ', 50, doc.y, {continued: true})
-               .font('Helvetica').text(orderData.email);
-            doc.moveDown(1.5);
-
-            // Order label
-            doc.font('Helvetica-Bold').text('Order:', 50, doc.y);
-            doc.moveDown(0.5);
-
-            // Create order details table
-            const tableTop = doc.y;
-            const tableLeft = 50;
-            const colWidth = (doc.page.width - 100) / 2;
-            const rowHeight = 25;
-            let currentY = tableTop;
-
-            // Function to add a table row with vertical line
-            function addTableRow(label, value) {
-                // Draw horizontal lines
-                doc.rect(tableLeft, currentY, doc.page.width - 100, rowHeight)
-                   .stroke('#E5E5E5');
-                
-                // Draw vertical line
-                doc.moveTo(tableLeft + colWidth, currentY)
-                   .lineTo(tableLeft + colWidth, currentY + rowHeight)
-                   .stroke('#E5E5E5');
-                
-                // Ensure clean text rendering
+            // Helper function for text lines
+            function addTextLine(label, value) {
+                doc.font('Helvetica-Bold')
+                   .text(label, leftMargin, currentY, { continued: true });
                 doc.font('Helvetica')
-                   .fontSize(10);
-                
-                // Add label and value with explicit positioning
-                doc.text(label, tableLeft + 5, currentY + 7, { width: colWidth - 10 });
-                doc.text(value.toString(), tableLeft + colWidth + 5, currentY + 7, { width: colWidth - 10 });
-                
-                currentY += rowHeight;
+                   .text(value || '', { lineGap: 5 });
+                currentY += lineHeight;
             }
 
-            // Format currency for display
+            // Add customer details with fixed spacing
+            addTextLine('Date: ', formattedDate);
+            addTextLine('Name: ', `${orderData.first_name} ${orderData.last_name}`);
+            addTextLine('Company: ', orderData.company || ' ');  // Space to maintain line
+            addTextLine('Email: ', orderData.email);
+
+            // Add extra space before order section
+            currentY += 10;
+            
+            // Order label
+            doc.font('Helvetica-Bold')
+               .text('Order:', leftMargin, currentY);
+            currentY += lineHeight;
+
+            // Create order details table
+            const tableLeft = leftMargin;
+            const colWidth = (doc.page.width - 100) / 2;
+            const rowHeight = 25;
+
+            // Function to format currency
             function formatCurrency(amount) {
+                // Ensure we're working with a number
+                const num = typeof amount === 'string' ? parseFloat(amount.replace(/[^0-9.-]+/g, '')) : amount;
                 return new Intl.NumberFormat('en-AU', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                     useGrouping: true
-                }).format(amount);
+                }).format(num);
+            }
+
+            // Function to add a table row with vertical line
+            function addTableRow(label, value) {
+                doc.rect(tableLeft, currentY, doc.page.width - 100, rowHeight)
+                   .stroke('#E5E5E5');
+                
+                doc.moveTo(tableLeft + colWidth, currentY)
+                   .lineTo(tableLeft + colWidth, currentY + rowHeight)
+                   .stroke('#E5E5E5');
+                
+                doc.font('Helvetica')
+                   .fontSize(10);
+                
+                // Format value if it's a number
+                const displayValue = typeof value === 'number' ? 
+                    value.toLocaleString('en-AU') : 
+                    value.toString();
+                
+                doc.text(label, tableLeft + 5, currentY + 7, { width: colWidth - 10 });
+                doc.text(displayValue, tableLeft + colWidth + 5, currentY + 7, { width: colWidth - 10 });
+                
+                currentY += rowHeight;
             }
 
             // Capitalize first letter of paper type
@@ -295,31 +304,30 @@ async function generateOrderPDF(orderData) {
             addTableRow('Paper type', formattedPaperType);
             addTableRow('Receipt ID', orderData.id);
 
-            // Parse and format currency values
-            const totalCost = parseFloat(orderData.total_cost);
-            const gstAmount = parseFloat(orderData.gst_amount);
-            
-            const formattedTotalCost = formatCurrency(totalCost);
-            const formattedGSTAmount = formatCurrency(gstAmount);
+            // Format currency values
+            const totalCost = formatCurrency(orderData.total_cost);
+            const gstAmount = formatCurrency(orderData.gst_amount);
 
-            // Cost Summary with explicit positioning
-            doc.moveDown(2);
+            // Add spacing before total
+            currentY += 20;
+
+            // Add total cost with explicit positioning
             doc.fontSize(10)
                .font('Helvetica-Bold')
-               .text('Total Cost: ', tableLeft, doc.y, {continued: true})
+               .text('Total Cost: ', tableLeft, currentY, { continued: true })
                .font('Helvetica')
-               .text(`$${formattedTotalCost}`);
+               .text(`$${totalCost}`);
             
-            doc.moveDown(0.5);
-            doc.text(`Includes $${formattedGSTAmount} GST`, tableLeft);
+            currentY += lineHeight;
+            doc.text(`Includes $${gstAmount} GST`, tableLeft);
 
-            // Footer - positioned closer to the content
-            doc.moveDown(3);
+            // Footer
+            currentY += 40;
             doc.fontSize(10)
                .text(
                    'www.terratag.com.au | hello@terratag.com.au | ABN: 504 094 57139',
                    50,
-                   doc.y,
+                   currentY,
                    {
                        align: 'center',
                        width: doc.page.width - 100,

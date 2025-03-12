@@ -30,7 +30,7 @@
                 max-width: 600px;
                 margin: 0 auto;
                 background-color: #ffffff;
-                padding-top: 0;  /* Remove top padding */
+                padding: 0;  /* Remove all padding */
                 font-size: 16px; /* Base font size */
             }
 
@@ -46,7 +46,7 @@
                 color: #1b4c57;
                 text-align: center;
                 margin-top: 0;  /* Remove top margin */
-                margin-bottom: 2rem;
+                margin-bottom: 1rem;
             }
 
             /* Calculator form styles */
@@ -587,6 +587,21 @@
                 to {
                     transform: rotate(360deg);
                 }
+            }
+
+            /* Autofill style overrides */
+            html body .terra-tag-widget input:-webkit-autofill,
+            html body .terra-tag-widget input:-webkit-autofill:hover,
+            html body .terra-tag-widget input:-webkit-autofill:focus {
+                -webkit-box-shadow: 0 0 0 30px white inset !important;
+                -webkit-text-fill-color: inherit !important;
+                transition: background-color 5000s ease-in-out 0s !important;
+            }
+
+            /* Firefox autofill override */
+            html body .terra-tag-widget input:autofill {
+                background: white !important;
+                color: inherit !important;
             }
 
             /* Success view styles */
