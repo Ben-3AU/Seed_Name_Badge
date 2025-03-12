@@ -659,14 +659,6 @@ function createWidgetStructure() {
 
 function injectStyles() {
     const styles = `
-        /* Base form group styles for all calculator forms */
-        html body .terra-tag-widget .form-group {
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 0.2rem !important;
-            margin-bottom: 1.5rem !important;
-        }
-
         /* Payment Form Styles - Kept separate as they're specific to payment */
         html body .terra-tag-widget .payment-container {
             max-width: 500px;
