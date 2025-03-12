@@ -49,23 +49,28 @@
                 margin-bottom: 2rem;
             }
 
-            /* Base form group styles for all calculator forms */
+            /* Calculator form styles */
+            .terra-tag-widget .calculator-form {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 1.5rem !important;
+            }
+
+            /* Base form group styles */
             .terra-tag-widget .form-group {
                 display: flex !important;
                 flex-direction: column !important;
-                gap: 0.2rem !important;
-                margin-bottom: 1.5rem !important;
+                gap: 0 !important;
             }
 
             /* Special handling for paper type form group */
             .terra-tag-widget .form-group[data-type="paper-type"] {
-                gap: 0.2rem !important;
-             }
+                gap: 0 !important;
+            }
 
             /* Additional form group styles */
             .terra-tag-widget .additional-form .form-group {
-                gap: 0.2rem !important;
-                margin-bottom: 1rem !important;
+                gap: 0 !important;
             }
 
             .terra-tag-widget .additional-form .form-group:last-child {
