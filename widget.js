@@ -57,41 +57,40 @@
                 margin-bottom: 1.5rem !important;
             }
 
+            /* Special handling for paper type form group */
+            .terra-tag-widget .form-group[data-type="paper-type"] {
+                gap: 0.2rem !important;
+             }
+
+            /* Additional form group styles */
+            .terra-tag-widget .additional-form .form-group {
+                gap: 0.2rem !important;
+                margin-bottom: 1rem !important;
+            }
+
+            .terra-tag-widget .additional-form .form-group:last-child {
+                margin-bottom: 0 !important;
+            }
+
             .terra-tag-widget label {
                 font-family: Verdana, sans-serif;
-                font-size: 0.9em;
+                font-size: 0.9rem;
                 font-weight: 500;
                 color: #1b4c57;
             }
 
+            .terra-tag-widget .required {
+                color: #e53e3e;
+                margin-left: 2px;
+            }
+
             .terra-tag-widget input[type="text"],
-            .terra-tag-widget input[type="email"] {
-                padding: 0.75rem;
-                border: 1px solid #e2e8f0;
-                border-radius: 6px;
-                font-size: 16px;
-                width: 100%;
-                transition: border-color 0.2s ease;
-                color: #1b4c57;
-                font-family: Verdana, sans-serif !important;
-                background-color: #ffffff;
-            }
-
-            .terra-tag-widget input[type="text"]:focus,
-            .terra-tag-widget input[type="email"]:focus {
-                outline: none;
-                border-color: #1b4c57;
-                box-shadow: 0 0 0 3px rgba(27, 76, 87, 0.1);
-            }
-
-            .terra-tag-widget input[type="text"]::placeholder,
-            .terra-tag-widget input[type="email"]::placeholder {
-                color: #a0aec0;
-                font-family: Verdana, sans-serif !important;
-            }
-
+            .terra-tag-widget input[type="email"],
             .terra-tag-widget input[type="number"] {
-                padding: 0.75rem;
+                height: 48px !important;
+                padding: 0 !important;
+                text-indent: 1rem !important;
+                line-height: normal !important;
                 border: 1px solid #e2e8f0;
                 border-radius: 6px;
                 font-size: 16px;
@@ -104,6 +103,15 @@
                 -moz-appearance: textfield;  /* Remove spinner arrows in Firefox */
             }
 
+            .terra-tag-widget input[type="text"]::placeholder,
+            .terra-tag-widget input[type="email"]::placeholder,
+            .terra-tag-widget input[type="number"]::placeholder {
+                color: #a0aec0;
+                opacity: 1;
+                text-indent: 1rem !important;
+                padding: 0 !important;
+            }
+
             /* Remove spinner arrows in Edge */
             .terra-tag-widget input[type="number"]::-webkit-outer-spin-button,
             .terra-tag-widget input[type="number"]::-webkit-inner-spin-button {
@@ -111,6 +119,8 @@
                 margin: 0;
             }
 
+            .terra-tag-widget input[type="text"]:focus,
+            .terra-tag-widget input[type="email"]:focus,
             .terra-tag-widget input[type="number"]:focus {
                 outline: none;
                 border-color: #1b4c57;
@@ -787,7 +797,7 @@
                         <label for="orderEmail">Email</label>
                         <input type="email" id="orderEmail" name="orderEmail" required>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" data-type="paper-type">
                         <label>Paper type</label>
                         <div class="button-group">
                             <button type="button" class="option-button" data-name="paperType" data-value="mixedHerb">Mixed herb</button>

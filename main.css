@@ -41,20 +41,6 @@
     box-sizing: border-box;
 }
 
-/* iOS-specific overrides to prevent zoom */
-@supports (-webkit-touch-callout: none) {
-    #terra-tag-calculator input[type="text"],
-    #terra-tag-calculator input[type="email"],
-    #terra-tag-calculator input[type="number"],
-    #terra-tag-calculator input[type="tel"],
-    #terra-tag-calculator input[type="url"],
-    #terra-tag-calculator input[type="password"],
-    #terra-tag-calculator textarea,
-    #terra-tag-calculator select {
-        font-size: 16px !important;
-    }
-}
-
 #terra-tag-calculator .calculator-heading {
     font-family: Verdana, sans-serif;
     font-size: 1.5rem;
@@ -290,72 +276,6 @@
     border-bottom-right-radius: 6px;
 }
 
-/* Additional forms */
-.additional-form {
-    margin-top: 2rem;
-}
-
-.additional-form .form-group {
-    gap: 0.25rem;
-    margin-bottom: 1rem;
-}
-
-.additional-form .form-group:last-child {
-    margin-bottom: 0;
-}
-
-#submitQuoteBtn,
-#payNowBtn {
-    margin-top: 0.5rem;
-}
-
-.submit-button {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
-    font-weight: 600;
-    color: white;
-    background-color: #1b4c57;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    height: 48px;
-    line-height: normal;
-}
-
-.submit-button:hover:not(:disabled) {
-    background-color: #163f48;
-}
-
-.submit-button:disabled {
-    background-color: #cbd5e0;
-    cursor: not-allowed;
-}
-
-/* Loading spinner */
-.spinner {
-    display: none;
-    width: 20px;
-    height: 20px;
-    border: 2px solid #ffffff;
-    border-radius: 50%;
-    border-top-color: transparent;
-    animation: spin 1s linear infinite;
-    margin-right: 1rem !important;
-}
-
-.button-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.loading .spinner {
-    display: inline-block;
-}
-
 /* Success message */
 #terra-tag-calculator .success-message {
     color: #83A764;
@@ -576,13 +496,6 @@
     to {
         transform: rotate(360deg);
     }
-}
-
-/* Remove any competing gap styles for calculator forms */
-#emailQuoteForm .form-group,
-#orderForm .form-group {
-    gap: 0.25rem;
-    margin-bottom: 1rem;
 }
 
 /* Responsive styles for payment form */
