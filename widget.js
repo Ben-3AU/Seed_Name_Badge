@@ -66,7 +66,7 @@
 
             .terra-tag-widget input[type="text"],
             .terra-tag-widget input[type="email"] {
-                padding: 0.2rem 0.75rem;
+                padding: 0.75rem;
                 border: 1px solid #e2e8f0;
                 border-radius: 6px;
                 font-size: 16px;
@@ -91,7 +91,7 @@
             }
 
             .terra-tag-widget input[type="number"] {
-                padding: 0.2rem 0.75rem;
+                padding: 0.75rem;
                 border: 1px solid #e2e8f0;
                 border-radius: 6px;
                 font-size: 16px;
@@ -156,13 +156,6 @@
                 border-bottom-right-radius: 6px;
             }
 
-            .terra-tag-widget .warning-message {
-                color: #e53e3e;
-                font-size: 0.875rem;
-                margin-top: -0.5rem;
-                display: none;
-            }
-
             .terra-tag-widget #totalPrice {
                 display: none !important;
                 visibility: hidden !important;
@@ -219,10 +212,6 @@
                 display: block;
             }
 
-            .terra-tag-widget .action-buttons {
-                margin-top: 1rem;
-            }
-
             .terra-tag-widget .action-buttons .button-group {
                 display: flex;
                 gap: 0;
@@ -260,11 +249,6 @@
             .terra-tag-widget .action-button:last-child {
                 border-top-right-radius: 6px;
                 border-bottom-right-radius: 6px;
-            }
-
-            .terra-tag-widget .additional-form {
-                margin-top: 1rem;
-                padding-top: 0;
             }
 
             .terra-tag-widget .submit-button {
@@ -583,11 +567,6 @@
                 to {
                     transform: rotate(360deg);
                 }
-            }
-
-            /* Update button styles to maintain consistent height during loading */
-            .terra-tag-widget button {
-                min-height: 40px;
             }
 
             /* Success view styles */
