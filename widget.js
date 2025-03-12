@@ -594,14 +594,22 @@
             html body .terra-tag-widget input:-webkit-autofill:hover,
             html body .terra-tag-widget input:-webkit-autofill:focus {
                 -webkit-box-shadow: 0 0 0 30px white inset !important;
-                -webkit-text-fill-color: inherit !important;
+                -webkit-text-fill-color: #1b4c57 !important;
+                color: #1b4c57 !important;
                 transition: background-color 5000s ease-in-out 0s !important;
             }
 
             /* Firefox autofill override */
-            html body .terra-tag-widget input:autofill {
+            html body .terra-tag-widget input:autofill,
+            html body .terra-tag-widget input:-internal-autofill-selected {
                 background: white !important;
-                color: inherit !important;
+                color: #1b4c57 !important;
+                -webkit-text-fill-color: #1b4c57 !important;
+            }
+
+            /* Edge autofill override */
+            html body .terra-tag-widget input:-ms-input-placeholder {
+                color: #1b4c57 !important;
             }
 
             /* Success view styles */

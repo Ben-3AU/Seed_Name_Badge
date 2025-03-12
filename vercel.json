@@ -22,18 +22,31 @@
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Access-Control-Allow-Credentials": "true",
         "Access-Control-Max-Age": "86400",
-        "Vary": "Origin"
+        "Vary": "Origin",
+        "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+        "Expires": "0"
       }
     },
     {
       "src": "/api/test-logs",
       "methods": ["GET"],
-      "dest": "/api/test-logs.js"
+      "dest": "/api/test-logs.js",
+      "headers": {
+        "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+        "Expires": "0"
+      }
     },
     {
       "src": "/webhook",
       "methods": ["POST"],
-      "dest": "/api/server.js"
+      "dest": "/api/server.js",
+      "headers": {
+        "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+        "Expires": "0"
+      }
     },
     {
       "src": "/api/(.*)",
@@ -43,7 +56,10 @@
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Access-Control-Allow-Credentials": "true",
-        "Vary": "Origin"
+        "Vary": "Origin",
+        "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+        "Expires": "0"
       }
     },
     {
