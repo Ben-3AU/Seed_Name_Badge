@@ -66,7 +66,7 @@
 
             .terra-tag-widget input[type="text"],
             .terra-tag-widget input[type="email"] {
-                padding: 0.75rem;
+                padding: 0.2rem 0.75rem;
                 border: 1px solid #e2e8f0;
                 border-radius: 6px;
                 font-size: 16px;
@@ -91,7 +91,7 @@
             }
 
             .terra-tag-widget input[type="number"] {
-                padding: 0.75rem;
+                padding: 0.2rem 0.75rem;
                 border: 1px solid #e2e8f0;
                 border-radius: 6px;
                 font-size: 16px;
