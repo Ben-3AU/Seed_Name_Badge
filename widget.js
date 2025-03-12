@@ -51,30 +51,30 @@
 
             /* Calculator form styles */
             .terra-tag-widget .calculator-form {
-                display: flex !important;
-                flex-direction: column !important;
-                gap: 1.5rem !important;
+                display: flex;
+                flex-direction: column;
+                gap: 1.5rem;
             }
 
             /* Base form group styles */
             .terra-tag-widget .form-group {
-                display: flex !important;
-                flex-direction: column !important;
-                gap: 0 !important;
+                display: flex;
+                flex-direction: column;
+                gap: 0;
             }
 
             /* Special handling for paper type form group */
             .terra-tag-widget .form-group[data-type="paper-type"] {
-                gap: 0 !important;
+                gap: 0;
             }
 
             /* Additional form group styles */
             .terra-tag-widget .additional-form .form-group {
-                gap: 0 !important;
+                gap: 0;
             }
 
             .terra-tag-widget .additional-form .form-group:last-child {
-                margin-bottom: 0 !important;
+                margin-bottom: 0;
             }
 
             .terra-tag-widget label {
@@ -184,6 +184,7 @@
             .terra-tag-widget .total-price-container {
                 background-color: #f7fafc;
                 border-radius: 6px;
+                border: 1px solid #e2e8f0;
                 color: #1b4c57;
                 text-align: center;
                 padding: 1rem;
@@ -228,7 +229,7 @@
             }
 
            .terra-tag-widget .action-buttons {
-                margin-top: 1rem;
+                /* Remove margin-top since calculator-form gap handles spacing */
             }
            
             .terra-tag-widget .action-buttons .button-group {
@@ -281,7 +282,7 @@
                 border-radius: 6px;
                 cursor: pointer;
                 transition: all 0.2s ease;
-                margin-top: 0.5rem;
+                margin-top: 1rem;
                 position: relative;  /* Added for spinner positioning */
             }
 

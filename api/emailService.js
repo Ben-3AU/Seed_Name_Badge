@@ -218,26 +218,27 @@ async function generateOrderPDF(orderData) {
             });
             
             // Date with bold label
-            doc.font('Helvetica-Bold').text('Date: ', {continued: true})
+            doc.font('Helvetica-Bold').text('Date: ', 50, doc.y, {continued: true})
                .font('Helvetica').text(formattedDate);
+            doc.moveDown(1);
 
             // Name with bold label
-            doc.font('Helvetica-Bold').text('Name: ', {continued: true})
+            doc.font('Helvetica-Bold').text('Name: ', 50, doc.y, {continued: true})
                .font('Helvetica').text(`${orderData.first_name} ${orderData.last_name}`);
+            doc.moveDown(1);
 
-            // Company with bold label - ensure line break after empty company field
-            doc.font('Helvetica-Bold').text('Company: ', {continued: true})
-               .font('Helvetica').text(orderData.company || ' ');  // Use space if company is empty
-            doc.moveDown(0.5);  // Add explicit line break
+            // Company with bold label - force new line after company
+            doc.font('Helvetica-Bold').text('Company: ', 50, doc.y, {continued: true})
+               .font('Helvetica').text(orderData.company || '');
+            doc.moveDown(1);
 
             // Email with bold label
-            doc.font('Helvetica-Bold').text('Email: ', {continued: true})
+            doc.font('Helvetica-Bold').text('Email: ', 50, doc.y, {continued: true})
                .font('Helvetica').text(orderData.email);
-
             doc.moveDown(1.5);
-            
+
             // Order label
-            doc.font('Helvetica-Bold').text('Order:');
+            doc.font('Helvetica-Bold').text('Order:', 50, doc.y);
             doc.moveDown(0.5);
 
             // Create order details table
@@ -258,12 +259,24 @@ async function generateOrderPDF(orderData) {
                    .lineTo(tableLeft + colWidth, currentY + rowHeight)
                    .stroke('#E5E5E5');
                 
+                // Ensure clean text rendering
                 doc.font('Helvetica')
-                   .fontSize(10)
-                   .text(label, tableLeft + 5, currentY + 7, { width: colWidth - 10 })
-                   .text(value, tableLeft + colWidth + 5, currentY + 7, { width: colWidth - 10 });
+                   .fontSize(10);
+                
+                // Add label and value with explicit positioning
+                doc.text(label, tableLeft + 5, currentY + 7, { width: colWidth - 10 });
+                doc.text(value.toString(), tableLeft + colWidth + 5, currentY + 7, { width: colWidth - 10 });
                 
                 currentY += rowHeight;
+            }
+
+            // Format currency for display
+            function formatCurrency(amount) {
+                return new Intl.NumberFormat('en-AU', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                    useGrouping: true
+                }).format(amount);
             }
 
             // Capitalize first letter of paper type
@@ -271,9 +284,9 @@ async function generateOrderPDF(orderData) {
             const formattedPaperType = paperType.charAt(0).toUpperCase() + paperType.slice(1);
 
             // Add all order details rows
-            addTableRow('Quantity with guest details printed', orderData.quantity_with_guests.toString());
-            addTableRow('Quantity without guest details printed', orderData.quantity_without_guests.toString());
-            addTableRow('Total number of name badges', orderData.total_quantity.toString());
+            addTableRow('Quantity with guest details printed', orderData.quantity_with_guests);
+            addTableRow('Quantity without guest details printed', orderData.quantity_without_guests);
+            addTableRow('Total number of name badges', orderData.total_quantity);
             addTableRow('Size', orderData.size);
             addTableRow('Printed sides', orderData.printed_sides === 'double' ? 'Double sided' : 'Single sided');
             addTableRow('Ink coverage', orderData.ink_coverage === 'over40' ? 'Over 40%' : 'Up to 40%');
@@ -282,45 +295,20 @@ async function generateOrderPDF(orderData) {
             addTableRow('Paper type', formattedPaperType);
             addTableRow('Receipt ID', orderData.id);
 
-            // Format currency values with thousands separators
-            console.log('Debug - Total Cost Type:', typeof orderData.total_cost, 'Value:', orderData.total_cost);
+            // Parse and format currency values
+            const totalCost = parseFloat(orderData.total_cost);
+            const gstAmount = parseFloat(orderData.gst_amount);
             
-            // Ensure we're working with numbers by explicitly parsing and handling potential string inputs
-            const totalCostNumber = typeof orderData.total_cost === 'string' ? parseFloat(orderData.total_cost.replace(/,/g, '')) : parseFloat(orderData.total_cost);
-            const gstAmountNumber = typeof orderData.gst_amount === 'string' ? parseFloat(orderData.gst_amount.replace(/,/g, '')) : parseFloat(orderData.gst_amount);
-            
-            console.log('Debug - Parsed Numbers:', {
-                totalCost: totalCostNumber,
-                gstAmount: gstAmountNumber
-            });
+            const formattedTotalCost = formatCurrency(totalCost);
+            const formattedGSTAmount = formatCurrency(gstAmount);
 
-            // Format numbers with thousands separators using Intl.NumberFormat
-            const formattedTotalCost = new Intl.NumberFormat('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-                useGrouping: true
-            }).format(totalCostNumber);
-
-            const formattedGSTAmount = new Intl.NumberFormat('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-                useGrouping: true
-            }).format(gstAmountNumber);
-
-            console.log('Debug - Formatted Numbers:', {
-                totalCost: formattedTotalCost,
-                gstAmount: formattedGSTAmount
-            });
-
-            // Cost Summary - Left aligned with table and more spacing
+            // Cost Summary with explicit positioning
             doc.moveDown(2);
             doc.fontSize(10)
                .font('Helvetica-Bold')
                .text('Total Cost: ', tableLeft, doc.y, {continued: true})
                .font('Helvetica')
-               .text(`$${formattedTotalCost}`, {
-                   continued: false
-               });
+               .text(`$${formattedTotalCost}`);
             
             doc.moveDown(0.5);
             doc.text(`Includes $${formattedGSTAmount} GST`, tableLeft);
