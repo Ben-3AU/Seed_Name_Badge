@@ -8,12 +8,13 @@
     "api/**/*.js": {
       "runtime": "@vercel/node@2.0.0",
       "memory": 1024,
-      "maxDuration": 10
+      "maxDuration": 10,
+      "runtime_id": "pdf_gen_v1_2025_03_12"
     }
   },
   "routes": [
     {
-      "src": "/api/(.*)",
+      "src": "/api/v1/(.*)",
       "methods": ["OPTIONS"],
       "status": 204,
       "headers": {
@@ -58,7 +59,7 @@
       }
     },
     {
-      "src": "/api/(.*)",
+      "src": "/api/v1/(.*)",
       "dest": "/api/server.js",
       "headers": {
         "Access-Control-Allow-Origin": "https://www.terratag.com.au",
@@ -134,6 +135,7 @@
   ],
   "env": {
     "NODE_ENV": "production",
-    "DEPLOY_TIMESTAMP": "2025-03-12T13:00:00Z"
+    "DEPLOY_TIMESTAMP": "2025-03-12T14:30:00.000Z",
+    "VERCEL_SERVERLESS_CACHE_ID": "v1_2025_03_12_1430"
   }
 } 

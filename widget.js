@@ -589,27 +589,27 @@
                 }
             }
 
-            /* Edge autofill override */
-            html body .terra-tag-widget input:-ms-input-placeholder {
-                color: #1b4c57 !important;
-            }
-
-            /* Autofill style overrides - excluding payment form and card name */
-            html body .terra-tag-widget input:not(#payment-form input):not(#card-name):-webkit-autofill,
-            html body .terra-tag-widget input:not(#payment-form input):not(#card-name):-webkit-autofill:hover,
-            html body .terra-tag-widget input:not(#payment-form input):not(#card-name):-webkit-autofill:focus {
+            /* Autofill style overrides - excluding payment form inputs */
+            html body .terra-tag-widget input:not(.card-name-group input):not(#card-name):not(#payment-form input):-webkit-autofill,
+            html body .terra-tag-widget input:not(.card-name-group input):not(#card-name):not(#payment-form input):-webkit-autofill:hover,
+            html body .terra-tag-widget input:not(.card-name-group input):not(#card-name):not(#payment-form input):-webkit-autofill:focus {
                 -webkit-box-shadow: 0 0 0 30px white inset !important;
                 -webkit-text-fill-color: #1b4c57 !important;
                 color: #1b4c57 !important;
                 transition: background-color 5000s ease-in-out 0s !important;
             }
 
-            /* Firefox autofill override - excluding payment form and card name */
-            html body .terra-tag-widget input:not(#payment-form input):not(#card-name):autofill,
-            html body .terra-tag-widget input:not(#payment-form input):not(#card-name):-internal-autofill-selected {
+            /* Firefox autofill override - excluding payment form inputs */
+            html body .terra-tag-widget input:not(.card-name-group input):not(#card-name):not(#payment-form input):autofill,
+            html body .terra-tag-widget input:not(.card-name-group input):not(#card-name):not(#payment-form input):-internal-autofill-selected {
                 background: white !important;
                 color: #1b4c57 !important;
                 -webkit-text-fill-color: #1b4c57 !important;
+            }
+
+            /* Edge autofill override */
+            html body .terra-tag-widget input:-ms-input-placeholder {
+                color: #1b4c57 !important;
             }
 
             /* Success view styles */

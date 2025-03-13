@@ -57,7 +57,7 @@ app.use((req, res, next) => {
 });
 
 // Test endpoint for verifying logs
-app.get('/api/test-logs', (req, res) => {
+app.get('/api/v1/test-logs', (req, res) => {
     console.log('Standard log message');
     console.info('Info level message');
     console.warn('Warning level message');
@@ -147,7 +147,7 @@ app.get('/test-stripe', async (req, res) => {
 });
 
 // Handle quote email submission
-app.post('/api/submit-quote', async (req, res) => {
+app.post('/api/v1/submit-quote', async (req, res) => {
     try {
         // Handle both nested and non-nested structures
         const quoteData = req.body.quoteData || req.body;
@@ -220,7 +220,7 @@ app.post('/api/submit-quote', async (req, res) => {
 });
 
 // Create a Payment Intent
-app.post('/api/create-payment-intent', async (req, res) => {
+app.post('/api/v1/create-payment-intent', async (req, res) => {
     try {
         const { orderData } = req.body;
         console.log('Received order data:', orderData);
@@ -310,7 +310,7 @@ app.post('/api/create-payment-intent', async (req, res) => {
 });
 
 // Verify the payment status and send confirmation
-app.post('/api/verify-payment', async (req, res) => {
+app.post('/api/v1/verify-payment', async (req, res) => {
     try {
         const { paymentIntentId, orderId } = req.body;
         console.log('Verifying payment for order:', orderId, 'with payment intent:', paymentIntentId);
@@ -442,7 +442,7 @@ app.post('/api/verify-payment', async (req, res) => {
 });
 
 // Get order details
-app.get('/api/get-order/:orderId', async (req, res) => {
+app.get('/api/v1/get-order/:orderId', async (req, res) => {
     try {
         const { orderId } = req.params;
         
@@ -528,7 +528,7 @@ app.get('/test-pdf', async (req, res) => {
 });
 
 // Add endpoint to get order details
-app.get('/api/order/:orderId', async (req, res) => {
+app.get('/api/v1/order/:orderId', async (req, res) => {
     try {
         const { orderId } = req.params;
         console.log('Fetching order details for:', orderId);

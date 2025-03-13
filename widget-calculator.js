@@ -234,7 +234,7 @@ function initializeCalculator(baseUrl) {
         try {
             console.log('Submitting quote data:', quoteData);
             // Submit for email processing
-            const response = await fetch(`${BASE_URL}/api/submit-quote`, {
+            const response = await fetch(`${BASE_URL}/api/v1/submit-quote`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -580,7 +580,7 @@ function initializeCalculator(baseUrl) {
 
         try {
             // Create a payment intent
-            const response = await fetch(`${BASE_URL}/api/create-payment-intent`, {
+            const response = await fetch(`${BASE_URL}/api/v1/create-payment-intent`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
