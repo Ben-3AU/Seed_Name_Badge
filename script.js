@@ -1,12 +1,15 @@
 console.log('Debug: script.js starting to load');
 
-// Quote submissions are handled through the /api/submit-quote endpoint
+// Quote submissions are handled through the /api/v1/submit-quote endpoint
 // This ensures secure database operations and proper validation on the server side
 
 // Initialize Supabase client
 // const supabaseUrl = 'https://pxxqvjxmzmsqunrhegcq.supabase.co';
 // const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4eHF2anhtem1zcXVucmhlZ2NxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg0NDk0NTcsImV4cCI6MjA1NDAyNTQ1N30.5CUbSb2OR9H4IrGHx_vxmIPZCWN8x7TYoG5RUeYAehM';
 // const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+// Get the base URL from the window location
+const BASE_URL = window.location.origin;
 
 console.log('Script initialized successfully');
 
@@ -256,7 +259,7 @@ async function handleQuoteSubmission(event) {
     try {
         console.log('Submitting quote:', quoteData);
         
-        const response = await fetch('/api/submit-quote', {
+        const response = await fetch(`${BASE_URL}/api/v1/submit-quote`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -336,7 +339,7 @@ async function handleOrderSubmission(event) {
     try {
         console.log('Creating payment intent for order:', orderData);
         
-        const response = await fetch('/api/create-payment-intent', {
+        const response = await fetch(`${BASE_URL}/api/v1/create-payment-intent`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

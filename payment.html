@@ -181,10 +181,13 @@
         let elements;
         let paymentElement;
         
+        // Get the base URL from the window location
+        const BASE_URL = window.location.origin;
+        
         async function initializeStripe() {
             try {
                 // Fetch Stripe configuration
-                const response = await fetch('/config');
+                const response = await fetch(`${BASE_URL}/config`);
                 if (!response.ok) {
                     throw new Error('Failed to load Stripe configuration');
                 }
@@ -214,7 +217,7 @@
                 }
                 
                 // Fetch order details
-                const orderResponse = await fetch(`/api/order/${orderId}`);
+                const orderResponse = await fetch(`${BASE_URL}/api/v1/order/${orderId}`);
                 if (!orderResponse.ok) {
                     throw new Error('Failed to fetch order details');
                 }
