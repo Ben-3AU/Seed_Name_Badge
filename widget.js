@@ -50,43 +50,56 @@
             }
 
             /* Calculator form styles */
-            .terra-tag-widget .calculator-form {
+            html body .terra-tag-widget .calculator-form {
                 display: flex;
                 flex-direction: column;
-                gap: 1.5rem;
+                gap: 1.5rem !important;  /* Controls spacing between question groups */
             }
 
             /* Base form group styles */
-            .terra-tag-widget .form-group {
+            html body .terra-tag-widget .form-group {
                 display: flex;
                 flex-direction: column;
                 gap: 0;
             }
 
-            /* Special handling for paper type form group */
-            .terra-tag-widget .form-group[data-type="paper-type"] {
-                gap: 0;
-            }
-
-            /* Additional form group styles */
-            .terra-tag-widget .additional-form .form-group {
-                gap: 0;
-            }
-
-            .terra-tag-widget .additional-form .form-group:last-child {
-                margin-bottom: 0;
-            }
-
-            .terra-tag-widget label {
+            html body .terra-tag-widget .form-group > label {
                 font-family: Verdana, sans-serif;
                 font-size: 0.9rem;
                 font-weight: 500;
                 color: #1b4c57;
+                margin: 0 0 0.2rem 0 !important;  /* Controls spacing between label and input */
+            }
+
+            /* Special handling for paper type form group */
+            .terra-tag-widget .form-group[data-type="paper-type"] {
+                gap: 0 !important;
+                margin: 0 !important;
+            }
+
+            /* Additional form group styles */
+            .terra-tag-widget .additional-form .form-group {
+                gap: 0 !important;
+                margin: 0 !important;
+            }
+
+            .terra-tag-widget .additional-form .form-group:last-child {
+                margin-bottom: 0 !important;
+            }
+
+            .terra-tag-widget label {
+                font-family: Verdana, sans-serif !important;
+                font-size: 0.9rem !important;
+                font-weight: 500 !important;
+                color: #1b4c57 !important;
+                margin: 0 0 0.2rem 0 !important;
+                padding: 0 !important;
+                display: block !important;
             }
 
             .terra-tag-widget .required {
-                color: #e53e3e;
-                margin-left: 2px;
+                color: #e53e3e !important;
+                margin-left: 2px !important;
             }
 
             .terra-tag-widget input[type="text"],

@@ -60,13 +60,13 @@
 }
 
 /* Calculator form styles */
-#terra-tag-calculator .calculator-form {
+#terra-tag-calculator:not(.terra-tag-widget) .calculator-form {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
 }
 
-#terra-tag-calculator .form-group {
+#terra-tag-calculator:not(.terra-tag-widget) .form-group {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
@@ -74,7 +74,7 @@
 }
 
 /* Special handling for paper type form group */
-#terra-tag-calculator .form-group[data-type="paper-type"] {
+#terra-tag-calculator:not(.terra-tag-widget) .form-group[data-type="paper-type"] {
     gap: 0.25rem;
     margin-bottom: 2rem;
 }
