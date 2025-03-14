@@ -404,6 +404,7 @@ app.post('/api/v1/verify-payment', async (req, res) => {
 
                 // Step 4: Send confirmation email
                 console.log('Sending confirmation email...');
+                console.log('Order data for email:', JSON.stringify(orderData, null, 2));
                 await sendOrderConfirmationEmail(orderData);
                 console.log('Confirmation email sent successfully');
 
@@ -619,8 +620,7 @@ app.post('/webhook', async (req, res) => {
                 
                 // Generate and send confirmation email
                 try {
-                    console.log('Sending confirmation email...');
-                    await sendOrderConfirmationEmail(order);
+                    console.log('Webhook: Skipping email send as it was handled in verify-payment');
                     
                     console.log('Updating email sent status and PDF URL in Supabase...');
                     // Update email sent status

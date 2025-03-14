@@ -218,6 +218,13 @@ async function generateOrderPDF(orderData) {
             
             doc.moveDown(2);
 
+            // Format date from Supabase data
+            const formattedDate = new Date(orderData.created_at).toLocaleDateString('en-AU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+
             // Customer Details Section
             doc.font('Helvetica').fontSize(10);
             
@@ -225,42 +232,65 @@ async function generateOrderPDF(orderData) {
             const leftMargin = 50;
             const lineHeight = 20;
             let currentY = doc.y;
-            
-            // Format date from Supabase data
-            const formattedDate = new Date(orderData.created_at).toLocaleDateString(undefined, {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-            
-            // Helper function for text lines
-            function addTextLine(label, value) {
+
+            // Basic information without sections
+            doc.font('Helvetica-Bold')
+               .text('Date: ', leftMargin, currentY, { continued: true })
+               .font('Helvetica')
+               .text(formattedDate);
+            currentY += lineHeight;
+
+            doc.font('Helvetica-Bold')
+               .text('Name: ', leftMargin, currentY, { continued: true })
+               .font('Helvetica')
+               .text(`${orderData.first_name} ${orderData.last_name}`);
+            currentY += lineHeight;
+
+            if (orderData.company) {
                 doc.font('Helvetica-Bold')
-                   .text(label, leftMargin, currentY, { continued: true });
-                doc.font('Helvetica')
-                   .text(value || '', { lineGap: 5 });
+                   .text('Company: ', leftMargin, currentY, { continued: true })
+                   .font('Helvetica')
+                   .text(orderData.company);
                 currentY += lineHeight;
             }
 
-            // Add customer details with fixed spacing
-            addTextLine('Date: ', formattedDate);
-            addTextLine('Name: ', `${orderData.first_name} ${orderData.last_name}`);
-            addTextLine('Company: ', orderData.company || ' ');  // Space to maintain line
-            addTextLine('Email: ', orderData.email);
+            doc.font('Helvetica-Bold')
+               .text('Email: ', leftMargin, currentY, { continued: true })
+               .font('Helvetica')
+               .text(orderData.email);
+            currentY += lineHeight;
 
-            // Add order details
-            doc.moveDown();
-            addTextLine('Order ID: ', String(orderData.id));
-            addTextLine('Quantity with guest details: ', String(orderData.quantity_with_guests));
-            addTextLine('Quantity without guest details: ', String(orderData.quantity_without_guests));
-            addTextLine('Total quantity: ', String(orderData.total_quantity));
-            addTextLine('Size: ', orderData.size);
-            addTextLine('Printed sides: ', orderData.printed_sides === 'double' ? 'Double sided' : 'Single sided');
-            addTextLine('Ink coverage: ', orderData.ink_coverage === 'over40' ? 'Over 40%' : 'Up to 40%');
-            addTextLine('Lanyards: ', orderData.lanyards ? 'Yes' : 'No');
-            addTextLine('Shipping: ', orderData.shipping === 'express' ? 'Express' : 'Standard');
-            addTextLine('Paper type: ', orderData.paper_type === 'mixedHerb' ? 'Mixed herb' : 
-                                      orderData.paper_type === 'mixedFlower' ? 'Mixed flower' : 'Random mix');
+            doc.font('Helvetica-Bold')
+               .text('Order ID: ', leftMargin, currentY, { continued: true })
+               .font('Helvetica')
+               .text(String(orderData.id));
+            currentY += lineHeight * 1.5;
+
+            // Order details in table format
+            const tableLeft = leftMargin;
+            const colWidth = 250;
+            const tableWidth = doc.page.width - (leftMargin * 2);
+
+            function drawTableRow(label, value) {
+                doc.rect(tableLeft, currentY, tableWidth, lineHeight).stroke();
+                doc.font('Helvetica')
+                   .text(label, tableLeft + 5, currentY + 4, { width: colWidth })
+                   .text(value, tableLeft + colWidth + 5, currentY + 4, { width: colWidth });
+                currentY += lineHeight;
+            }
+
+            // Order details table
+            drawTableRow('Quantity with guest details printed', String(orderData.quantity_with_guests));
+            drawTableRow('Quantity without guest details printed', String(orderData.quantity_without_guests));
+            drawTableRow('Total number of name badges', String(orderData.total_quantity));
+            drawTableRow('Size', orderData.size);
+            drawTableRow('Printed sides', orderData.printed_sides === 'double' ? 'Double sided' : 'Single sided');
+            drawTableRow('Ink coverage', orderData.ink_coverage === 'over40' ? 'Over 40%' : 'Up to 40%');
+            drawTableRow('Lanyards included', orderData.lanyards ? 'Yes' : 'No');
+            drawTableRow('Shipping', orderData.shipping === 'express' ? 'Express' : 'Standard');
+            drawTableRow('Paper type', orderData.paper_type === 'mixedHerb' ? 'Mixed herb' : 
+                                   orderData.paper_type === 'mixedFlower' ? 'Mixed flower' : 'Random mix');
+            drawTableRow('Receipt ID', String(orderData.id));
 
             // Format currency values with thousands separator
             const formattedTotalCost = new Intl.NumberFormat('en-AU', { 
@@ -273,13 +303,15 @@ async function generateOrderPDF(orderData) {
                 maximumFractionDigits: 2 
             }).format(orderData.gst_amount);
 
-            // Add total cost and GST with proper formatting
-            addTextLine('Total cost (inc. GST): ', `$${formattedTotalCost}`);
-            addTextLine('GST amount: ', `$${formattedGstAmount}`);
-            addTextLine('CO2 savings: ', `${orderData.co2_savings.toFixed(2)}kg`);
+            // Add total cost and GST outside the table
+            currentY += lineHeight;
+            doc.font('Helvetica')
+               .text(`Total Cost: $${formattedTotalCost}`, leftMargin, currentY);
+            currentY += lineHeight;
+            doc.text(`Includes $${formattedGstAmount} GST`, leftMargin, currentY);
 
             // Footer
-            currentY += 40;
+            currentY += lineHeight * 2;
             doc.fontSize(10)
                .text(
                    'www.terratag.com.au | hello@terratag.com.au | ABN: 504 094 57139',
