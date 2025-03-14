@@ -291,13 +291,13 @@ function initializeCalculator(baseUrl) {
             variables: {
                 colorPrimary: '#1b4c57',
                 colorBackground: '#ffffff',
-                colorText: '#30313d',
+                colorText: '#1b4c57',
                 colorDanger: '#df1b41',
                 fontFamily: '"Ideal Sans", system-ui, sans-serif',
                 spacingUnit: '4px',
                 spacingGridRow: '16px',
                 fontSizeBase: '16px',
-                fontSizeSm: '0.9em',
+                fontSizeSm: '16px',
                 spacingTab: '3px'
             },
             rules: {
@@ -313,6 +313,7 @@ function initializeCalculator(baseUrl) {
                     borderRadius: '6px',
                     border: '1px solid #e2e8f0',
                     fontSize: '16px',
+                    colorText: '#1b4c57',
                     fontFamily: '"Ideal Sans", system-ui, sans-serif'
                 }
             }

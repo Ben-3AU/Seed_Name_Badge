@@ -622,6 +622,7 @@ app.post('/webhook', async (req, res) => {
                     console.log('Sending confirmation email...');
                     await sendOrderConfirmationEmail(order);
                     
+                    console.log('Updating email sent status and PDF URL in Supabase...');
                     // Update email sent status
                     const { error: emailUpdateError } = await supabase
                         .from('seed_name_badge_orders')
@@ -633,11 +634,17 @@ app.post('/webhook', async (req, res) => {
                     
                     if (emailUpdateError) {
                         console.error('Failed to update email status:', emailUpdateError);
+                        // Log error but don't throw, allow process to continue
                     }
                     
-                    console.log('Confirmation email sent and status updated');
+                    console.log('Email confirmation process completed');
                 } catch (emailError) {
-                    console.error('Error sending confirmation email:', emailError);
+                    console.error('Error in email process:', {
+                        message: emailError.message,
+                        stack: emailError.stack,
+                        orderId: orderId
+                    });
+                    // Log error but don't throw, allow webhook to complete
                 }
             } catch (error) {
                 console.error('Error processing payment success:', error);

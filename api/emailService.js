@@ -318,6 +318,15 @@ async function sendOrderConfirmationEmail(orderData) {
         const pdfPath = await generateOrderPDF(orderData);
         console.log('PDF generated successfully at:', pdfPath);
 
+        // Parse and format the numbers
+        const totalCost = typeof orderData.total_cost === 'string' ? 
+            parseFloat(orderData.total_cost.replace(/,/g, '')) : 
+            orderData.total_cost;
+            
+        const gstAmount = typeof orderData.gst_amount === 'string' ? 
+            parseFloat(orderData.gst_amount.replace(/,/g, '')) : 
+            orderData.gst_amount;
+
         console.log('Preparing email template data...');
         const templateData = {
             id: String(orderData.id),
@@ -333,12 +342,14 @@ async function sendOrderConfirmationEmail(orderData) {
             lanyards: orderData.lanyards ? 'Yes' : 'No',
             shipping: orderData.shipping,
             paper_type: orderData.paper_type.replace(/([A-Z])/g, ' $1').toLowerCase(),
-            total_cost: isNaN(totalCostNumber) ? 
-                (typeof orderData.total_cost === 'string' ? orderData.total_cost.replace(/,/g, '') : orderData.total_cost) :
-                new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(totalCostNumber),
-            gst_amount: isNaN(gstAmountNumber) ? 
-                (typeof orderData.gst_amount === 'string' ? orderData.gst_amount.replace(/,/g, '') : orderData.gst_amount) :
-                new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(gstAmountNumber),
+            total_cost: new Intl.NumberFormat('en-AU', { 
+                minimumFractionDigits: 2, 
+                maximumFractionDigits: 2 
+            }).format(totalCost),
+            gst_amount: new Intl.NumberFormat('en-AU', { 
+                minimumFractionDigits: 2, 
+                maximumFractionDigits: 2 
+            }).format(gstAmount),
             co2_savings: orderData.co2_savings.toFixed(2),
             created_at: new Date(orderData.created_at).toLocaleString(undefined, {
                 year: 'numeric',
