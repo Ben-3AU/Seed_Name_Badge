@@ -590,13 +590,41 @@
             }
 
             /* Autofill Override Styles */
-            html body .terra-tag-widget input:not([data-stripe="true"]):not([data-stripe-element="true"]):not(.StripeElement *):not(#payment-element *):not(.stripe-input):-webkit-autofill,
-            html body .terra-tag-widget input:not([data-stripe="true"]):not([data-stripe-element="true"]):not(.StripeElement *):not(#payment-element *):not(.stripe-input):-webkit-autofill:hover,
-            html body .terra-tag-widget input:not([data-stripe="true"]):not([data-stripe-element="true"]):not(.StripeElement *):not(#payment-element *):not(.stripe-input):-webkit-autofill:focus,
-            html body .terra-tag-widget input:not([data-stripe="true"]):not([data-stripe-element="true"]):not(.StripeElement *):not(#payment-element *):not(.stripe-input):-webkit-autofill:active,
-            html body .terra-tag-widget input:not([data-stripe="true"]):not([data-stripe-element="true"]):not(.StripeElement *):not(#payment-element *):not(.stripe-input):autofill,
-            html body .terra-tag-widget input:not([data-stripe="true"]):not([data-stripe-element="true"]):not(.StripeElement *):not(#payment-element *):not(.stripe-input):-internal-autofill-selected,
-            html body .terra-tag-widget input:not([data-stripe="true"]):not([data-stripe-element="true"]):not(.StripeElement *):not(#payment-element *):not(.stripe-input):-internal-autofill-previewed {
+            html body .terra-tag-widget input#quoteFirstName:-webkit-autofill,
+            html body .terra-tag-widget input#quoteEmail:-webkit-autofill,
+            html body .terra-tag-widget input#orderFirstName:-webkit-autofill,
+            html body .terra-tag-widget input#orderLastName:-webkit-autofill,
+            html body .terra-tag-widget input#orderCompany:-webkit-autofill,
+            html body .terra-tag-widget input#orderEmail:-webkit-autofill,
+            html body .terra-tag-widget input#quantityWithGuests:-webkit-autofill,
+            html body .terra-tag-widget input#quantityWithoutGuests:-webkit-autofill,
+            html body .terra-tag-widget input#card-name:-webkit-autofill,
+            html body .terra-tag-widget input#quoteFirstName:-webkit-autofill:hover,
+            html body .terra-tag-widget input#quoteEmail:-webkit-autofill:hover,
+            html body .terra-tag-widget input#orderFirstName:-webkit-autofill:hover,
+            html body .terra-tag-widget input#orderLastName:-webkit-autofill:hover,
+            html body .terra-tag-widget input#orderCompany:-webkit-autofill:hover,
+            html body .terra-tag-widget input#orderEmail:-webkit-autofill:hover,
+            html body .terra-tag-widget input#quantityWithGuests:-webkit-autofill:hover,
+            html body .terra-tag-widget input#quantityWithoutGuests:-webkit-autofill:hover,
+            html body .terra-tag-widget input#card-name:-webkit-autofill:hover,
+            html body .terra-tag-widget input#quoteFirstName:-webkit-autofill:focus,
+            html body .terra-tag-widget input#quoteEmail:-webkit-autofill:focus,
+            html body .terra-tag-widget input#orderFirstName:-webkit-autofill:focus,
+            html body .terra-tag-widget input#orderLastName:-webkit-autofill:focus,
+            html body .terra-tag-widget input#orderCompany:-webkit-autofill:focus,
+            html body .terra-tag-widget input#orderEmail:-webkit-autofill:focus,
+            html body .terra-tag-widget input#quantityWithGuests:-webkit-autofill:focus,
+            html body .terra-tag-widget input#quantityWithoutGuests:-webkit-autofill:focus,
+            html body .terra-tag-widget input#card-name:-webkit-autofill:focus,
+            html body .terra-tag-widget input#quoteFirstName:-webkit-autofill:active,
+            html body .terra-tag-widget input#quoteEmail:-webkit-autofill:active,
+            html body .terra-tag-widget input#orderFirstName:-webkit-autofill:active,
+            html body .terra-tag-widget input#orderLastName:-webkit-autofill:active,
+            html body .terra-tag-widget input#orderCompany:-webkit-autofill:active,
+            html body .terra-tag-widget input#orderEmail:-webkit-autofill:active,
+            html body .terra-tag-widget input#quantityWithGuests:-webkit-autofill:active,
+            html body .terra-tag-widget input#quantityWithoutGuests:-webkit-autofill:active {
                 -webkit-box-shadow: 0 0 0 30px white inset !important;
                 box-shadow: 0 0 0 30px white inset !important;
                 -webkit-text-fill-color: #1b4c57 !important;
@@ -610,9 +638,25 @@
                 background-color: white !important;
             }
 
-            /* Additional Firefox specific override */
-            html body .terra-tag-widget input:not([data-stripe="true"]):not([data-stripe-element="true"]):not(.StripeElement *):not(#payment-element *):not(.stripe-input):-moz-autofill,
-            html body .terra-tag-widget input:not([data-stripe="true"]):not([data-stripe-element="true"]):not(.StripeElement *):not(#payment-element *):not(.stripe-input):-moz-autofill-preview {
+            /* Firefox Autofill Override */
+            html body .terra-tag-widget input#quoteFirstName:autofill,
+            html body .terra-tag-widget input#quoteEmail:autofill,
+            html body .terra-tag-widget input#orderFirstName:autofill,
+            html body .terra-tag-widget input#orderLastName:autofill,
+            html body .terra-tag-widget input#orderCompany:autofill,
+            html body .terra-tag-widget input#orderEmail:autofill,
+            html body .terra-tag-widget input#quantityWithGuests:autofill,
+            html body .terra-tag-widget input#quantityWithoutGuests:autofill,
+            html body .terra-tag-widget input#card-name:autofill,
+            html body .terra-tag-widget input#quoteFirstName:-moz-autofill,
+            html body .terra-tag-widget input#quoteEmail:-moz-autofill,
+            html body .terra-tag-widget input#orderFirstName:-moz-autofill,
+            html body .terra-tag-widget input#orderLastName:-moz-autofill,
+            html body .terra-tag-widget input#orderCompany:-moz-autofill,
+            html body .terra-tag-widget input#orderEmail:-moz-autofill,
+            html body .terra-tag-widget input#quantityWithGuests:-moz-autofill,
+            html body .terra-tag-widget input#quantityWithoutGuests:-moz-autofill,
+            html body .terra-tag-widget input#card-name:-moz-autofill {
                 background-color: white !important;
                 color: #1b4c57 !important;
                 font-family: Verdana, sans-serif !important;

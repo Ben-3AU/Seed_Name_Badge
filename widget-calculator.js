@@ -571,8 +571,8 @@ function initializeCalculator(baseUrl) {
             company: document.querySelector('.terra-tag-widget #orderCompany').value.trim(),
             email: document.querySelector('.terra-tag-widget #orderEmail').value.trim(),
             total_quantity: calculateTotalQuantity(),
-            total_cost: totalCost,
-            gst_amount: gstAmount,
+            total_cost: Number(totalCost.toFixed(2)),
+            gst_amount: Number(gstAmount.toFixed(2)),
             co2_savings: calculateCO2Savings(),
             payment_status: 'pending',
             email_sent: false
