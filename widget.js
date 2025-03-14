@@ -589,27 +589,42 @@
                 }
             }
 
-            /* Autofill style overrides - excluding payment form inputs */
-            html body .terra-tag-widget input:not(.card-name-group input):not(#card-name):not(#payment-form input):-webkit-autofill,
-            html body .terra-tag-widget input:not(.card-name-group input):not(#card-name):not(#payment-form input):-webkit-autofill:hover,
-            html body .terra-tag-widget input:not(.card-name-group input):not(#card-name):not(#payment-form input):-webkit-autofill:focus {
+            /* Webkit Autofill Override */
+            html body .terra-tag-widget input:-webkit-autofill,
+            html body .terra-tag-widget input:-webkit-autofill:hover,
+            html body .terra-tag-widget input:-webkit-autofill:focus {
                 -webkit-box-shadow: 0 0 0 30px white inset !important;
-                -webkit-text-fill-color: #1b4c57 !important;
-                color: #1b4c57 !important;
+                -webkit-text-fill-color: inherit !important;
+                color: inherit !important;
+                font-family: inherit !important;
+                font-size: inherit !important;
+                font-weight: inherit !important;
+                padding: inherit !important;
+                text-indent: inherit !important;
                 transition: background-color 5000s ease-in-out 0s !important;
             }
 
-            /* Firefox autofill override - excluding payment form inputs */
-            html body .terra-tag-widget input:not(.card-name-group input):not(#card-name):not(#payment-form input):autofill,
-            html body .terra-tag-widget input:not(.card-name-group input):not(#card-name):not(#payment-form input):-internal-autofill-selected {
+            /* Firefox Autofill Override */
+            html body .terra-tag-widget input:autofill,
+            html body .terra-tag-widget input:-internal-autofill-selected {
                 background: white !important;
-                color: #1b4c57 !important;
-                -webkit-text-fill-color: #1b4c57 !important;
+                color: inherit !important;
+                -webkit-text-fill-color: inherit !important;
+                font-family: inherit !important;
+                font-size: inherit !important;
+                font-weight: inherit !important;
+                padding: inherit !important;
+                text-indent: inherit !important;
             }
 
-            /* Edge autofill override */
+            /* Edge Autofill Override */
             html body .terra-tag-widget input:-ms-input-placeholder {
-                color: #1b4c57 !important;
+                color: inherit !important;
+                font-family: inherit !important;
+                font-size: inherit !important;
+                font-weight: inherit !important;
+                padding: inherit !important;
+                text-indent: inherit !important;
             }
 
             /* Success view styles */
