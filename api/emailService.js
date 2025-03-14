@@ -265,11 +265,10 @@ async function generateOrderPDF(orderData) {
             const colWidth = (doc.page.width - (leftMargin * 2) - 1) / 2; // Subtract 1 for middle line
             const tableWidth = doc.page.width - (leftMargin * 2);
             const cellPadding = 10;
-            const greyColor = 0.5; // 50% grey
 
             function drawTableRow(label, value) {
-                // Draw cell borders and background in grey
-                doc.strokeColor(greyColor).strokeOpacity(1)
+                // Draw cell borders and background in light grey
+                doc.strokeColor('#E5E5E5').strokeOpacity(1)
                    .lineWidth(0.5);
                 
                 // Draw outer rectangle

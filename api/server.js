@@ -275,6 +275,7 @@ app.post('/api/v1/create-payment-intent', async (req, res) => {
             metadata: {
                 order_id: order.id,
                 email: orderData.email,
+                project_id: process.env.PROJECT_ID
             },
             automatic_payment_methods: {
                 enabled: true,
@@ -285,7 +286,8 @@ app.post('/api/v1/create-payment-intent', async (req, res) => {
             id: paymentIntent.id,
             client_secret: 'present',
             livemode: paymentIntent.livemode,
-            account: paymentIntent.account
+            account: paymentIntent.account,
+            project_id: paymentIntent.metadata.project_id
         });
 
         // Update order with payment intent ID
@@ -574,9 +576,16 @@ app.post('/webhook', async (req, res) => {
         );
 
         console.log('Received Stripe webhook event:', event.type);
-        
+
         if (event.type === 'payment_intent.succeeded') {
             const paymentIntent = event.data.object;
+            
+            // Check if this payment is for this project
+            if (paymentIntent.metadata.project_id !== process.env.PROJECT_ID) {
+                console.log(`Payment for different project (${paymentIntent.metadata.project_id}), ignoring...`);
+                return res.status(200).json({ received: true });
+            }
+
             console.log('Payment succeeded:', paymentIntent.id);
             
             try {
@@ -644,9 +653,10 @@ app.post('/webhook', async (req, res) => {
                 console.error('Error processing payment success:', error);
                 return res.status(500).send(`Webhook processing error: ${error.message}`);
             }
+        } else {
+            console.log('Received unknown webhook event:', event.type);
+            res.status(200).json({ received: true });
         }
-        
-        res.json({received: true});
     } catch (err) {
         console.error('Webhook error:', err);
         res.status(400).send(`Webhook Error: ${err.message}`);
