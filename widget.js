@@ -590,13 +590,13 @@
             }
 
             /* Autofill Override Styles */
-            html body .terra-tag-widget input:-webkit-autofill,
-            html body .terra-tag-widget input:-webkit-autofill:hover,
-            html body .terra-tag-widget input:-webkit-autofill:focus,
-            html body .terra-tag-widget input:-webkit-autofill:active,
-            html body .terra-tag-widget input:autofill,
-            html body .terra-tag-widget input:-internal-autofill-selected,
-            html body .terra-tag-widget input:-internal-autofill-previewed {
+            html body .terra-tag-widget input:not([data-stripe="true"]):not([data-stripe-element="true"]):not(.StripeElement *):not(#payment-element *):not(.stripe-input):-webkit-autofill,
+            html body .terra-tag-widget input:not([data-stripe="true"]):not([data-stripe-element="true"]):not(.StripeElement *):not(#payment-element *):not(.stripe-input):-webkit-autofill:hover,
+            html body .terra-tag-widget input:not([data-stripe="true"]):not([data-stripe-element="true"]):not(.StripeElement *):not(#payment-element *):not(.stripe-input):-webkit-autofill:focus,
+            html body .terra-tag-widget input:not([data-stripe="true"]):not([data-stripe-element="true"]):not(.StripeElement *):not(#payment-element *):not(.stripe-input):-webkit-autofill:active,
+            html body .terra-tag-widget input:not([data-stripe="true"]):not([data-stripe-element="true"]):not(.StripeElement *):not(#payment-element *):not(.stripe-input):autofill,
+            html body .terra-tag-widget input:not([data-stripe="true"]):not([data-stripe-element="true"]):not(.StripeElement *):not(#payment-element *):not(.stripe-input):-internal-autofill-selected,
+            html body .terra-tag-widget input:not([data-stripe="true"]):not([data-stripe-element="true"]):not(.StripeElement *):not(#payment-element *):not(.stripe-input):-internal-autofill-previewed {
                 -webkit-box-shadow: 0 0 0 30px white inset !important;
                 box-shadow: 0 0 0 30px white inset !important;
                 -webkit-text-fill-color: #1b4c57 !important;
@@ -611,19 +611,9 @@
             }
 
             /* Additional Firefox specific override */
-            html body .terra-tag-widget input:-moz-autofill,
-            html body .terra-tag-widget input:-moz-autofill-preview {
+            html body .terra-tag-widget input:not([data-stripe="true"]):not([data-stripe-element="true"]):not(.StripeElement *):not(#payment-element *):not(.stripe-input):-moz-autofill,
+            html body .terra-tag-widget input:not([data-stripe="true"]):not([data-stripe-element="true"]):not(.StripeElement *):not(#payment-element *):not(.stripe-input):-moz-autofill-preview {
                 background-color: white !important;
-                color: #1b4c57 !important;
-                font-family: Verdana, sans-serif !important;
-                font-size: 16px !important;
-                font-weight: normal !important;
-                padding: 0 !important;
-                text-indent: 1rem !important;
-            }
-
-            /* Edge Autofill Override */
-            html body .terra-tag-widget input:-ms-input-placeholder {
                 color: #1b4c57 !important;
                 font-family: Verdana, sans-serif !important;
                 font-size: 16px !important;
