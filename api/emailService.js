@@ -258,24 +258,32 @@ async function generateOrderPDF(orderData) {
                .text('Email: ', leftMargin, currentY, { continued: true })
                .font('Helvetica')
                .text(orderData.email);
-            currentY += lineHeight;
-
-            doc.font('Helvetica-Bold')
-               .text('Order ID: ', leftMargin, currentY, { continued: true })
-               .font('Helvetica')
-               .text(String(orderData.id));
             currentY += lineHeight * 1.5;
 
             // Order details in table format
             const tableLeft = leftMargin;
-            const colWidth = 250;
+            const colWidth = (doc.page.width - (leftMargin * 2) - 1) / 2; // Subtract 1 for middle line
             const tableWidth = doc.page.width - (leftMargin * 2);
+            const cellPadding = 10;
+            const greyColor = 0.5; // 50% grey
 
             function drawTableRow(label, value) {
+                // Draw cell borders and background in grey
+                doc.strokeColor(greyColor).strokeOpacity(1)
+                   .lineWidth(0.5);
+                
+                // Draw outer rectangle
                 doc.rect(tableLeft, currentY, tableWidth, lineHeight).stroke();
+                
+                // Draw middle vertical line
+                doc.moveTo(tableLeft + colWidth, currentY)
+                   .lineTo(tableLeft + colWidth, currentY + lineHeight)
+                   .stroke();
+
+                // Add text with padding
                 doc.font('Helvetica')
-                   .text(label, tableLeft + 5, currentY + 4, { width: colWidth })
-                   .text(value, tableLeft + colWidth + 5, currentY + 4, { width: colWidth });
+                   .text(label, tableLeft + cellPadding, currentY + 4, { width: colWidth - (cellPadding * 2) })
+                   .text(value, tableLeft + colWidth + cellPadding, currentY + 4, { width: colWidth - (cellPadding * 2) });
                 currentY += lineHeight;
             }
 
@@ -305,8 +313,10 @@ async function generateOrderPDF(orderData) {
 
             // Add total cost and GST outside the table
             currentY += lineHeight;
-            doc.font('Helvetica')
-               .text(`Total Cost: $${formattedTotalCost}`, leftMargin, currentY);
+            doc.font('Helvetica-Bold')
+               .text('Total cost: ', leftMargin, currentY, { continued: true })
+               .font('Helvetica')
+               .text(`$${formattedTotalCost}`);
             currentY += lineHeight;
             doc.text(`Includes $${formattedGstAmount} GST`, leftMargin, currentY);
 

@@ -605,6 +605,12 @@ app.post('/webhook', async (req, res) => {
                 
                 console.log('Order status updated:', order);
                 
+                // Check if email has already been sent
+                if (order.email_sent) {
+                    console.log('Email already sent for this order, skipping...');
+                    return;
+                }
+                
                 // Generate and send confirmation email
                 try {
                     console.log('Sending confirmation email...');
