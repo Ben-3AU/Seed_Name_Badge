@@ -589,42 +589,47 @@
                 }
             }
 
-            /* Webkit Autofill Override */
+            /* Autofill Override Styles */
             html body .terra-tag-widget input:-webkit-autofill,
             html body .terra-tag-widget input:-webkit-autofill:hover,
-            html body .terra-tag-widget input:-webkit-autofill:focus {
+            html body .terra-tag-widget input:-webkit-autofill:focus,
+            html body .terra-tag-widget input:-webkit-autofill:active,
+            html body .terra-tag-widget input:autofill,
+            html body .terra-tag-widget input:-internal-autofill-selected,
+            html body .terra-tag-widget input:-internal-autofill-previewed {
                 -webkit-box-shadow: 0 0 0 30px white inset !important;
-                -webkit-text-fill-color: inherit !important;
-                color: inherit !important;
-                font-family: inherit !important;
-                font-size: inherit !important;
-                font-weight: inherit !important;
-                padding: inherit !important;
-                text-indent: inherit !important;
+                box-shadow: 0 0 0 30px white inset !important;
+                -webkit-text-fill-color: #1b4c57 !important;
+                color: #1b4c57 !important;
+                font-family: Verdana, sans-serif !important;
+                font-size: 16px !important;
+                font-weight: normal !important;
+                padding: 0 !important;
+                text-indent: 1rem !important;
                 transition: background-color 5000s ease-in-out 0s !important;
+                background-color: white !important;
             }
 
-            /* Firefox Autofill Override */
-            html body .terra-tag-widget input:autofill,
-            html body .terra-tag-widget input:-internal-autofill-selected {
-                background: white !important;
-                color: inherit !important;
-                -webkit-text-fill-color: inherit !important;
-                font-family: inherit !important;
-                font-size: inherit !important;
-                font-weight: inherit !important;
-                padding: inherit !important;
-                text-indent: inherit !important;
+            /* Additional Firefox specific override */
+            html body .terra-tag-widget input:-moz-autofill,
+            html body .terra-tag-widget input:-moz-autofill-preview {
+                background-color: white !important;
+                color: #1b4c57 !important;
+                font-family: Verdana, sans-serif !important;
+                font-size: 16px !important;
+                font-weight: normal !important;
+                padding: 0 !important;
+                text-indent: 1rem !important;
             }
 
             /* Edge Autofill Override */
             html body .terra-tag-widget input:-ms-input-placeholder {
-                color: inherit !important;
-                font-family: inherit !important;
-                font-size: inherit !important;
-                font-weight: inherit !important;
-                padding: inherit !important;
-                text-indent: inherit !important;
+                color: #1b4c57 !important;
+                font-family: Verdana, sans-serif !important;
+                font-size: 16px !important;
+                font-weight: normal !important;
+                padding: 0 !important;
+                text-indent: 1rem !important;
             }
 
             /* Success view styles */
