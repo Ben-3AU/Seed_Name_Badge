@@ -50,21 +50,21 @@
             }
 
             /* Calculator form styles */
-            html body .container.terra-tag-widget .calculator-form {
+            html body .container.terra-tag-widget .calculator-heading + .calculator-form {
                 display: flex !important;
                 flex-direction: column !important;
                 gap: 1.5rem !important;  /* Controls spacing between question groups */
             }
 
             /* Base form group styles */
-            html body .container.terra-tag-widget .calculator-form .form-group {
+            html body .container.terra-tag-widget .calculator-heading + .calculator-form .form-group {
                 display: flex !important;
                 flex-direction: column !important;
                 gap: 0 !important;
                 margin: 0 !important;
             }
 
-            html body .container.terra-tag-widget .calculator-form .form-group > label {
+            html body .container.terra-tag-widget .calculator-heading + .calculator-form .form-group > label {
                 font-family: Verdana, sans-serif !important;
                 font-size: 0.9rem !important;
                 font-weight: 500 !important;
@@ -77,18 +77,18 @@
             }
 
             /* Special handling for paper type form group */
-            html body .container.terra-tag-widget .calculator-form .form-group[data-type="paper-type"] {
+            html body .container.terra-tag-widget .calculator-heading + .calculator-form .form-group[data-type="paper-type"] {
                 gap: 0 !important;
                 margin: 0 !important;
             }
 
             /* Additional form group styles */
-            html body .container.terra-tag-widget .calculator-form .additional-form .form-group {
+            html body .container.terra-tag-widget .calculator-heading + .calculator-form .additional-form .form-group {
                 gap: 0 !important;
                 margin: 0 !important;
             }
 
-            html body .container.terra-tag-widget .calculator-form .additional-form .form-group:last-child {
+            html body .container.terra-tag-widget .calculator-heading + .calculator-form .additional-form .form-group:last-child {
                 margin-bottom: 0 !important;
             }
 
