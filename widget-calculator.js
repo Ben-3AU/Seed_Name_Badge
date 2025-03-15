@@ -688,6 +688,12 @@ function injectStyles() {
             height: auto !important;
             min-height: 0 !important;
             align-self: flex-start !important;
+            position: relative !important;
+            width: auto !important;
+            max-width: 600px !important;
+            margin: 0 !important;
+            transform: translateZ(0) !important;
+            -webkit-transform: translateZ(0) !important;
         }
 
         /* Base Widget Container Styles */
@@ -706,6 +712,11 @@ function injectStyles() {
             box-sizing: content-box !important;
             contain: layout style paint !important;
             isolation: isolate !important;
+            width: 100% !important;
+            max-width: 600px !important;
+            margin: 0 !important;
+            transform: translateZ(0) !important;
+            -webkit-transform: translateZ(0) !important;
         }
 
         /* Squarespace-specific overrides */
@@ -714,6 +725,8 @@ function injectStyles() {
             min-height: 0 !important;
             align-items: flex-start !important;
             display: block !important;
+            position: relative !important;
+            contain: layout style paint !important;
         }
 
         html body .sqs-block {
@@ -721,6 +734,21 @@ function injectStyles() {
             min-height: 0 !important;
             align-items: flex-start !important;
             display: block !important;
+            position: relative !important;
+            contain: layout style paint !important;
+        }
+
+        /* Additional Squarespace overrides */
+        html body .sqs-block-content > div {
+            height: auto !important;
+            min-height: 0 !important;
+            display: inline-block !important;
+            vertical-align: top !important;
+            position: relative !important;
+        }
+
+        html body .sqs-layout {
+            align-items: flex-start !important;
         }
 
         /* Payment Form Styles - Kept separate as they're specific to payment */
