@@ -50,20 +50,20 @@
             }
 
             /* Calculator form styles */
-            html body .terra-tag-widget .calculator-form {
+            html body .container.terra-tag-widget .calculator-form {
                 display: flex !important;
                 flex-direction: column !important;
                 gap: 1.5rem !important;  /* Controls spacing between question groups */
             }
 
             /* Base form group styles */
-            html body .terra-tag-widget .form-group {
+            html body .container.terra-tag-widget .form-group {
                 display: flex !important;
                 flex-direction: column !important;
                 gap: 0 !important;
             }
 
-            html body .terra-tag-widget .form-group > label {
+            html body .container.terra-tag-widget .form-group > label {
                 font-family: Verdana, sans-serif !important;
                 font-size: 0.9rem !important;
                 font-weight: 500 !important;
