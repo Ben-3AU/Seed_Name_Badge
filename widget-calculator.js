@@ -82,8 +82,8 @@ function initializeCalculator(baseUrl) {
         const warningDiv = document.querySelector('.terra-tag-widget #minimumQuantityWarning');
         const totalPriceDiv = document.querySelector('.terra-tag-widget #totalPrice');
         const actionButtons = document.querySelector('.terra-tag-widget #actionButtons');
-        const emailQuoteForm = document.querySelector('.terra-tag-widget #emailQuoteForm');
-        const orderForm = document.querySelector('.terra-tag-widget #orderForm');
+        const emailQuoteForm = document.querySelector('.terra-tag-widget .additional-form#emailQuoteForm');
+        const orderForm = document.querySelector('.terra-tag-widget .additional-form#orderForm');
 
         if (totalQuantity < 75) {
             warningDiv.style.display = 'none';
@@ -138,8 +138,8 @@ function initializeCalculator(baseUrl) {
     // Add email quote button handler
     const emailQuoteBtn = widget.querySelector('#emailQuoteBtn');
     const orderNowBtn = widget.querySelector('#orderNowBtn');
-    const emailQuoteForm = widget.querySelector('#emailQuoteForm');
-    const orderForm = widget.querySelector('#orderForm');
+    const emailQuoteForm = widget.querySelector('.additional-form#emailQuoteForm');
+    const orderForm = widget.querySelector('.additional-form#orderForm');
 
     emailQuoteBtn.addEventListener('click', () => {
         emailQuoteForm.style.display = 'block';
@@ -163,26 +163,26 @@ function initializeCalculator(baseUrl) {
 
     // Function to validate email quote form
     function validateEmailQuoteForm() {
-        const firstName = widget.querySelector('#quoteFirstName').value.trim();
-        const email = widget.querySelector('#quoteEmail').value.trim();
+        const firstName = widget.querySelector('.additional-form#emailQuoteForm #quoteFirstName').value.trim();
+        const email = widget.querySelector('.additional-form#emailQuoteForm #quoteEmail').value.trim();
         widget.querySelector('#submitQuoteBtn').disabled = !(firstName && isValidEmail(email));
     }
 
     // Function to validate order form
     function validateOrderForm() {
-        const firstName = widget.querySelector('#orderFirstName').value.trim();
-        const lastName = widget.querySelector('#orderLastName').value.trim();
-        const email = widget.querySelector('#orderEmail').value.trim();
+        const firstName = widget.querySelector('.additional-form#orderForm #orderFirstName').value.trim();
+        const lastName = widget.querySelector('.additional-form#orderForm #orderLastName').value.trim();
+        const email = widget.querySelector('.additional-form#orderForm #orderEmail').value.trim();
         const paperType = getSelectedValue('paperType');
         widget.querySelector('#payNowBtn').disabled = !(firstName && lastName && isValidEmail(email) && paperType);
     }
 
     // Add form validation listeners
-    widget.querySelector('#emailQuoteForm').querySelectorAll('input').forEach(input => {
+    widget.querySelector('.additional-form#emailQuoteForm').querySelectorAll('input').forEach(input => {
         input.addEventListener('input', validateEmailQuoteForm);
     });
 
-    widget.querySelector('#orderForm').querySelectorAll('input').forEach(input => {
+    widget.querySelector('.additional-form#orderForm').querySelectorAll('input').forEach(input => {
         input.addEventListener('input', validateOrderForm);
     });
 
