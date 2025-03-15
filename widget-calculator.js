@@ -18,6 +18,17 @@ function initializeCalculator(baseUrl) {
     // Initialize Stripe with the key (using the already loaded Stripe.js)
     const stripe = Stripe('pk_test_51QrDDBDCFS4sGBlEhdnhx2eN3J3SO2VWoyhZd5IkFphglGQG97FxaBMxdXNqH4eiDKzCUoQNqgUyZnQN7PWphZNm00I3pBTYW4');
 
+    // Get form elements early
+    const widgetContainer = document.querySelector('.terra-tag-widget');
+    const emailQuoteForm = widgetContainer.querySelector('.additional-form#emailQuoteForm');
+    const orderForm = widgetContainer.querySelector('.additional-form#orderForm');
+    const actionButtons = widgetContainer.querySelector('#actionButtons');
+
+    // Ensure forms are hidden initially
+    if (emailQuoteForm) emailQuoteForm.classList.add('hidden');
+    if (orderForm) orderForm.classList.add('hidden');
+    if (actionButtons) actionButtons.style.display = 'none';
+
     // Core calculation functions
     function calculateTotalQuantity() {
         const withGuests = parseInt(document.querySelector('.terra-tag-widget #quantityWithGuests').value) || 0;
@@ -92,18 +103,18 @@ function initializeCalculator(baseUrl) {
             warningDiv.style.display = 'none';
             totalPriceDiv.classList.remove('show');
             actionButtons.style.display = 'none';
-            emailQuoteForm.style.display = 'none';
-            orderForm.style.display = 'none';
+            emailQuoteForm.classList.add('hidden');
+            orderForm.classList.add('hidden');
         } else {
             warningDiv.style.display = 'none';
             const totalPrice = calculateTotalPrice();
-            const gst = calculateGST(totalPrice);
+            const gstAmount = calculateGST(totalPrice);
             const co2Savings = calculateCO2Savings();
 
             totalPriceDiv.innerHTML = `
                 <div class="total-price-container">
                     <div class="total-cost">Total Cost: $${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: true }).format(totalPrice)}</div>
-                    <div class="gst-amount">GST Included: $${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: true }).format(gst)}</div>
+                    <div class="gst-amount">GST Included: $${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: true }).format(gstAmount)}</div>
                     <div class="co2-savings">CO2 emissions saved: ${co2Savings.toFixed(2)} kg</div>
                 </div>
             `;
@@ -141,25 +152,17 @@ function initializeCalculator(baseUrl) {
     // Add email quote button handler
     const emailQuoteBtn = widget.querySelector('#emailQuoteBtn');
     const orderNowBtn = widget.querySelector('#orderNowBtn');
-    const emailQuoteForm = widget.querySelector('.additional-form#emailQuoteForm');
-    const orderForm = widget.querySelector('.additional-form#orderForm');
-    const actionButtons = widget.querySelector('#actionButtons');
-
-    // Initialize form display state
-    if (emailQuoteForm) emailQuoteForm.style.display = 'none';
-    if (orderForm) orderForm.style.display = 'none';
-    if (actionButtons) actionButtons.style.display = 'none';
 
     emailQuoteBtn.addEventListener('click', () => {
-        emailQuoteForm.style.display = 'block';
-        orderForm.style.display = 'none';
+        emailQuoteForm.classList.remove('hidden');
+        orderForm.classList.add('hidden');
         emailQuoteBtn.classList.add('selected');
         orderNowBtn.classList.remove('selected');
     });
 
     orderNowBtn.addEventListener('click', () => {
-        orderForm.style.display = 'block';
-        emailQuoteForm.style.display = 'none';
+        orderForm.classList.remove('hidden');
+        emailQuoteForm.classList.add('hidden');
         orderNowBtn.classList.add('selected');
         emailQuoteBtn.classList.remove('selected');
     });

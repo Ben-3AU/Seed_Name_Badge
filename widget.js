@@ -85,6 +85,10 @@
                 gap: 1.5rem !important;  /* Controls spacing between form groups */
             }
 
+            .terra-tag-widget .additional-form.hidden {
+                display: none !important;
+            }
+
             .terra-tag-widget .additional-form .form-group {
                 display: flex !important;
                 flex-direction: column !important;
