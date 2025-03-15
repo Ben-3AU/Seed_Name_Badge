@@ -42,7 +42,7 @@
                 color: #1b4c57;
                 text-align: center;
                 margin-top: 0;
-                margin-bottom: 1rem;
+                margin-bottom: 2rem;
             }
 
             /* Calculator form styles */
@@ -56,13 +56,13 @@
             .terra-tag-widget .calculator-heading + .calculator-form .form-group {
                 display: flex !important;
                 flex-direction: column !important;
-                gap: 0 !important;
+                gap: 0.2rem !important;  /* Add gap between label and input/buttons */
                 margin: 0 !important;
             }
 
             .terra-tag-widget .calculator-heading + .calculator-form .form-group > label {
                 font-family: Verdana, sans-serif !important;
-                font-size: 0.9rem !important;
+                font-size: 16px !important;
                 font-weight: 500 !important;
                 color: #1b4c57 !important;
                 margin: 0 !important;
@@ -74,13 +74,13 @@
 
             /* Special handling for paper type form group */
             .terra-tag-widget .form-group[data-type="paper-type"] {
-                gap: 0 !important;
+                gap: 0.2rem !important;  /* Consistent gap for paper type group */
                 margin: 0 !important;
             }
 
             /* Additional form group styles */
             .terra-tag-widget .additional-form .form-group {
-                gap: 0 !important;
+                gap: 0.2rem !important;  /* Consistent gap for additional forms */
                 margin: 0 !important;
             }
 
@@ -146,7 +146,7 @@
                 flex: 1;
                 padding: 0.75rem 1rem;
                 font-family: Verdana, sans-serif;
-                font-size: 0.9375rem;
+                font-size: 16px;
                 font-weight: normal;
                 color: #1b4c57;
                 background-color: #edf2f7;
@@ -247,7 +247,7 @@
                 flex: 1;
                 padding: 1rem;
                 font-family: Verdana, sans-serif !important;
-                font-size: 1rem;
+                font-size: 16px;
                 font-weight: 600;
                 color: #1b4c57;
                 background-color: #edf2f7;
@@ -280,7 +280,7 @@
             .terra-tag-widget .submit-button {
                 width: 100%;
                 padding: 1rem;
-                font-size: 1rem;
+                font-size: 16px;
                 font-weight: 600;
                 color: white;
                 background-color: #1b4c57;
