@@ -76,6 +76,9 @@ function initializeCalculator(baseUrl) {
         return calculateTotalQuantity() * 0.11;
     }
 
+    // Initialize display state
+    updateDisplay();
+
     // Display function
     function updateDisplay() {
         const totalQuantity = calculateTotalQuantity();
@@ -140,6 +143,12 @@ function initializeCalculator(baseUrl) {
     const orderNowBtn = widget.querySelector('#orderNowBtn');
     const emailQuoteForm = widget.querySelector('.additional-form#emailQuoteForm');
     const orderForm = widget.querySelector('.additional-form#orderForm');
+    const actionButtons = widget.querySelector('#actionButtons');
+
+    // Initialize form display state
+    if (emailQuoteForm) emailQuoteForm.style.display = 'none';
+    if (orderForm) orderForm.style.display = 'none';
+    if (actionButtons) actionButtons.style.display = 'none';
 
     emailQuoteBtn.addEventListener('click', () => {
         emailQuoteForm.style.display = 'block';
