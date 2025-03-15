@@ -6,32 +6,28 @@
     // Create and inject widget styles
     function injectStyles() {
         const styles = `
-            /* Base font size */
-            html, body {
-                font-size: 16px;
-            }
-
-            /* iOS-specific overrides to prevent zoom */
-            @supports (-webkit-touch-callout: none) {
-                input[type="text"],
-                input[type="email"],
-                input[type="number"],
-                input[type="tel"],
-                input[type="url"],
-                input[type="password"],
-                textarea,
-                select {
-                    font-size: 16px !important;
-                }
-            }
-
+            /* Widget-specific styles */
             .terra-tag-widget {
                 font-family: Verdana, sans-serif !important;
                 max-width: 600px;
                 margin: 0 auto;
                 background-color: #ffffff;
-                padding: 0;  /* Remove all padding */
-                font-size: 16px; /* Base font size */
+                padding: 0;
+                font-size: 16px;
+            }
+
+            /* iOS-specific overrides to prevent zoom */
+            @supports (-webkit-touch-callout: none) {
+                .terra-tag-widget input[type="text"],
+                .terra-tag-widget input[type="email"],
+                .terra-tag-widget input[type="number"],
+                .terra-tag-widget input[type="tel"],
+                .terra-tag-widget input[type="url"],
+                .terra-tag-widget input[type="password"],
+                .terra-tag-widget textarea,
+                .terra-tag-widget select {
+                    font-size: 16px !important;
+                }
             }
 
             .terra-tag-widget * {
@@ -45,26 +41,26 @@
                 font-weight: normal;
                 color: #1b4c57;
                 text-align: center;
-                margin-top: 0;  /* Remove top margin */
+                margin-top: 0;
                 margin-bottom: 1rem;
             }
 
             /* Calculator form styles */
-            html body .container.terra-tag-widget .calculator-heading + .calculator-form {
+            .terra-tag-widget .calculator-heading + .calculator-form {
                 display: flex !important;
                 flex-direction: column !important;
                 gap: 1.5rem !important;  /* Controls spacing between question groups */
             }
 
             /* Base form group styles */
-            html body .container.terra-tag-widget .calculator-heading + .calculator-form .form-group {
+            .terra-tag-widget .calculator-heading + .calculator-form .form-group {
                 display: flex !important;
                 flex-direction: column !important;
                 gap: 0 !important;
                 margin: 0 !important;
             }
 
-            html body .container.terra-tag-widget .calculator-heading + .calculator-form .form-group > label {
+            .terra-tag-widget .calculator-heading + .calculator-form .form-group > label {
                 font-family: Verdana, sans-serif !important;
                 font-size: 0.9rem !important;
                 font-weight: 500 !important;
@@ -72,23 +68,23 @@
                 margin: 0 !important;
                 padding: 0 !important;
                 display: block !important;
-                line-height: 1 !important; /* Prevent line height from adding extra space */
-                height: auto !important; /* Ensure height is determined by content */
+                line-height: 1 !important;
+                height: auto !important;
             }
 
             /* Special handling for paper type form group */
-            html body .container.terra-tag-widget .calculator-heading + .calculator-form .form-group[data-type="paper-type"] {
+            .terra-tag-widget .form-group[data-type="paper-type"] {
                 gap: 0 !important;
                 margin: 0 !important;
             }
 
             /* Additional form group styles */
-            html body .container.terra-tag-widget .calculator-heading + .calculator-form .additional-form .form-group {
+            .terra-tag-widget .additional-form .form-group {
                 gap: 0 !important;
                 margin: 0 !important;
             }
 
-            html body .container.terra-tag-widget .calculator-heading + .calculator-form .additional-form .form-group:last-child {
+            .terra-tag-widget .additional-form .form-group:last-child {
                 margin-bottom: 0 !important;
             }
 
@@ -965,6 +961,13 @@
     // Main initialization
     async function initialize() {
         try {
+            // Check if we're on the main application page
+            const mainAppForm = document.querySelector('form.calculator-form:not(.terra-tag-widget *)');
+            if (mainAppForm) {
+                console.log('Widget detected on main application page - not initializing');
+                return;
+            }
+
             injectStyles();
             createWidgetStructure();
             await initWidget();
