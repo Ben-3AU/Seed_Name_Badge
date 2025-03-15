@@ -7,6 +7,13 @@ function initializeCalculator(baseUrl) {
     // Store the base URL
     BASE_URL = baseUrl;  // Assign to the top-level variable
 
+    // Get the widget container and wrap it in the isolation container
+    const widgetContainer = document.querySelector('.terra-tag-widget');
+    const isolatedWrapper = document.createElement('div');
+    isolatedWrapper.className = 'isolated-widget';
+    widgetContainer.parentNode.insertBefore(isolatedWrapper, widgetContainer);
+    isolatedWrapper.appendChild(widgetContainer);
+
     // Initialize Supabase
     const supabaseUrl = 'https://pxxqvjxmzmsqunrhegcq.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4eHF2anhtem1zcXVucmhlZ2NxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg0NDk0NTcsImV4cCI6MjA1NDAyNTQ1N30.5CUbSb2OR9H4IrGHx_vxmIPZCWN8x7TYoG5RUeYAehM';
@@ -19,7 +26,6 @@ function initializeCalculator(baseUrl) {
     const stripe = Stripe('pk_test_51QrDDBDCFS4sGBlEhdnhx2eN3J3SO2VWoyhZd5IkFphglGQG97FxaBMxdXNqH4eiDKzCUoQNqgUyZnQN7PWphZNm00I3pBTYW4');
 
     // Get form elements early
-    const widgetContainer = document.querySelector('.terra-tag-widget');
     const emailQuoteForm = widgetContainer.querySelector('.additional-form#emailQuoteForm');
     const orderForm = widgetContainer.querySelector('.additional-form#orderForm');
     const actionButtons = widgetContainer.querySelector('#actionButtons');
@@ -672,12 +678,24 @@ function createWidgetStructure() {
 
 function injectStyles() {
     const styles = `
+        /* Isolated Widget Wrapper */
+        .isolated-widget {
+            display: inline-block !important;
+            vertical-align: top !important;
+            flex: none !important;
+            contain: layout style paint !important;
+            isolation: isolate !important;
+            height: auto !important;
+            min-height: 0 !important;
+            align-self: flex-start !important;
+        }
+
         /* Base Widget Container Styles */
         html body .terra-tag-widget {
             height: auto !important;
             min-height: 0 !important;
             max-height: none !important;
-            display: block !important;
+            display: inline-block !important;
             position: relative !important;
             z-index: 1 !important;
             float: none !important;
@@ -686,6 +704,8 @@ function injectStyles() {
             grid-row: auto !important;
             overflow: visible !important;
             box-sizing: content-box !important;
+            contain: layout style paint !important;
+            isolation: isolate !important;
         }
 
         /* Squarespace-specific overrides */
