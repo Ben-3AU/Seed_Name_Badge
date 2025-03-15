@@ -42,7 +42,7 @@
                 color: #1b4c57;
                 text-align: center;
                 margin-top: 0;
-                margin-bottom: 2rem;
+                margin-bottom: 2.5rem;
             }
 
             /* Calculator form styles */
@@ -56,7 +56,7 @@
             .terra-tag-widget .calculator-heading + .calculator-form .form-group {
                 display: flex !important;
                 flex-direction: column !important;
-                gap: 0.2rem !important;  /* Add gap between label and input/buttons */
+                gap: 0.3rem !important;  /* Add gap between label and input/buttons */
                 margin: 0 !important;
             }
 
@@ -74,13 +74,21 @@
 
             /* Special handling for paper type form group */
             .terra-tag-widget .form-group[data-type="paper-type"] {
-                gap: 0.2rem !important;  /* Consistent gap for paper type group */
+                gap: 0.3rem !important;  /* Consistent gap for paper type group */
                 margin: 0 !important;
             }
 
             /* Additional form group styles */
+            .terra-tag-widget .additional-form {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 1.5rem !important;  /* Controls spacing between form groups */
+            }
+
             .terra-tag-widget .additional-form .form-group {
-                gap: 0.2rem !important;  /* Consistent gap for additional forms */
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 0.3rem !important;  /* Consistent gap between label and input/buttons */
                 margin: 0 !important;
             }
 
