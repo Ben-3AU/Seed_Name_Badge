@@ -674,11 +674,16 @@ function injectStyles() {
     const styles = `
         /* Base Widget Container Styles */
         html body .terra-tag-widget {
-            height: fit-content;
-            align-self: flex-start;
-            display: block;
-            position: relative;
-            z-index: 1;
+            height: auto !important;
+            min-height: 0 !important;
+            display: inline-block !important;
+            vertical-align: top !important;
+            position: relative !important;
+            z-index: 1 !important;
+            float: none !important;
+            flex: none !important;
+            align-self: start !important;
+            grid-row: auto !important;
         }
 
         /* Payment Form Styles - Kept separate as they're specific to payment */
