@@ -61,6 +61,7 @@
                 display: flex !important;
                 flex-direction: column !important;
                 gap: 0 !important;
+                margin: 0 !important;
             }
 
             html body .container.terra-tag-widget .form-group > label {
@@ -72,6 +73,7 @@
                 padding: 0 !important;
                 display: block !important;
                 line-height: 1 !important; /* Prevent line height from adding extra space */
+                height: auto !important; /* Ensure height is determined by content */
             }
 
             /* Special handling for paper type form group */
@@ -197,7 +199,7 @@
                 padding: 1rem;
                 display: block !important;
                 visibility: visible !important;
-                margin: 0.5rem 0 !important; /* Add margin above and below */
+                margin: 1rem 0 !important; /* Increased margin above and below */
             }
 
             .terra-tag-widget .total-price-container .total-cost {
