@@ -99,20 +99,17 @@ function initializeCalculator(baseUrl) {
     // Display function
     function updateDisplay() {
         const totalQuantity = calculateTotalQuantity();
-        const warningDiv = document.querySelector('.terra-tag-widget #minimumQuantityWarning');
         const totalPriceDiv = document.querySelector('.terra-tag-widget #totalPrice');
         const actionButtons = document.querySelector('.terra-tag-widget #actionButtons');
         const emailQuoteForm = document.querySelector('.terra-tag-widget .additional-form#emailQuoteForm');
         const orderForm = document.querySelector('.terra-tag-widget .additional-form#orderForm');
 
         if (totalQuantity < 80) {
-            warningDiv.style.display = 'none';
             totalPriceDiv.classList.remove('show');
             actionButtons.style.display = 'none';
             emailQuoteForm.classList.add('hidden');
             orderForm.classList.add('hidden');
         } else {
-            warningDiv.style.display = 'none';
             const totalPrice = calculateTotalPrice();
             const gstAmount = calculateGST(totalPrice);
             const co2Savings = calculateCO2Savings();

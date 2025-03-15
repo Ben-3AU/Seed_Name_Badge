@@ -760,10 +760,6 @@
                     <input type="number" id="quantityWithoutGuests" name="quantityWithoutGuests" min="0" placeholder="0">
                 </div>
 
-                <div id="minimumQuantityWarning" class="warning-message">
-                    Enter a minimum of 80 above
-                </div>
-
                 <div class="form-group">
                     <label>Size</label>
                     <div class="button-group">

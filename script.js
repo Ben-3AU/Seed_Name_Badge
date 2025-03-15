@@ -81,7 +81,6 @@ const ui = {
     updateDisplay() {
         const values = this.getFormValues();
         const totalQuantity = calculations.getTotalQuantity(values.withGuests, values.withoutGuests);
-        const warningDiv = document.getElementById('minimumQuantityWarning');
         const totalPriceDiv = document.getElementById('totalPrice');
         const actionButtons = document.getElementById('actionButtons');
         const emailQuoteForm = document.getElementById('emailQuoteForm');
@@ -97,7 +96,6 @@ const ui = {
         }
 
         if (totalQuantity < 75) {
-            warningDiv.style.display = 'none';
             totalPriceDiv.style.display = 'none';
             actionButtons.style.display = 'none';
             emailQuoteForm.style.display = 'none';
@@ -106,7 +104,6 @@ const ui = {
                 paperTypeSection.style.display = 'none';
             }
         } else {
-            warningDiv.style.display = 'none';
             totalPriceDiv.style.display = 'block';
             const totalPrice = calculations.getTotalPrice(values);
             const gst = calculations.getGST(totalPrice);
