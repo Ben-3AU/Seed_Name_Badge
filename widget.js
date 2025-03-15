@@ -748,7 +748,7 @@
         const calculatorView = document.createElement('div');
         calculatorView.className = 'widget-view calculator-view active';
         calculatorView.innerHTML = `
-            <h1 class="calculator-heading">Minimum order of 75</h1>
+            <h1 class="calculator-heading">Minimum order of 80</h1>
             <form id="calculatorForm" class="calculator-form">
                 <div class="form-group">
                     <label for="quantityWithGuests">Enter quantity with guest details printed</label>
@@ -761,7 +761,7 @@
                 </div>
 
                 <div id="minimumQuantityWarning" class="warning-message">
-                    Enter a minimum of 75 above
+                    Enter a minimum of 80 above
                 </div>
 
                 <div class="form-group">

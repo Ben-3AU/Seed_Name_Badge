@@ -170,7 +170,7 @@ async function generateOrderPDF(orderData) {
             
             // Create temp directory path using OS temp directory
             const tempDir = require('os').tmpdir();
-            const pdfPath = path.join(tempDir, `terra-tag-order-${orderData.id}.pdf`);
+            const pdfPath = path.join(tempDir, `terra-tag-ordertax-receipt-${orderData.id}.pdf`);
             
             console.log('Using OS temp directory:', tempDir);
             console.log('PDF path:', pdfPath);
@@ -416,7 +416,7 @@ async function sendOrderConfirmationEmail(orderData) {
             recipients: [orderData.email],
             bcc: ['hello@terratag.com.au'],
             attachments: [{
-                filename: 'order-confirmation.pdf',
+                filename: 'Terra Tag Order Tax Receipt.pdf',
                 fileblob: base64Content,
                 mimetype: 'application/pdf'
             }]

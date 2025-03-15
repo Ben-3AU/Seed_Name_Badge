@@ -99,7 +99,7 @@ function initializeCalculator(baseUrl) {
         const emailQuoteForm = document.querySelector('.terra-tag-widget .additional-form#emailQuoteForm');
         const orderForm = document.querySelector('.terra-tag-widget .additional-form#orderForm');
 
-        if (totalQuantity < 75) {
+        if (totalQuantity < 80) {
             warningDiv.style.display = 'none';
             totalPriceDiv.classList.remove('show');
             actionButtons.style.display = 'none';
