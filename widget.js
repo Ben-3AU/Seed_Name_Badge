@@ -71,6 +71,7 @@
                 margin: 0 0 0.2rem 0 !important;  /* Controls spacing between label and input */
                 padding: 0 !important;
                 display: block !important;
+                line-height: 1 !important; /* Prevent line height from adding extra space */
             }
 
             /* Special handling for paper type form group */
@@ -196,6 +197,7 @@
                 padding: 1rem;
                 display: block !important;
                 visibility: visible !important;
+                margin: 0.5rem 0 !important; /* Add margin above and below */
             }
 
             .terra-tag-widget .total-price-container .total-cost {
