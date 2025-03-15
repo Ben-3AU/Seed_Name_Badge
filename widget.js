@@ -69,7 +69,7 @@
                 font-size: 0.9rem !important;
                 font-weight: 500 !important;
                 color: #1b4c57 !important;
-                margin: 0 0 0.2rem 0 !important;  /* Controls spacing between label and input */
+                margin: 0 !important;
                 padding: 0 !important;
                 display: block !important;
                 line-height: 1 !important; /* Prevent line height from adding extra space */
