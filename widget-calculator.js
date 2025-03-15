@@ -676,14 +676,31 @@ function injectStyles() {
         html body .terra-tag-widget {
             height: auto !important;
             min-height: 0 !important;
-            display: inline-block !important;
-            vertical-align: top !important;
+            max-height: none !important;
+            display: block !important;
             position: relative !important;
             z-index: 1 !important;
             float: none !important;
-            flex: none !important;
-            align-self: start !important;
+            flex: 0 0 auto !important;
+            align-self: flex-start !important;
             grid-row: auto !important;
+            overflow: visible !important;
+            box-sizing: content-box !important;
+        }
+
+        /* Squarespace-specific overrides */
+        html body .sqs-block-content {
+            height: auto !important;
+            min-height: 0 !important;
+            align-items: flex-start !important;
+            display: block !important;
+        }
+
+        html body .sqs-block {
+            height: auto !important;
+            min-height: 0 !important;
+            align-items: flex-start !important;
+            display: block !important;
         }
 
         /* Payment Form Styles - Kept separate as they're specific to payment */
