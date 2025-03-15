@@ -7,6 +7,7 @@
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="styles.css">
     <style>
+        /* Paper type specific styles */
         [data-name="paperType"].option-button {
             flex: 1;
             border-radius: 0;
@@ -26,7 +27,8 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Add terra-tag-widget class to use widget styles -->
+    <div class="container terra-tag-widget">
         <h1 class="calculator-heading">Minimum order of 75</h1>
         <form id="calculatorForm" class="calculator-form">
             <div class="form-group">
@@ -157,13 +159,16 @@
     
     <!-- Add a debug script -->
     <script>
-        console.log('Debug: Page loaded, about to load main script');
+        console.log('Debug: Page loaded, about to load scripts');
         window.addEventListener('load', function() {
             console.log('Debug: Window fully loaded');
         });
     </script>
     
-    <!-- Load our script as a module -->
+    <!-- Load widget script for styles -->
+    <script src="widget.js"></script>
+    
+    <!-- Load main script as a module -->
     <script type="module" src="script.js"></script>
 </body>
 </html> 
