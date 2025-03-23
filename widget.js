@@ -257,7 +257,7 @@
 
             .terra-tag-widget .action-button {
                 flex: 1;
-                padding: 1rem;
+                padding: 0.75rem 1rem;
                 font-family: Verdana, sans-serif !important;
                 font-size: 16px;
                 font-weight: 600;
@@ -291,7 +291,7 @@
 
             .terra-tag-widget .submit-button {
                 width: 100%;
-                padding: 1rem;
+                padding: 0.75rem 1rem;
                 font-size: 16px;
                 font-weight: 600;
                 color: white;
@@ -316,7 +316,7 @@
             .terra-tag-widget .quote-success-message {
                 color: #83A764;
                 text-align: center;
-                margin-top: 0;
+                margin-top: -0.5rem;
                 opacity: 0;
                 transition: opacity 0.3s ease;
             }
@@ -561,7 +561,7 @@
                 background: #1b4c57;
                 color: #ffffff;
                 border: none;
-                padding: 12px 16px;
+                padding: 0.75rem 1rem;
                 border-radius: 6px;
                 font-size: 16px;
                 font-weight: 600;
@@ -891,7 +891,8 @@
             <div class="success-container">
                 <div class="success-icon">✓</div>
                 <h2 class="success-message">Payment Successful!</h2>
-                <p class="success-text">Thank you for your order. A tax receipt will be emailed to you shortly. We'll also reach out to you soon to discuss your artwork.</p>
+                <p class="success-text">Thanks for your order - we've emailed your tax receipt.</p>
+                <p class="success-text">We'll contact you shortly to discuss your artwork requirements. Thanks for going green with us.</p>
             </div>
         `;
 
