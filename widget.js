@@ -109,7 +109,7 @@
             .terra-tag-widget input[type="text"],
             .terra-tag-widget input[type="email"],
             .terra-tag-widget input[type="number"] {
-                height: 48px !important;
+                height: 40px !important;
                 padding: 0 !important;
                 text-indent: 1rem !important;
                 line-height: normal !important;
@@ -296,7 +296,7 @@
                 font-weight: 600;
                 color: white;
                 background-color: #1b4c57;
-                border: none;
+                border: 1px solid #1b4c57;
                 border-radius: 6px;
                 cursor: pointer;
                 transition: all 0.2s ease;
@@ -306,10 +306,12 @@
 
             .terra-tag-widget .submit-button:hover:not(:disabled) {
                 background-color: #163f48;
+                border-color: #163f48;
             }
 
             .terra-tag-widget .submit-button:disabled {
                 background-color: #cbd5e0;
+                border-color: #cbd5e0;
                 cursor: not-allowed;
             }
 
