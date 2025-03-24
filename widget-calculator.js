@@ -157,6 +157,12 @@ function initializeCalculator(baseUrl) {
     const orderNowBtn = widget.querySelector('#orderNowBtn');
 
     emailQuoteBtn.addEventListener('click', () => {
+        // Track email quote button click
+        trackWidgetEvent('quote_form_open', {
+            'event_category': 'widget_interaction',
+            'event_label': 'Email Quote Form Opened'
+        });
+
         emailQuoteForm.classList.remove('hidden');
         orderForm.classList.add('hidden');
         emailQuoteBtn.classList.add('selected');
@@ -164,6 +170,12 @@ function initializeCalculator(baseUrl) {
     });
 
     orderNowBtn.addEventListener('click', () => {
+        // Track order now button click
+        trackWidgetEvent('order_form_open', {
+            'event_category': 'widget_interaction',
+            'event_label': 'Order Form Opened'
+        });
+
         orderForm.classList.remove('hidden');
         emailQuoteForm.classList.add('hidden');
         orderNowBtn.classList.add('selected');
@@ -218,8 +230,25 @@ function initializeCalculator(baseUrl) {
         </div>
     `;
 
+    // Add GA tracking function
+    function trackWidgetEvent(eventName, eventParams = {}) {
+        // Check if gtag is available
+        if (typeof window.gtag === 'function') {
+            gtag('event', eventName, {
+                ...eventParams,
+                'send_to': 'G-48WMB90XSP'  // Widget stream measurement ID
+            });
+        }
+    }
+
     // Handle quote submission
     submitQuoteBtn.addEventListener('click', async function(event) {
+        // Track the quote submission attempt
+        trackWidgetEvent('quote_submit', {
+            'event_category': 'widget_interaction',
+            'event_label': 'Quote Requested'
+        });
+
         event.preventDefault();
         
         // Show spinner and change text
@@ -485,6 +514,12 @@ function initializeCalculator(baseUrl) {
     async function handlePaymentSubmission(e) {
         e.preventDefault();
 
+        // Track the pay now button click
+        trackWidgetEvent('payment_submit', {
+            'event_category': 'widget_interaction',
+            'event_label': 'Payment Submitted'
+        });
+
         setLoading(true);
 
         const cardName = widget.querySelector('#card-name').value;
@@ -566,6 +601,12 @@ function initializeCalculator(baseUrl) {
     async function handleOrderSubmission(event) {
         event.preventDefault();
         
+        // Track the checkout button click
+        trackWidgetEvent('checkout_click', {
+            'event_category': 'widget_interaction',
+            'event_label': 'Checkout Button Clicked'
+        });
+
         // Show spinner and change text
         payNowBtn.classList.add('loading');
         payNowBtn.querySelector('span').textContent = 'Processing';
