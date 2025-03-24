@@ -514,10 +514,20 @@ function initializeCalculator(baseUrl) {
     async function handlePaymentSubmission(e) {
         e.preventDefault();
 
-        // Track the pay now button click
+        // Calculate total cost
+        const totalCost = calculateTotalPrice();
+
+        // Track the pay now button click with revenue information
         trackWidgetEvent('payment_submit', {
             'event_category': 'widget_interaction',
-            'event_label': 'Payment Submitted'
+            'event_label': 'Payment Submitted',
+            'value': totalCost,  // Total amount including GST
+            'currency': 'AUD',
+            'items': [{
+                'item_name': 'Terra Tag Order',
+                'price': totalCost,
+                'quantity': 1
+            }]
         });
 
         setLoading(true);
