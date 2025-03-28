@@ -23,7 +23,7 @@ function initializeCalculator(baseUrl) {
     window.widgetSupabase = supabase;
 
     // Initialize Stripe with the key (using the already loaded Stripe.js)
-    const stripe = Stripe('pk_test_51QrDDBDCFS4sGBlEhdnhx2eN3J3SO2VWoyhZd5IkFphglGQG97FxaBMxdXNqH4eiDKzCUoQNqgUyZnQN7PWphZNm00I3pBTYW4');
+    const stripe = Stripe('pk_live_51PU4ZkFyte3lbtucdgGucWHujvqpFePwORDTuyJ3OzdyI387Iyu7IZwiSECKP6gxWkm0P3YUsx4qKKFWYI2ctLlf00tl9X8um6');
 
     // Get form elements early
     const emailQuoteForm = widgetContainer.querySelector('.additional-form#emailQuoteForm');
